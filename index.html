@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIF Sorting Room</title>
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="container body-content" id="mainContainer">
+        <div class="row first">
+            <div class="col-md-4">
+                <a href="\"><h2 style="margin-top:0">Sorting Office</h2></a>
+            </div>
+            <div class="col-md-6">
+                <button id="clearSelection" class="btn btn-primary">Clear selection</button>
+                <button id="makeManifest" class="btn btn-primary">Make manifest</button>
+                <select id="manifestSelector">
+                    @*<option value="">In this roll...</option>*@
+                </select>
+                <button id="viewManifest" class="btn btn-primary">View in UV</button>
+            </div>
+            <div class="col-md-2" id="thumbSizeSelector"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="script/bootstrap.min.js"></script>
+    <script src="script/iiif.js"></script>
+    <script src="script/thumbs.js"></script>
+
+</body>
+</html>

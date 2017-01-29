@@ -1,0 +1,130 @@
+html,body {
+    height:100%;
+}
+
+.row.first {
+    margin-top:20px;
+}
+
+.container {
+    display: flex;
+    flex-flow: column;
+    height:100%;
+}
+
+.tc {
+    display: inline-block;
+    padding:5px;
+    cursor: pointer;
+    font-size:11px;
+    margin: 1px;
+}
+
+.tc img {
+    border:2px solid white;
+}
+
+.thumb-no-access {
+    width:90px;
+    height:90px;
+    border:2px solid lightgray;
+    margin:0;
+    padding:20px;
+    vertical-align: middle;
+    display:inline-block;
+}
+
+.row.first {
+    flex: 0 1 auto;
+}
+
+.row.title {
+    flex: 0 1 auto;
+}
+
+.row.viewer {
+    flex: 1 1 auto;
+    overflow-y: scroll;
+}
+
+footer {
+    flex: 0 1 40px;
+}
+
+.modal-body {
+    max-height: calc(100vh - 200px);
+}
+
+#bigImage {
+    margin: 0 auto;
+    max-height: calc(100vh - 230px);
+}
+
+#thumbSize {
+    margin-top:8px;
+}
+
+
+.auth-ops h5 {
+    margin-top:0px;
+}
+
+
+@media (min-width: 900px) {
+    #mainContainer {
+    width: 100%;
+}}
+
+
+@media only screen and (max-width : 480px) {
+    #thumbSizeSelector, footer {
+        display:none;
+    }
+    .row.first {
+        margin-top:0;
+    }
+    .container {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+}
+
+.confBar {
+    width: 100%;
+    height: 5px;
+    background-color: lightgray;
+}
+.conf {
+    background-color: green;
+    height: 5px;
+}
+.confBar {
+    width: 100%;
+    height: 5px;
+    background-color: lightgray;
+}
+.confBarPlaceholder {
+    width: 100%;
+    height: 10px;
+}
+.accu {
+    background-color: coral;
+    height: 5px;
+}
+
+.tc.startmark {
+    border-left: 3px dotted dodgerblue;
+    border-top: 3px dotted dodgerblue;
+    border-bottom: 3px dotted dodgerblue;
+}
+
+
+.tc.endmark {
+    border-right: 3px dotted dodgerblue;
+    border-top: 3px dotted dodgerblue;
+    border-bottom: 3px dotted dodgerblue;
+}
+
+.tc.selected {
+    background-color: dodgerblue;
+}
