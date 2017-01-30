@@ -4,6 +4,7 @@ html,body {
 
 .row.first {
     margin-top:20px;
+    flex: 0 1 auto;
 }
 
 .container {
@@ -32,10 +33,6 @@ html,body {
     padding:20px;
     vertical-align: middle;
     display:inline-block;
-}
-
-.row.first {
-    flex: 0 1 auto;
 }
 
 .row.title {
@@ -127,4 +124,9 @@ footer {
 
 .tc.selected {
     background-color: dodgerblue;
+}
+
+#expandedCollection table {
+    width:95%;
+    margin-left:20px;
 }

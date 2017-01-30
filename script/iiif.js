@@ -130,18 +130,7 @@
         }
         return imgService;
     }
-    
-    function firstHelper(predicate) {
-        var taa = this.asArray();
-        if (predicate) {
-            taa = taa.filter(predicate);
-        }
-        if(taa.length) {
-            return taa[0]; 
-        } 
-        return null;
-    }
-    
+        
     function getAuthServices(info) {
         var svcInfo = {};
         var services;
@@ -186,8 +175,17 @@
         return svcInfo;
     }
 
+    function findIndexById(id){
+        for(var idx = 0; idx < this.length; idx++){
+            if(id === this[idx]["@id"]){
+                return idx;
+            }
+        }
+        return -1;
+    }
 
-    function wrap(rawObj) {
+
+    function wrap(rawObj, key) {
         if (!!rawObj) {
             if (typeof (rawObj) === "object") {
                 if (rawObj.constructor !== Array) {
@@ -195,9 +193,13 @@
                     if (rawObj.hasOwnProperty("@type") && rawObj["@type"].indexOf("sc:") === 0) {
                         rawObj.getThumbnail = getThumbnail; // for all IIIF types
                         if (rawObj["@type"] === "sc:Canvas") {
-                            rawObj.getDefaultImageService = getDefaultImageService;
+                            rawObj.getDefaultImageService = getDefaultImageService; // only for Canvas
                         }
                     }
+                }
+                if(key === "canvases"){
+                    // We could do this for more than just canvases. But for now..
+                    rawObj.findIndexById = findIndexById;
                 }
                 for (var obj in rawObj) {
                     if (rawObj.hasOwnProperty(obj)) {
@@ -207,9 +209,22 @@
             }
             // add helpers for non-@container JSON-LD keys
             rawObj.asArray = function () { return (this.constructor === Array) ? this : [this] };
-            rawObj.where = function (predicate) { return this.asArray().filter(predicate) };
-            rawObj.first = firstHelper;
+            rawObj.where =   function (predicate) { return this.asArray().filter(predicate) };
+            rawObj.first =   function (predicate) {
+                var taa = this.asArray();
+                if (predicate) {
+                    taa = taa.filter(predicate);
+                }
+                return taa.length ? taa[0] : null;
+            };
             rawObj.any = function(predicate) { return this.first(predicate) };
+            if (typeof (rawObj) === "object") {
+                // prevent our helpers appearing as enumerable props
+                Object.defineProperty(rawObj, 'asArray', { enumerable: false });
+                Object.defineProperty(rawObj, 'where',   { enumerable: false });
+                Object.defineProperty(rawObj, 'first',   { enumerable: false });
+                Object.defineProperty(rawObj, 'any',     { enumerable: false });
+            }
         }
     } 
     return {

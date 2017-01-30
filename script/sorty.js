@@ -1,64 +1,13 @@
 
+
+
 var loadedResource;
-var canvasList;
+var sourceSequence;
 var bigImage;
 var authDo;
-var assumeFullMax = false;
 var startCanvas = null;
 var endCanvas = null;
 var derivedManifests = null;
-
-// var presentationServer = "https://presley.com/"
-//var presentationServer = location.protocol + '//' + location.host;
-var presentationServer = "http://sorty.dlcs-ida.org/";
-
-var pop="";
-pop += "<div class=\"modal fade\" id=\"imgModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"mdlLabel\">";
-pop += "    <div class=\"modal-dialog modal-lg\" role=\"document\">";
-pop += "        <div class=\"modal-content\">";
-pop += "            <div class=\"modal-header\">";
-pop += "                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-pop += "                <h4 class=\"modal-title\" id=\"mdlLabel\"><\/h4>";
-pop += "            <\/div>";
-pop += "            <div class=\"modal-body\">            ";
-pop += "                <img id=\"bigImage\" class=\"img-responsive\" \/>";
-pop += "                <div class=\"auth-ops\" id=\"authOps\">";
-pop += "                    <h5>Header<\/h5>";
-pop += "                    <div class=\"auth-desc\">";
-pop += "                    <\/div>";
-pop += "                    <button id=\"authDo\" type=\"button\" class=\"btn btn-primary\"><\/button>";
-pop += "                <\/div>";
-pop += "            <\/div>";
-pop += "            <div class=\"modal-footer\">";
-pop += "                <div style=\"float:left;\">";
-pop += "                    <button id=\"mkStart\" type=\"button\" class=\"btn btn-primary btn-mark\" data-uri=\"\">[start...<\/button>";
-pop += "                    <button id=\"mkEnd\" type=\"button\" class=\"btn btn-primary btn-mark\" data-uri=\"\">&nbsp;...end]<\/button>";
-pop += "                </div>";
-pop += "                <div style=\"float:right;\">";
-pop += "                    <button id=\"mdlPrev\" type=\"button\" class=\"btn btn-primary btn-prevnext\" data-uri=\"\">&larr; Prev<\/button>";
-pop += "                    <button id=\"mdlNext\" type=\"button\" class=\"btn btn-primary btn-prevnext\" data-uri=\"\">Next &rarr;<\/button>";
-pop += "                </div>";
-pop += "            <\/div>";
-pop += "        <\/div>";
-pop += "    <\/div>";
-pop += "<\/div>";
-
-document.write(pop);
-
-var rv="";
-rv += "<div class=\"row viewer\">";
-rv += "    <div class=\"col-md-12 iiif\">";
-rv += "        <h3 id=\"title\"><\/h3>";
-rv += "        <div id=\"thumbs\">";
-rv += "            <img src=\"css\/spin24.gif\" id='manifestWait' \/>";
-rv += "        <\/div>";
-rv += "    <\/div>";
-rv += "<\/div>";
-rv += "";
-rv += "<footer>";
-rv += "    <hr \/>";
-rv += "    <p>Thumbnail viewer<\/p>";
-rv += "<\/footer>";
 
 var manifestTemplate = {
     "@context": "http://iiif.io/api/presentation/2/context.json",
@@ -79,8 +28,8 @@ var manifestTemplate = {
 }
 
 $(function() {
-    $("#mainContainer").append(rv);
     $("#manifestWait").hide();
+    showCollectionUI();
     processQueryString();    
     $("#authOps").hide();
     $(".modal-footer").show();
@@ -103,8 +52,8 @@ $(function() {
         markSelection();
     });
     $("#makeManifest").click(function () {
-        var s = findCanvasIndex(startCanvas);
-        var e = findCanvasIndex(endCanvas);
+        var s = sourceSequence.findIndexById(startCanvas);
+        var e = sourceSequence.findIndexById(endCanvas);
         if (!(loadedResource && s >= 0 && e >= s)) {
             alert("invalid selection");
             return;
@@ -112,11 +61,11 @@ $(function() {
         var newManifest = $.extend(true, {}, manifestTemplate);
         IIIF.wrap(newManifest);
         var manifestName = "cvs-" + s + "-" + e;
-        newManifest.id = getManifestUrlForLoadedResource(manifestName);
-        newManifest.label = getManifestLabel(s, e);
+        newManifest.id = SortyConfiguration.getManifestUrlForLoadedResource(loadedResource, manifestName);
+        newManifest.label = SortyConfiguration.getManifestLabel(loadedResource, s, e);
         newManifest.sequences[0].id = newManifest.id.replace("/manifest", "/sequence/s0");
         for (var cvsIdx = s; cvsIdx <= e; cvsIdx++) {
-            newManifest.sequences[0].canvases.push(canvasList[cvsIdx]);
+            newManifest.sequences[0].canvases.push(sourceSequence[cvsIdx]);
         }
         $.ajax({
             url: newManifest.id,
@@ -128,7 +77,7 @@ $(function() {
             newManifest.sequences = null;
             newManifest.service = null;
             $.ajax({
-                url: getCollectionUrlForLoadedResource(),
+                url: SortyConfiguration.getCollectionUrlForLoadedResource(loadedResource),
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(newManifest),
@@ -150,6 +99,54 @@ $(function() {
     authDo.bind('click', doClickthroughViaWindow);
 });
 
+var urlTemplate = location.href.replace(location.search, '') + "?manifest=";
+function manifestLink(id, text){
+    if(id && text){
+        return '<a href="' + urlTemplate + id + '">' + text + '</a>';
+    }
+    return '';
+}
+
+function showCollectionUI(collectionUri){
+    if(SortyConfiguration.sourceCollection){
+        $("#collectionLister").show();
+        $("#collectionLister").click(function(){
+            $.getJSON(SortyConfiguration.sourceCollection, renderCollection);
+        });
+    } 
+}
+
+function renderCollection(collection) {
+    var table = '<table class="table table-condensed"><thead><tr>';
+    if(collection.service && collection.service.headers){
+        collection.service.headers.forEach(function(h){table += "<th>" + h + "</th>"})    
+    } else {
+        table += "<th>@id</th><th>label</th>";
+    }
+    table += "</tr></thead><tbody>";
+    if(!collection.members) collection.members = collection.manifests;
+    if(collection.members){
+        collection.members.forEach(function(m){
+            if(m.service && m.service.values){
+                table += '<tr class="' + m.service.highlight + '">';
+                table += '<td style="white-space:nowrap;">' + manifestLink(m["@id"], m.service.values[0]) + '</td>';
+                for(var j=1; j< m.service.values.length; j++){
+                    table += '<td>' + m.service.values[j] + "</td>";
+                }        
+                table += "</tr>";                
+            } else {
+                table += '<tr>';
+                table += '<td>' + manifestLink(m["@id"], m["@id"]) + '</td>';
+                table += '<td>' + m.label + '</td>';
+                table += "</tr>";       
+            }
+        });
+    }
+    table += "</tbody></table>";
+    $("#expandedCollection").html(table);
+    $("#expandedCollection").show();
+}
+
 function loadManifestPage(manifestUrl) {
     window.location.href = "http://universalviewer.io/?manifest=" + manifestUrl;
 }
@@ -157,19 +154,20 @@ function loadManifestPage(manifestUrl) {
 function processQueryString(){    
     var qs = /manifest=(.*)/g.exec(window.location.search);
     if (qs && qs[1]) {
-        loadedResource = qs[1];
+        loadedResource = decodeURIComponent(qs[1].replace(/%2b/g, '%20'));
         $('#manifestWait').show();
-        $('#title').text(loadedResource);
         $.ajax({
             dataType: "json",
             url: loadedResource,
             cache: true,
             success: function (iiifResource) {
                 if (iiifResource["@type"] === "sc:Collection") {
-                    loadedResource = iiifResource.manifests[0]["@id"];
-                    $.getJSON(loadedResource, function (cManifest) {
-                        load(cManifest);
-                    });
+                    renderCollection(iiifResource);
+                    // TODO - collections
+                    // loadedResource = iiifResource.manifests[0]["@id"];
+                    // $.getJSON(loadedResource, function (cManifest) {
+                    //     load(cManifest);
+                    // });
                 } else {
                     load(iiifResource);
                 }
@@ -181,6 +179,8 @@ function processQueryString(){
 
 function load(manifest) {
     IIIF.wrap(manifest);
+    $("#selectorUIDefaultInput").val(loadedResource);
+       // $('#title').text(loadedResource);
     getCreatedManifests();
     var thumbs = $('#thumbs');
     thumbs.empty();
@@ -188,41 +188,19 @@ function load(manifest) {
     if(manifest.mediaSequences){
         thumbs.append("<i>This is not a normal IIIF manifest - it's an 'IxIF' extension for audio, video, born digital. This viewer does not support them (yet).</i>");
     } else {
-        canvasList = manifest.sequences[0].canvases;
+        sourceSequence = manifest.sequences[0].canvases;
         makeThumbSizeSelector();
         drawThumbs();
     }
-    $('#typeaheadWait').hide();
+    $('#typeaheadWait').hide(); // move to onManifestLoaded callback
     $('#manifestWait').hide();
 }
 
-function getManifestLabel(start, end) {
-    return getPath(loadedResource).replace(/\//g, " ") + "canvases " + start + "-" + end;
-}
-
-function getCollectionUrlForLoadedResource() {
-    return presentationServer + "/presley/ida/collection/" + getUriComponent(loadedResource);
-}
-
-function getManifestUrlForLoadedResource(manifestName) {
-    var identifier = getUriComponent(loadedResource) + manifestName;
-    return presentationServer + "/presley/ida/" + identifier + "/manifest";
-}
-
-function getPath(url) {
-    var reg = /.+?\:\/\/.+?(\/.+?)(?:#|\?|$)/;
-    return reg.exec(url)[1];
-}
-
-function getUriComponent(str) {
-    // for demo purposes! Not safe for general URL patterns
-    return getPath(str).replace(/\//g, "_");
-}
 
 function getCreatedManifests() {
     // run on page load
     $("#manifestSelector").append("<option value=\"" + loadedResource + "\">Original manifest</option>");
-    var collectionId = getCollectionUrlForLoadedResource(); // get the container in presley
+    var collectionId = SortyConfiguration.getCollectionUrlForLoadedResource(loadedResource); // get the container in presley
     console.log("attemp to load " + collectionId);
     $.getJSON(collectionId)
         .done(function (collection) {
@@ -282,49 +260,22 @@ function drawThumbs(){
     var thumbs = $("#thumbs");
     thumbs.empty();
     var preferredSize = parseInt(localStorage.getItem("thumbSize"));
-    for(var i=0; i<canvasList.length; i++){
-        var canvas = canvasList[i];
-        var divclass = "ocrUnknown";
-        var additionalHtml = "";
-        var confBar = "<div class=\"confBarPlaceholder\"></div>";
-        var imgLabel = "";
-        if (canvas.service && canvas.service.context === "https://dlcs-ida.org/ocr-info") {
-            var isType = canvas.service["Typescript"];
-            divclass = isType ? "ocrType" : "ocrHand";
-            if (isType) {
-                var conf = canvas.service["Average_confidence"] || 0;
-                var accu = canvas.service["Spelling_accuracy"] || 0;
-                confBar = "<div class=\"confBar\"><div class=\"conf\" style=\"width:" + conf + "%;\"></div></div>";
-                confBar += "<div class=\"confBar\"><div class=\"accu\" style=\"width:" + accu + "%;\"></div></div>";
-            } 
-            var textLength = canvas.service["Full_text_length"];
-            var entities = canvas.service["Total_entities_found"];
-            additionalHtml += "<div class=\"imgInfo\">";
-            if(textLength>3) additionalHtml += "T: " + textLength + "&nbsp;&nbsp;";
-            if (entities > 1) additionalHtml += "E: " + entities;
-            additionalHtml += "&nbsp;</div>";
-            var stats = canvas.service["Entity_stats"];
-            if (stats) {
-                for (var prop in stats) {
-                    if (stats.hasOwnProperty(prop)) {
-                        imgLabel += "\r\n" + prop + ": " + stats[prop];
-                    }
-                }
-            }
-        }
-        var thumbHtml = '<div class="tc ' + divclass + '"><div class=\"cvLabel\">' + (canvas.label || '') + '</div>';
+    for(var i=0; i<sourceSequence.length; i++){
+        var canvas = sourceSequence[i];
+        var decorations = SortyConfiguration.getCanvasDecorations(canvas);
+        var thumbHtml = '<div class="tc ' + decorations.divClass + '"><div class=\"cvLabel\">' + (canvas.label || '') + '</div>';
         var min = preferredSize < 100 ? 0 : Math.round(preferredSize * 0.8);
         var max = preferredSize < 100 ? 200 : preferredSize * 2;
-        var thumb = canvas.getThumbnail(preferredSize, min, max); //getThumb(canvas, preferredSize);
+        var thumb = canvas.getThumbnail(preferredSize, min, max); 
         if(!thumb){ 
             thumbHtml += '<div class="thumb-no-access">Image not available</div></div>';
         } else {
-            var thumbImg = thumbImageTemplate.replace("{label}", imgLabel).replace("{canvasId}", canvas.id).replace("{dataSrc}", thumb.url);
+            var thumbImg = thumbImageTemplate.replace("{label}", decorations.label).replace("{canvasId}", canvas.id).replace("{dataSrc}", thumb.url);
             var dimensions = "";
             if (thumb.width && thumb.height) {
                 dimensions = "width=\"" + thumb.width + "\" height=\"" + thumb.height + "\"";
             }
-            thumbHtml += thumbImg.replace("{dimensions}", dimensions) + confBar + additionalHtml + "</div>";
+            thumbHtml += thumbImg.replace("{dimensions}", dimensions) + decorations.canvasInfo + "</div>";
         }
         thumbs.append(thumbHtml);
     } 
@@ -339,8 +290,8 @@ function makeThumbSizeSelector() {
     var choices = [30, 50, 100, 200, 400, 600];
     var foundSizes = [];
     var i;
-    for(i = 0; i<Math.min(canvasList.length, 10); i++){
-        var canvas = canvasList[i];
+    for(i = 0; i<Math.min(sourceSequence.length, 10); i++){
+        var canvas = sourceSequence[i];
         if(canvas.thumbnail && canvas.thumbnail.service && canvas.thumbnail.service.sizes){
             var sizes = canvas.thumbnail.service.sizes;
             for(var j=0; j<sizes.length;j++){
@@ -411,9 +362,9 @@ function markSelection() {
 function selectForModal(canvasId, $image) {
     $('img.thumb').css('border', '2px solid white');
     $image.css('border', '2px solid tomato');
-    var cvIdx = findCanvasIndex(canvasId);
+    var cvIdx = sourceSequence.findIndexById(canvasId);
     if(cvIdx !== -1){
-        var canvas = canvasList[cvIdx];
+        var canvas = sourceSequence[cvIdx];
         var imgToLoad = canvas.getThumbnail(1000, 800, 2000); // getMainImg(canvas);
         bigImage.show();
         bigImage.attr("src", imgToLoad.url); // may fail if auth
@@ -423,28 +374,19 @@ function selectForModal(canvasId, $image) {
         $('#mdlLabel').text(canvas.label);
         if(cvIdx > 0){
             $('#mdlPrev').prop('disabled', false);
-            var prevCanvas = canvasList[cvIdx - 1];
+            var prevCanvas = sourceSequence[cvIdx - 1];
             $('#mdlPrev').attr('data-uri', prevCanvas.id);
         } else {
             $('#mdlPrev').prop('disabled', true);
         }        
-        if(cvIdx < canvasList.length - 1){
+        if(cvIdx < sourceSequence.length - 1){
             $('#mdlNext').prop('disabled', false);
-            var nextCanvas = canvasList[cvIdx + 1];
+            var nextCanvas = sourceSequence[cvIdx + 1];
             $('#mdlNext').attr('data-uri', nextCanvas.id);
         } else {
             $('#mdlNext').prop('disabled', true);
         }
     }
-}
-
-function findCanvasIndex(canvasId){
-    for(var idx = 0; idx < canvasList.length; idx++){
-        if(canvasId === canvasList[idx]["@id"]){
-            return idx;
-        }
-    }
-    return -1;
 }
 
 function attemptAuth(imageService){
