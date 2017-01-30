@@ -10,7 +10,7 @@ var derivedManifests = null;
 
 // var presentationServer = "https://presley.com/"
 //var presentationServer = location.protocol + '//' + location.host;
-var presentationServer = "http://localhost:47724/";
+var presentationServer = "http://sorty.dlcs-ida.org/";
 
 var pop="";
 pop += "<div class=\"modal fade\" id=\"imgModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"mdlLabel\">";
