@@ -14,9 +14,7 @@ var manifestTemplate = {
     "@id": "to be replaced",
     "@type": "sc:Manifest",
     "label": "to be replaced",
-    "service": {
-        "profile": "https://dlcs.info/profiles/mintrequest"
-    },
+    "service" : "canvas map here",
     "sequences": [
       {
           "@id": "to be replaced",
@@ -26,6 +24,14 @@ var manifestTemplate = {
       }
     ]
 }
+
+// new : source
+var canvasMapTemplate = {
+    "@id": "to be replaced",
+    "@context": "https://dlcs.info/context/presley",
+    "profile": "https://dlcs.info/profiles/canvasmap",
+    "canvasMap": {}
+  };
 
 $(function() {
     $("#manifestWait").hide();
@@ -60,12 +66,20 @@ $(function() {
         }
         var newManifest = $.extend(true, {}, manifestTemplate);
         IIIF.wrap(newManifest);
-        var manifestName = "cvs-" + s + "-" + e;
-        newManifest.id = SortyConfiguration.getManifestUrlForLoadedResource(loadedResource, manifestName);
+        newManifest.id = SortyConfiguration.getManifestUrl(loadedResource, s, e);
         newManifest.label = SortyConfiguration.getManifestLabel(loadedResource, s, e);
-        newManifest.sequences[0].id = newManifest.id.replace("/manifest", "/sequence/s0");
+        newManifest.sequences[0].id = SortyConfiguration.getSequenceUrl(loadedResource, s, e);
+        var canvasMapService = $.extend(true, {}, canvasMapTemplate);
+        IIIF.wrap(canvasMapService);
+        canvasMapService.id = newManifest.id + "/canvasmap";
+        newManifest.service = canvasMapService;
         for (var cvsIdx = s; cvsIdx <= e; cvsIdx++) {
-            newManifest.sequences[0].canvases.push(sourceSequence[cvsIdx]);
+            var sourceCanvas = sourceSequence[cvsIdx];
+            var newCanvas = $.extend(true, {}, sourceCanvas);
+            IIIF.wrap(newCanvas);
+            newCanvas.id = SortyConfiguration.getCanvasUrl(loadedResource, s, e, cvsIdx);            
+            canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
+            newManifest.sequences[0].canvases.push(newCanvas);
         }
         $.ajax({
             url: newManifest.id,
@@ -77,7 +91,7 @@ $(function() {
             newManifest.sequences = null;
             newManifest.service = null;
             $.ajax({
-                url: SortyConfiguration.getCollectionUrlForLoadedResource(loadedResource),
+                url: SortyConfiguration.getCollectionUrl(loadedResource),
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(newManifest),
@@ -200,7 +214,7 @@ function load(manifest) {
 function getCreatedManifests() {
     // run on page load
     $("#manifestSelector").append("<option value=\"" + loadedResource + "\">Original manifest</option>");
-    var collectionId = SortyConfiguration.getCollectionUrlForLoadedResource(loadedResource); // get the container in presley
+    var collectionId = SortyConfiguration.getCollectionUrl(loadedResource); // get the container in presley
     console.log("attemp to load " + collectionId);
     $.getJSON(collectionId)
         .done(function (collection) {

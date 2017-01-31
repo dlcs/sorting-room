@@ -6,19 +6,32 @@ var SortyConfiguration = function(){
 
     /* logic for naming IIIF resources in your CRUD server */
     /***************************************************** */
-    var presentationServer = "http://sorty.dlcs-ida.org/";
+    var presentationServer = "http://sorty.dlcs-ida.org/presley/ida/";
 
     function getManifestLabel(loadedResource, start, end) {
         return getPath(loadedResource).replace(/\//g, " ") + "canvases " + start + "-" + end;
     }
 
-    function getCollectionUrlForLoadedResource(loadedResource) {
-        return presentationServer + "presley/ida/collection/" + getUriComponent(loadedResource);
+    function getCollectionUrl(loadedResource) {
+        return presentationServer + "collection/" + getUriComponent(loadedResource);
     }
 
-    function getManifestUrlForLoadedResource(loadedResource, manifestName) {
-        var identifier = getUriComponent(loadedResource) + manifestName;
-        return presentationServer + "/presley/ida/" + identifier + "/manifest";
+    function getIdentifier(loadedResource, start, end) {
+        return getUriComponent(loadedResource) + "cvs-" + start + "-" + end;
+    }
+
+    // These are MVP and don't offer a lot of flexibility.
+
+    function getManifestUrl(loadedResource, start, end) {
+        return presentationServer + getIdentifier(loadedResource, start, end) + "/manifest";
+    }
+
+    function getSequenceUrl(loadedResource, start, end){
+        return presentationServer + getIdentifier(loadedResource, start, end) + "/sequence/s0";
+    }
+
+    function getCanvasUrl(loadedResource, start, end, canvasIndex){
+        return presentationServer + getIdentifier(loadedResource, start, end) + "/canvas/c" + canvasIndex;
     }
 
     function getPath(url) {
@@ -71,12 +84,12 @@ var SortyConfiguration = function(){
         }
     }
 
-
-
     return {
         getManifestLabel: getManifestLabel,
-        getCollectionUrlForLoadedResource: getCollectionUrlForLoadedResource,
-        getManifestUrlForLoadedResource: getManifestUrlForLoadedResource,
+        getCollectionUrl: getCollectionUrl,
+        getManifestUrl: getManifestUrl,
+        getSequenceUrl: getSequenceUrl,
+        getCanvasUrl: getCanvasUrl,
         getCanvasDecorations: getCanvasDecorations,
         sourceCollection: "http://sorty.dlcs-ida.org/rollcollection"
     }
