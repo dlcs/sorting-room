@@ -13,7 +13,7 @@ var SortyConfiguration = function(){
     }
 
     function getCollectionUrlForLoadedResource(loadedResource) {
-        return presentationServer + "/presley/ida/collection/" + getUriComponent(loadedResource);
+        return presentationServer + "presley/ida/collection/" + getUriComponent(loadedResource);
     }
 
     function getManifestUrlForLoadedResource(loadedResource, manifestName) {
