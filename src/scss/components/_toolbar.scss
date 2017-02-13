@@ -1,0 +1,34 @@
+.toolbar {
+  display: none;
+  float: right;
+  font-size: .8rem;
+  line-height: 24px;
+  vertical-align: middle;
+
+  .manifest-loaded & {
+    display: block;
+  }
+
+  &__label,
+  &__thumb-size,
+  &__clear,
+  &__make {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  &__label {
+    color: $white;
+    font-size: .9rem;
+    margin-right: 5px;
+  }
+
+  &__thumb-size {
+    font-size: .9rem;
+    margin-right: 50px;
+  }
+
+  i {
+    vertical-align: middle;
+  }
+}
