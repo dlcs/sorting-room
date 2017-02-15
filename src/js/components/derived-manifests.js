@@ -2,22 +2,23 @@ const $ = require('jquery');
 import {
   hasPropertyChanged,
   hasPropertyChangedNonZero,
-} from '../helpers.js';
-import { SortyConfiguration } from '../../config/config.js';
-import { IIIF } from '../iiif.js';
+} from '../helpers/helpers.js';
+import { SortyConfiguration } from '../config/config.js';
+import { IIIF } from '../helpers/iiif.js';
 import {
 //  selectDerivedManifest,
   setDerivedManifests,
   setDerivedManifestsComplete,
   setClassifiedCanvases,
-  resetDerivedManifests } from './derivedManifestsActions.js';
+  resetDerivedManifests } from '../actions/loaded-manifest.js';
 // import { replaceSelection } from '../selection/selectionActions.js';
-import { updateThumbsWithStatus } from '../thumbs/thumbs.js';
+import { updateThumbsWithStatus } from './thumbs.js';
 
 const manifestSelector = '.manifest-select__dropdown';
 const viewManifest = '.manifest-select__view-uv';
 
 let store = null;
+let manifestStore = null;
 let lastLocalState = null;
 
 const DOM = {
@@ -144,11 +145,12 @@ const Events = {
     DOM.$manifestSelector.change(Events.derivedManifestChange);
   },
   requestDerivedManifestsFailure() {
-    store.dispatch(resetDerivedManifests());
+    manifestStore.dispatch(resetDerivedManifests());
   },
   requestDerivedManifestsSuccess(collection) {
     IIIF.wrap(collection);
-    store.dispatch(setDerivedManifests(collection));
+    // console.log(collection);
+    manifestStore.dispatch(setDerivedManifests(collection));
     // console.log('RDMS', collection);
     const promises = [];
     for (const dm of collection.members) {
@@ -173,8 +175,8 @@ const Events = {
           imageSet: classifiedManifest,
         });
       }
-      store.dispatch(setClassifiedCanvases(classifiedCanvases));
-      store.dispatch(setDerivedManifestsComplete(classifiedManifests));
+      manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
+      manifestStore.dispatch(setDerivedManifestsComplete(classifiedManifests));
     }, reason => {
       console.log('Promise fail', reason);
     });
@@ -188,7 +190,8 @@ const Events = {
 export const getCreatedManifests = function getCreatedManifests() {
   // get the container in presley
   // console.log('getCreatedManifests', store.getState().input.manifest);
-  const collectionId = SortyConfiguration.getCollectionUrl(store.getState().input.manifest);
+  const collectionId = SortyConfiguration
+  .getCollectionUrl(manifestStore.getState().manifest);
   // console.log(collectionId, 'cid');
   $.getJSON(collectionId)
       .done(Events.requestDerivedManifestsSuccess)
@@ -196,7 +199,7 @@ export const getCreatedManifests = function getCreatedManifests() {
 };
 
 const updateArchivalUnits = function () {
-  const state = store.getState().derivedManifestsReducer;
+  const state = manifestStore.getState();
   // console.log('inside update archival units', DOM.$classifiedMaterial,
   // DOM.$classifiedMaterial.find('.classified-manifest'), state);
   // Make sure the list exists first
@@ -238,7 +241,7 @@ const updateArchivalUnits = function () {
 $(document).ready(Events.domReady);
 
 const subscribeActions = () => {
-  const derivedState = store.getState().derivedManifestsReducer;
+  const derivedState = manifestStore.getState();
   // console.log('DM - subscribe', lastLocalState, derivedState);
   if (hasPropertyChanged('derivedManifests', derivedState, lastLocalState)) {
     // console.log('DM - changed');
@@ -259,11 +262,12 @@ const subscribeActions = () => {
   lastLocalState !== null ? derivedState.classifiedCanvases !==
   lastLocalState.classifiedCanvases : 'lastLocal is null');*/
   if (hasPropertyChanged('classifiedCanvases', derivedState, lastLocalState)) {
-    // console.log('classifiedCanvases changed');
+    // console.log('classifiedCanvases changed', derivedState, lastLocalState);
     $('html').addClass('dm-loaded');
     const $titleAdd = $('.viewer__title--add');
-    const classifiedTotal = store.getState().derivedManifestsReducer.classifiedCanvases.size;
-    const total = store.getState().select.allImages.length;
+    const classifiedTotal = manifestStore.getState()
+    .classifiedCanvases.size;
+    const total = manifestStore.getState().allImages.length;
     $titleAdd.text(`Showing ${total - classifiedTotal} of ${total}
     images to be classified`);
     updateThumbsWithStatus();
@@ -275,7 +279,8 @@ const subscribeActions = () => {
   lastLocalState = derivedState;
 };
 
-export const derivedManifestsInit = (globalStore) => {
+export const derivedManifestsInit = (globalStore, globalManifestStore) => {
   store = globalStore;
+  manifestStore = globalManifestStore;
   store.subscribe(subscribeActions);
 };

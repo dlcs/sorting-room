@@ -1,11 +1,15 @@
+import {
+  ADD_OR_REMOVE_FROM_SELECTION,
+  CLEAR_SELECTION,
+  REPLACE_SELECTION,
+  SELECT,
+  SELECT_IMAGE_RANGE,
+  SET_COLLECTION_NAME,
+} from '../actions/selected-collection.js';
+
 const initialState = {
-  // startRange: null,
-  // endRange: null,
-  currentImage: null,
-  allImages: [],
-  selectedImages: [],
   collectionName: null,
-  // selectTo: null,
+  selectedImages: [],
 };
 
 // Given a state, return array of index values based on start and end values
@@ -16,29 +20,9 @@ const selectImagesWithinRange = (start, end) => {
   return rangeCollection;
 };
 
-export const select = function select(state = initialState, action) {
+export const selectedCollection = (state = initialState, action) => {
   switch (action.type) {
-    /*
-    case 'START_RANGE': {
-      // If there's an end range, update the selected images array
-      let selectedImages = state.selectedImages;
-      if (state.endRange !== null) {
-        selectedImages = selectImagesWithinRange(action.startRange, state.endRange);
-      }
-      return Object.assign({}, state, { startRange: action.startRange, selectedImages });
-    }
-    case 'END_RANGE': {
-      // If there's an end range, update the selected images array
-      let selectedImages = state.selectedImages;
-      if (state.startRange !== null) {
-        selectedImages = selectImagesWithinRange(state.startRange, action.endRange);
-      }
-      return Object.assign({}, state, { endRange: action.endRange, selectedImages });
-    }*/
-    case 'SET_CURRENT_IMAGE': {
-      return Object.assign({}, state, { currentImage: action.currentImage });
-    }
-    case 'SELECT': {
+    case SELECT: {
       let selectedImagesArray = state.selectedImages;
       // If not selected
       const currentImageArrayPosition = selectedImagesArray.indexOf(action.currentImage);
@@ -50,7 +34,7 @@ export const select = function select(state = initialState, action) {
         selectedImages: selectedImagesArray,
       });
     }
-    case 'SELECT_IMAGE_RANGE': {
+    case SELECT_IMAGE_RANGE: {
       let selectedImages = state.selectedImages;
       const min = Math.min.apply(Math, selectedImages);
       const max = Math.max.apply(Math, selectedImages);
@@ -63,7 +47,7 @@ export const select = function select(state = initialState, action) {
 
       return Object.assign({}, state, { selectedImages });
     }
-    case 'ADD_OR_REMOVE_FROM_SELECTION': {
+    case ADD_OR_REMOVE_FROM_SELECTION: {
       const selectedImages = state.selectedImages.slice(0);
       const currentImageArrayPosition = selectedImages.indexOf(action.addOrRemoveFromSelection);
       if (currentImageArrayPosition === -1) {
@@ -73,17 +57,13 @@ export const select = function select(state = initialState, action) {
       }
       return Object.assign({}, state, { selectedImages });
     }
-    case 'REPLACE_SELECTION': {
+    case REPLACE_SELECTION: {
       return Object.assign({}, state, { selectedImages: action.selection });
     }
-    case 'CLEAR_SELECTION': {
+    case CLEAR_SELECTION: {
       return Object.assign({}, state, { selectedImages: [] });
     }
-    case 'SET_ALL_IMAGES': {
-      // console.log('set all images called with', action);
-      return Object.assign({}, state, { allImages: action.allImages });
-    }
-    case 'SET_COLLECTION_NAME': {
+    case SET_COLLECTION_NAME: {
       return Object.assign({}, state, { collectionName: action.collectionName });
     }
     default: return state;

@@ -1,5 +1,5 @@
 const $ = require('jquery');
-import { attachMagnific } from '../selection/selection.js';
+import { attachMagnific } from './selection.js';
 
 const DOM = {
   $tabs: null,

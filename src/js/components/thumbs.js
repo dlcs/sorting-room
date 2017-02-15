@@ -1,31 +1,34 @@
 const $ = require('jquery');
 // import { SortyConfiguration } from '../../config/config.js';
-import { attachSelectionBehaviour } from '../selection/selection.js';
-import { setAllImages } from '../selection/selectionActions.js';
+import { attachSelectionBehaviour } from './selection.js';
+import thumbSizeInit, { makeThumbSizeSelector } from './thumb-size-selector.js';
 import {
-  setThumbSize,
+  setAllImages,
   setThumbSizes,
- } from '../input/inputActions.js';
+} from '../actions/loaded-manifest.js';
 
-const thumbSizeSelector = '.toolbar__thumb-size';
+
 let store = null;
+let manifestStore = null;
 
-export const thumbsInit = (globalStore) => {
+export const thumbsInit = (globalStore, globalManifestStore) => {
   store = globalStore;
+  manifestStore = globalManifestStore;
+  thumbSizeInit(store, manifestStore);
 };
 
 const isActive = function () {
-  return store.getState().select.selectedImages.indexOf(this.index) > -1;
+  return store.getState().selectedCollection.selectedImages.indexOf(this.index) > -1;
 };
 
 const isClassified = function () {
   // console.log(this.canvasId, store.getState().derivedManifestsReducer.classifiedCanvases);
-  return store.getState().derivedManifestsReducer.classifiedCanvases.has(this.canvasId);
+  return manifestStore.getState().classifiedCanvases.has(this.canvasId);
 };
 
 export const updateThumbsWithStatus = function () {
   // console.log('updateThumbsWithStatus');
-  const classifiedThumbs = store.getState().derivedManifestsReducer.classifiedCanvases;
+  const classifiedThumbs = manifestStore.getState().classifiedCanvases;
   const $thumbs = $('.thumb');
   for (const thumbUri of classifiedThumbs.values()) {
     // console.log(thumbUri);
@@ -45,9 +48,8 @@ const getThumbsFromCanvas = (canvas, thumbSizes) => {
 };
 
 export const storeThumbs = (canvases) => {
-  // console.log('storeThumbs');
   const allImages = [];
-  const thumbSizes = store.getState().input.thumbSizes;
+  const thumbSizes = manifestStore.getState().thumbSizes;
   let i = 0;
   // console.log('storeThumbs called with', canvases);
   for (const canvas of canvases) {
@@ -64,19 +66,20 @@ export const storeThumbs = (canvases) => {
     });
     i++;
   }
-  // console.log(allImages);
-  store.dispatch(setAllImages(allImages));
+  // console.log('all images', allImages);
+  manifestStore.dispatch(setAllImages(allImages));
 };
 
 export const drawThumbs = () => {
   const $titleAll = $('.viewer__title--all');
-  $titleAll.text(`Showing all ${store.getState().select.allImages.length}
+  $titleAll.text(`Showing all ${manifestStore.getState().allImages.length}
   images`);
   const $thumbs = $('.thumbs-container');
   $thumbs.empty();
-  const preferredSize = `${store.getState().input.thumbSize}`;
-  for (const image of store.getState().select.allImages) {
-    // console.log(image);
+  const preferredSize = `${store.getState().ui.thumbSize}`;
+  // console.log(preferredSize);
+  for (const image of manifestStore.getState().allImages) {
+    // console.log(image, store.getState().loadedManifest.allImages);
     const preferredThumb = image.thumbs[preferredSize];
     const dimensions = preferredThumb.width && preferredThumb.height ?
     `width="${preferredThumb.width}" height="${preferredThumb.height}"` : '';
@@ -119,41 +122,11 @@ export const storeThumbSizes = (canvases) => {
     }
   }
   choices.sort((a, b) => a - b);
-  store.dispatch(setThumbSizes(choices));
-};
-
-export const makeThumbSizeSelector = () => {
-  $(thumbSizeSelector).empty();
-  const choices = store.getState().input.thumbSizes;
-  let html = '<select id="thumbSize">';
-  for (let i = 0; i < choices.length; i++) {
-    const box = choices[i];
-    const label = box;
-    /*
-    if (foundSizes.indexOf(box) !== -1) {
-      label += '*';
-    }*/
-    html += `<option value="${box}">${label}pixels</option>`;
-  }
-  html += '</select>';
-  $(thumbSizeSelector).append(html);
-  let thumbSize = localStorage.getItem('thumbSize');
-  if (!thumbSize) {
-    thumbSize = choices[0];
-    localStorage.setItem('thumbSize', thumbSize);
-  }
-  if (thumbSize !== choices[0]) {
-    $(`#thumbSize option[value="${thumbSize}"]`).prop('selected', true);
-  }
-  $('#thumbSize').change(function updateThumbSize() {
-    const ts = $(this).val();
-    localStorage.setItem('thumbSize', ts);
-    store.dispatch(setThumbSize(ts));
-  });
+  manifestStore.dispatch(setThumbSizes(choices));
 };
 
 export const thumbsUpdate = () => {
-  const canvases = store.getState().input.canvases;
+  const canvases = manifestStore.getState().canvases;
   storeThumbSizes(canvases);
   storeThumbs(canvases);
   makeThumbSizeSelector();

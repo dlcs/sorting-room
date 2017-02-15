@@ -1,20 +1,26 @@
 const $ = require('jquery');
-import { hasPropertyChanged } from '../helpers.js';
+import { hasPropertyChanged } from '../helpers/helpers.js';
 import {
   addOrRemoveFromSelection,
   selectImage,
   selectImageRange,
   clearSelection,
-  setCurrentImage,
   setCollectionName,
-} from './selectionActions.js';
+} from '../actions/selected-collection.js';
+import {
+    setCurrentImage,
+} from '../actions/ui.js';
 import {
   drawThumbs,
-} from '../thumbs/thumbs.js';
+} from './thumbs.js';
 import L from 'leaflet';
 
 let store = null;
-let lastLocalState = null;
+let manifestStore = null;
+
+let lastLocalSelectedCollectionState = null;
+let lastLocalLoadedManifestState = null;
+let lastLocalLightboxState = null;
 const clearSelectionButton = '.toolbar__clear';
 const thumbsContainer = '.thumbs-container';
 let map = null;
@@ -49,7 +55,8 @@ const deepZoomToggle = () => {
 };
 
 const isIndexInSelection = (idx) => {
-  if (store.getState().select.selectedImages.indexOf(parseInt(idx, 10)) > -1) return true;
+  if (store.getState().selectedCollection.selectedImages
+  .indexOf(parseInt(idx, 10)) > -1) return true;
   return false;
 };
 
@@ -72,9 +79,9 @@ const collectionNameChange = function (e) {
 };
 
 const createPopupToolbar = () => {
-  const collectionName = store.getState().select.collectionName !== null ?
-  store.getState().select.collectionName : '';
-  const isSelected = isIndexInSelection(store.getState().select.currentImage.idx) ?
+  const collectionName = store.getState().selectedCollection.collectionName !== null ?
+  store.getState().selectedCollection.collectionName : '';
+  const isSelected = isIndexInSelection(store.getState().ui.lightbox.currentImage.idx) ?
   ' zoom-toolbar--selected' : '';
   const $toolbar = $(`
     <ul class="zoom-toolbar${isSelected}">
@@ -172,15 +179,36 @@ const Events = {
     $(clearSelectionButton).click(Events.clearSelectionClick);
     $(document).on('contextmenu', Events.contextMenu);
   },
-  storeSubscribe() {
+  manifestStoreSubscribe() {
+    // console.log(store.getState());
     // console.log('SEL - subscribe', store.getState(), lastLocalState);
-    const state = store.getState().select;
-    if (hasPropertyChanged('selectedImages', state, lastLocalState)) {
+    const loadedManifestState = manifestStore.getState();
+    console.log('manifestStoreSubscribe', loadedManifestState);
+    if (hasPropertyChanged('allImages', loadedManifestState, lastLocalLoadedManifestState)) {
+      drawThumbs();
+    }
+    /* console.log('SEL - subscribe, before lastLocalState assignment',
+    staticState, lastLocalState);*/
+    lastLocalLoadedManifestState = loadedManifestState;
+  },
+  storeSubscribe() {
+    const selectedCollectionState = store.getState().selectedCollection;
+    const lightboxState = store.getState().ui.lightbox;
+    if (hasPropertyChanged('currentImage', lightboxState, lastLocalLightboxState)) {
+      if (isIndexInSelection(lightboxState.currentImage.idx)) {
+        $('.zoom-toolbar').addClass('zoom-toolbar--selected');
+      } else {
+        $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
+      }
+      // console.log('current image changed', state.currentImage);
+    }
+    if (hasPropertyChanged('selectedImages', selectedCollectionState,
+    lastLocalSelectedCollectionState)) {
       // console.log('SEL - changed');
       const $thumbActive = $('.thumb--active');
       const $toolbarButtons = $('.toolbar__clear, .toolbar__make');
       const $infoBar = $('.info-bar');
-      const selectedImages = state.selectedImages;
+      const selectedImages = selectedCollectionState.selectedImages;
 
       $thumbActive.removeClass('thumb--active');
 
@@ -195,23 +223,8 @@ const Events = {
         $infoBar.removeClass('info-bar--active');
       }
     }
-    if (hasPropertyChanged('allImages', state, lastLocalState)) {
-      drawThumbs();
-    }
-    if (hasPropertyChanged('currentImage', state, lastLocalState)) {
-      if (isIndexInSelection(state.currentImage.idx)) {
-        $('.zoom-toolbar').addClass('zoom-toolbar--selected');
-      } else {
-        $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
-      }
-      // console.log('current image changed', state.currentImage);
-    }
-    if (hasPropertyChanged('collectionName', state, lastLocalState)) {
-      console.log(state.collectionName);
-    }
-    /* console.log('SEL - subscribe, before lastLocalState assignment',
-    staticState, lastLocalState);*/
-    lastLocalState = state;
+    lastLocalLightboxState = lightboxState;
+    lastLocalSelectedCollectionState = selectedCollectionState;
   },
   thumbClick(e) {
     const idx = $(this).attr('data-idx');
@@ -244,8 +257,10 @@ export const attachSelectionBehaviour = () => {
   $thumb.unveil(300);
 };
 
-export const selectionInit = (globalStore) => {
+export const selectionInit = (globalStore, globalManifestStore) => {
   store = globalStore;
+  manifestStore = globalManifestStore;
   $(document).ready(Events.domReady);
   store.subscribe(Events.storeSubscribe);
+  manifestStore.subscribe(Events.manifestStoreSubscribe);
 };
