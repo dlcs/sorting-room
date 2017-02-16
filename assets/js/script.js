@@ -26461,17 +26461,220 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var SET_ALL_IMAGES = exports.SET_ALL_IMAGES = 'SET_ALL_IMAGES';
+var SET_CANVASES = exports.SET_CANVASES = 'SET_CANVASES';
+var SET_DERIVED_MANIFESTS = exports.SET_DERIVED_MANIFESTS = 'SET_DERIVED_MANIFESTS';
+var RESET_DERIVED_MANIFESTS = exports.RESET_DERIVED_MANIFESTS = 'RESET_DERIVED_MANIFESTS';
+var SET_DERIVED_MANIFESTS_COMPLETE = exports.SET_DERIVED_MANIFESTS_COMPLETE = 'SET_DERIVED_MANIFESTS_COMPLETE';
+var SET_CLASSIFIED_CANVASES = exports.SET_CLASSIFIED_CANVASES = 'SET_CLASSIFIED_CANVASES';
+var SET_MANIFEST = exports.SET_MANIFEST = 'SET_MANIFEST';
+var SET_THUMB_SIZES = exports.SET_THUMB_SIZES = 'SET_THUMB_SIZES';
+
+/* Action Creators */
+var setManifest = exports.setManifest = function setManifest(manifest) {
+  return {
+    type: SET_MANIFEST,
+    manifest: manifest
+  };
+};
+
+var setCanvases = exports.setCanvases = function setCanvases(canvases) {
+  return {
+    type: SET_CANVASES,
+    canvases: canvases
+  };
+};
+
+var setAllImages = exports.setAllImages = function setAllImages(allImages) {
+  return {
+    type: SET_ALL_IMAGES,
+    allImages: allImages
+  };
+};
+
+var setDerivedManifests = exports.setDerivedManifests = function setDerivedManifests(derivedManifests) {
+  return {
+    type: SET_DERIVED_MANIFESTS,
+    derivedManifests: derivedManifests
+  };
+};
+
+var setDerivedManifestsComplete = exports.setDerivedManifestsComplete = function setDerivedManifestsComplete(derivedManifestsComplete) {
+  return {
+    type: SET_DERIVED_MANIFESTS_COMPLETE,
+    derivedManifestsComplete: derivedManifestsComplete
+  };
+};
+
+var resetDerivedManifests = exports.resetDerivedManifests = function resetDerivedManifests() {
+  return {
+    type: RESET_DERIVED_MANIFESTS
+  };
+};
+
+var setClassifiedCanvases = exports.setClassifiedCanvases = function setClassifiedCanvases(classifiedCanvases) {
+  return {
+    type: SET_CLASSIFIED_CANVASES,
+    classifiedCanvases: classifiedCanvases
+  };
+};
+
+var setThumbSizes = exports.setThumbSizes = function setThumbSizes(thumbSizes) {
+  return {
+    type: SET_THUMB_SIZES,
+    thumbSizes: thumbSizes
+  };
+};
+
+},{}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var SELECT = exports.SELECT = 'SELECT';
+var SELECT_IMAGE_RANGE = exports.SELECT_IMAGE_RANGE = 'SELECT_IMAGE_RANGE';
+var ADD_OR_REMOVE_FROM_SELECTION = exports.ADD_OR_REMOVE_FROM_SELECTION = 'ADD_OR_REMOVE_FROM_SELECTION';
+var REPLACE_SELECTION = exports.REPLACE_SELECTION = 'REPLACE_SELECTION';
+var CLEAR_SELECTION = exports.CLEAR_SELECTION = 'CLEAR_SELECTION';
+var SET_COLLECTION_NAME = exports.SET_COLLECTION_NAME = 'SET_COLLECTION_NAME';
+
+/* Action Creators */
+var selectImage = exports.selectImage = function selectImage(idx) {
+  return {
+    type: SELECT,
+    currentImage: parseInt(idx, 10)
+  };
+};
+
+var selectImageRange = exports.selectImageRange = function selectImageRange(idx) {
+  return {
+    type: SELECT_IMAGE_RANGE,
+    selectTo: parseInt(idx, 10)
+  };
+};
+
+var addOrRemoveFromSelection = exports.addOrRemoveFromSelection = function addOrRemoveFromSelection(idx) {
+  return {
+    type: ADD_OR_REMOVE_FROM_SELECTION,
+    addOrRemoveFromSelection: parseInt(idx, 10)
+  };
+};
+
+var replaceSelection = exports.replaceSelection = function replaceSelection(selection) {
+  return {
+    type: REPLACE_SELECTION,
+    selection: selection
+  };
+};
+
+var clearSelection = exports.clearSelection = function clearSelection() {
+  return {
+    type: CLEAR_SELECTION
+  };
+};
+
+var setCollectionName = exports.setCollectionName = function setCollectionName(collectionName) {
+  return {
+    type: SET_COLLECTION_NAME,
+    collectionName: collectionName
+  };
+};
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var SET_SOURCE_MANIFESTS = exports.SET_SOURCE_MANIFESTS = 'SET_SOURCE_MANIFESTS';
+
+var setSourceManifests = exports.setSourceManifests = function setSourceManifests(sourceManifests) {
+  return {
+    type: SET_SOURCE_MANIFESTS,
+    sourceManifests: sourceManifests
+  };
+};
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/* Action Types */
+var HIDE_LIGHTBOX = exports.HIDE_LIGHTBOX = 'HIDE_LIGHTBOX';
+var SET_CURRENT_IMAGE = exports.SET_CURRENT_IMAGE = 'SET_CURRENT_IMAGE';
+var SET_LOADING_MANIFEST = exports.SET_LOADING_MANIFEST = 'SET_LOADING_MANIFEST';
+var SET_TAB = exports.SET_TAB = 'SET_TAB';
+var SET_THUMB_SIZE = exports.SET_THUMB_SIZE = 'SET_THUMB_SIZE';
+var SHOW_LIGHTBOX = exports.SHOW_LIGHTBOX = 'SHOW_LIGHTBOX';
+var TOGGLE_LIST = exports.TOGGLE_LIST = 'TOGGLE_LIST';
+
+var hideLightbox = exports.hideLightbox = function hideLightbox() {
+  return {
+    type: HIDE_LIGHTBOX
+  };
+};
+
+var showLightbox = exports.showLightbox = function showLightbox(index) {
+  return {
+    type: SHOW_LIGHTBOX,
+    index: index
+  };
+};
+
+var setCurrentImage = exports.setCurrentImage = function setCurrentImage(currentImage) {
+  return {
+    type: SET_CURRENT_IMAGE,
+    currentImage: currentImage
+  };
+};
+
+var setLoading = exports.setLoading = function setLoading(loading) {
+  return {
+    type: SET_LOADING_MANIFEST,
+    loading: loading
+  };
+};
+
+var setTab = exports.setTab = function setTab(tab) {
+  return {
+    type: SET_TAB,
+    tab: tab
+  };
+};
+
+var setThumbSize = exports.setThumbSize = function setThumbSize(thumbSize) {
+  return {
+    type: SET_THUMB_SIZE,
+    thumbSize: thumbSize
+  };
+};
+
+var toggleList = exports.toggleList = function toggleList() {
+  return {
+    type: TOGGLE_LIST
+  };
+};
+
+},{}],29:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports.derivedManifestsInit = exports.getCreatedManifests = exports.loadManifestPage = undefined;
 
-var _helpers = require('../helpers.js');
+var _helpers = require('../helpers/helpers.js');
 
-var _config = require('../../config/config.js');
+var _config = require('../config/config.js');
 
-var _iiif = require('../iiif.js');
+var _iiif = require('../helpers/iiif.js');
 
-var _derivedManifestsActions = require('./derivedManifestsActions.js');
+var _loadedManifest = require('../actions/loaded-manifest.js');
 
-var _thumbs = require('../thumbs/thumbs.js');
+var _thumbs = require('./thumbs.js');
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -26482,7 +26685,7 @@ var $ = require('jquery');
 var manifestSelector = '.manifest-select__dropdown';
 var viewManifest = '.manifest-select__view-uv';
 
-var store = null;
+var manifestStore = null;
 var lastLocalState = null;
 
 var DOM = {
@@ -26587,11 +26790,12 @@ var Events = {
     DOM.$manifestSelector.change(Events.derivedManifestChange);
   },
   requestDerivedManifestsFailure: function requestDerivedManifestsFailure() {
-    store.dispatch((0, _derivedManifestsActions.resetDerivedManifests)());
+    manifestStore.dispatch((0, _loadedManifest.resetDerivedManifests)());
   },
   requestDerivedManifestsSuccess: function requestDerivedManifestsSuccess(collection) {
     _iiif.IIIF.wrap(collection);
-    store.dispatch((0, _derivedManifestsActions.setDerivedManifests)(collection));
+    // console.log(collection);
+    manifestStore.dispatch((0, _loadedManifest.setDerivedManifests)(collection));
     // console.log('RDMS', collection);
     var promises = [];
     var _iteratorNormalCompletion = true;
@@ -26684,8 +26888,8 @@ var Events = {
         }
       }
 
-      store.dispatch((0, _derivedManifestsActions.setClassifiedCanvases)(classifiedCanvases));
-      store.dispatch((0, _derivedManifestsActions.setDerivedManifestsComplete)(classifiedManifests));
+      manifestStore.dispatch((0, _loadedManifest.setClassifiedCanvases)(classifiedCanvases));
+      manifestStore.dispatch((0, _loadedManifest.setDerivedManifestsComplete)(classifiedManifests));
     }, function (reason) {
       console.log('Promise fail', reason);
     });
@@ -26699,13 +26903,13 @@ var Events = {
 var getCreatedManifests = exports.getCreatedManifests = function getCreatedManifests() {
   // get the container in presley
   // console.log('getCreatedManifests', store.getState().input.manifest);
-  var collectionId = _config.SortyConfiguration.getCollectionUrl(store.getState().input.manifest);
+  var collectionId = _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest);
   // console.log(collectionId, 'cid');
   $.getJSON(collectionId).done(Events.requestDerivedManifestsSuccess).fail(Events.requestDerivedManifestsFailure);
 };
 
 var updateArchivalUnits = function updateArchivalUnits() {
-  var state = store.getState().derivedManifestsReducer;
+  var state = manifestStore.getState();
   // console.log('inside update archival units', DOM.$classifiedMaterial,
   // DOM.$classifiedMaterial.find('.classified-manifest'), state);
   // Make sure the list exists first
@@ -26765,7 +26969,7 @@ var updateArchivalUnits = function updateArchivalUnits() {
 $(document).ready(Events.domReady);
 
 var subscribeActions = function subscribeActions() {
-  var derivedState = store.getState().derivedManifestsReducer;
+  var derivedState = manifestStore.getState();
   // console.log('DM - subscribe', lastLocalState, derivedState);
   if ((0, _helpers.hasPropertyChanged)('derivedManifests', derivedState, lastLocalState)) {
     // console.log('DM - changed');
@@ -26786,11 +26990,11 @@ var subscribeActions = function subscribeActions() {
   lastLocalState !== null ? derivedState.classifiedCanvases !==
   lastLocalState.classifiedCanvases : 'lastLocal is null');*/
   if ((0, _helpers.hasPropertyChanged)('classifiedCanvases', derivedState, lastLocalState)) {
-    // console.log('classifiedCanvases changed');
+    // console.log('classifiedCanvases changed', derivedState, lastLocalState);
     $('html').addClass('dm-loaded');
     var $titleAdd = $('.viewer__title--add');
-    var classifiedTotal = store.getState().derivedManifestsReducer.classifiedCanvases.size;
-    var total = store.getState().select.allImages.length;
+    var classifiedTotal = manifestStore.getState().classifiedCanvases.size;
+    var total = manifestStore.getState().allImages.length;
     $titleAdd.text('Showing ' + (total - classifiedTotal) + ' of ' + total + '\n    images to be classified');
     (0, _thumbs.updateThumbsWithStatus)();
   }
@@ -26801,152 +27005,1048 @@ var subscribeActions = function subscribeActions() {
   lastLocalState = derivedState;
 };
 
-var derivedManifestsInit = exports.derivedManifestsInit = function derivedManifestsInit(globalStore) {
-  store = globalStore;
-  store.subscribe(subscribeActions);
+var derivedManifestsInit = exports.derivedManifestsInit = function derivedManifestsInit(globalStore, globalManifestStore) {
+  // store = globalStore;
+  manifestStore = globalManifestStore;
+  manifestStore.subscribe(subscribeActions);
 };
 
-},{"../../config/config.js":40,"../helpers.js":28,"../iiif.js":29,"../thumbs/thumbs.js":38,"./derivedManifestsActions.js":26,"jquery":1}],26:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../config/config.js":36,"../helpers/helpers.js":37,"../helpers/iiif.js":38,"./thumbs.js":34,"jquery":1}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-/* Action Types */
-var SET_DERIVED_MANIFESTS = exports.SET_DERIVED_MANIFESTS = 'SET_DERIVED_MANIFESTS';
-var SET_DERIVED_MANIFESTS_COMPLETE = exports.SET_DERIVED_MANIFESTS_COMPLETE = 'SET_DERIVED_MANIFESTS_COMPLETE';
-var RESET_DERIVED_MANIFESTS = exports.RESET_DERIVED_MANIFESTS = 'RESET_DERIVED_MANIFESTS';
-var SELECT_DERIVED_MANIFEST = exports.SELECT_DERIVED_MANIFEST = 'SELECT_DERIVED_MANIFEST';
-var DESELECT_DERIVED_MANIFEST = exports.DESELECT_DERIVED_MANIFEST = 'DESELECT_DERIVED_MANIFEST';
-var SET_CLASSIFIED_CANVASES = exports.SET_CLASSIFIED_CANVASES = 'SET_CLASSIFIED_CANVASES';
+exports.inputInit = exports.processQueryStringFromInput = exports.ajaxLoadManifest = undefined;
 
-/* Action Creators */
-var setDerivedManifests = exports.setDerivedManifests = function setDerivedManifests(derivedManifests) {
-  return {
-    type: SET_DERIVED_MANIFESTS,
-    derivedManifests: derivedManifests
-  };
-};
+var _helpers = require('../helpers/helpers.js');
 
-var setDerivedManifestsComplete = exports.setDerivedManifestsComplete = function setDerivedManifestsComplete(derivedManifestsComplete) {
-  return {
-    type: SET_DERIVED_MANIFESTS_COMPLETE,
-    derivedManifestsComplete: derivedManifestsComplete
-  };
-};
+var _loadedManifest = require('../actions/loaded-manifest.js');
 
-var resetDerivedManifests = exports.resetDerivedManifests = function resetDerivedManifests() {
-  return {
-    type: RESET_DERIVED_MANIFESTS
-  };
-};
+var _ui = require('../actions/ui.js');
 
-var selectDerivedManifest = exports.selectDerivedManifest = function selectDerivedManifest(selectedDerivedManifest) {
-  return {
-    type: SELECT_DERIVED_MANIFEST,
-    selectedDerivedManifest: selectedDerivedManifest
-  };
-};
+var _selectedCollection = require('../actions/selected-collection.js');
 
-var deselectDerivedManifest = exports.deselectDerivedManifest = function deselectDerivedManifest() {
-  return {
-    type: DESELECT_DERIVED_MANIFEST
-  };
-};
+var _sourceList = require('./source-list.js');
 
-var setClassifiedCanvases = exports.setClassifiedCanvases = function setClassifiedCanvases(classifiedCanvases) {
-  return {
-    type: SET_CLASSIFIED_CANVASES,
-    classifiedCanvases: classifiedCanvases
-  };
-};
+var _sourceList2 = _interopRequireDefault(_sourceList);
 
-},{}],27:[function(require,module,exports){
-'use strict';
+var _derivedManifests = require('./derived-manifests.js');
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var initialState = {
-  // Derived manifests associated from current manifest
-  derivedManifests: null,
-  // Derived manifests including child elements
-  derivedManifestsComplete: new Set(),
-  // Not using this currently [remove?]
-  selectedDerivedManifest: null,
-  // Unique set of all canvases that have been classified
-  classifiedCanvases: new Set()
-};
+var _thumbs = require('./thumbs.js');
 
-var derivedManifestsReducer = exports.derivedManifestsReducer = function derivedManifestsReducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-  var action = arguments[1];
+var _iiif = require('../helpers/iiif.js');
 
-  // console.log('reducer', state, action);
-  switch (action.type) {
-    case 'SET_DERIVED_MANIFESTS':
-      {
-        return Object.assign({}, state, {
-          derivedManifests: action.derivedManifests
-        });
-      }
-    case 'RESET_DERIVED_MANIFESTS':
-      {
-        return Object.assign({}, state, {
-          derivedManifests: null
-        });
-      }
-    case 'SELECT_DERIVED_MANIFEST':
-      {
-        return Object.assign({}, state, {
-          selectedDerivedManifest: action.selectedDerivedManifest
-        });
-      }
-    case 'DESELECT_DERIVED_MANIFEST':
-      {
-        return Object.assign({}, state, {
-          selectedDerivedManifest: null
-        });
-      }
-    case 'SET_DERIVED_MANIFESTS_COMPLETE':
-      {
-        // console.log('setting it', state, action.derivedManifestsComplete);
-        return Object.assign({}, state, {
-          derivedManifestsComplete: action.derivedManifestsComplete
-        });
-      }
-    case 'SET_CLASSIFIED_CANVASES':
-      {
-        return Object.assign({}, state, {
-          classifiedCanvases: action.classifiedCanvases
-        });
-      }
-    default:
-      return state;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var $ = require('jquery');
+
+
+var store = null;
+var manifestStore = null;
+
+var lastLocalLoadedManifestState = null;
+var lastLocalState = null;
+
+var DOM = {
+  $manifestInput: null,
+  $manifestInputLoad: null,
+
+  init: function init() {
+    DOM.$manifestInput = $('.manifest-input__text-input');
+    DOM.$manifestInputLoad = $('.manifest-input__load-button');
   }
 };
 
-},{}],28:[function(require,module,exports){
+var loadIIIFResource = function loadIIIFResource(manifest) {
+  $('html').addClass('manifest-loaded');
+  $(window).trigger('lookup');
+  _iiif.IIIF.wrap(manifest);
+  // console.log(manifest);
+  (0, _derivedManifests.getCreatedManifests)();
+  if (!manifest.mediaSequences) {
+    manifestStore.dispatch((0, _loadedManifest.setCanvases)(manifest.sequences[0].canvases));
+    (0, _thumbs.thumbsUpdate)();
+  }
+};
+
+var ajaxLoadManifest = exports.ajaxLoadManifest = function ajaxLoadManifest() {
+  $('html').removeClass('dm-loaded');
+  $('.workspace-tabs__link[data-modifier="all"]').click();
+  store.dispatch((0, _selectedCollection.clearSelection)());
+  store.dispatch((0, _loadedManifest.resetDerivedManifests)());
+  $('html').removeClass('manifest-loaded');
+  var inputState = manifestStore.getState();
+
+  if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
+    if (typeof history !== 'undefined') {
+      history.replaceState(null, null, 'index.html?manifest=' + inputState.manifest);
+    }
+    $('.manifest-input__feedback').text('Loading \'' + inputState.manifest + '\'...');
+    store.dispatch((0, _ui.setLoading)(true));
+    $.ajax({
+      dataType: 'json',
+      url: inputState.manifest,
+      cache: true,
+      error: function error(data) {
+        alert('Error: ' + data.statusText);
+        store.dispatch((0, _ui.setLoading)(false));
+        // console.log(data);
+      },
+      success: function success(iiifResource) {
+        // console.log(iiifResource);
+        $('.manifest-input__feedback').text('Current manifest: \'' + iiifResource['@id'] + '\'');
+        store.dispatch((0, _ui.setLoading)(false));
+        if (iiifResource['@type'] === 'sc:Collection') {
+          // console.log('Render collection');
+          // renderCollection(iiifResource);
+          // TODO - collections
+          // window.loadedResource = iiifResource.manifests[0]['@id'];
+          // $.getJSON(window.loadedResource, function (cManifest) {
+          //     load(cManifest);
+          // });
+        } else {
+          // console.log('Load iiif resource');
+          loadIIIFResource(iiifResource);
+        }
+      }
+    });
+  }
+};
+
+var processQueryStringFromInput = exports.processQueryStringFromInput = function processQueryStringFromInput(url) {
+  // console.log('pqsfi[', url, ']');
+  if (url !== '') {
+    var qs = /manifest=(.*)/g.exec(url);
+    // console.log('qs', qs);
+    if (qs && qs[1]) {
+      // console.log('pqsfi');
+      manifestStore.dispatch((0, _loadedManifest.setManifest)(decodeURIComponent(qs[1].replace(/%2b/g, '%20'))));
+      ajaxLoadManifest();
+    }
+  }
+};
+
+var processQueryString = function processQueryString() {
+  // console.log('processQueryString');
+  processQueryStringFromInput(window.location.search);
+};
+
+/*
+function showCollectionUI() {
+  if (SortyConfiguration.sourceCollection) {
+    const $collectionLister = $('#collectionLister');
+    $collectionLister.click(() => {
+      $.getJSON(SortyConfiguration.sourceCollection, renderCollection);
+    });
+  }
+}*/
+
+var Events = {
+  domReady: function domReady() {
+    // Get DOM elements
+    DOM.init();
+    // Process query string for manifests
+    processQueryString();
+    // Hook up load button event
+    DOM.$manifestInputLoad.click(Events.loadManifestClick);
+  },
+  loadManifestClick: function loadManifestClick(e) {
+    e.preventDefault();
+    manifestStore.dispatch((0, _loadedManifest.setManifest)(DOM.$manifestInput.val()));
+    ajaxLoadManifest();
+  },
+  manifestStoreSubscribe: function manifestStoreSubscribe() {
+    // console.log('IN - subscribe', lastLocalState, store.getState().input);
+    var loadedManifestState = manifestStore.getState();
+
+    if ((0, _helpers.hasPropertyChanged)('manifest', loadedManifestState, lastLocalLoadedManifestState)) {
+      DOM.$manifestInput.val(loadedManifestState.manifest);
+    }
+    lastLocalLoadedManifestState = loadedManifestState;
+  },
+  storeSubscribe: function storeSubscribe() {
+    var state = store.getState().ui;
+    // console.log('input store subscribe', state.loadingManifest,
+    // hasPropertyChanged('loadingManifest', state, lastLocalState));
+    if ((0, _helpers.hasPropertyChanged)('loadingManifest', state, lastLocalState)) {
+      if (state.loadingManifest) {
+        $('.manifest-input').addClass('manifest-input--loading');
+      } else {
+        $('.manifest-input').removeClass('manifest-input--loading');
+      }
+    }
+    lastLocalState = state;
+  }
+};
+
+var inputInit = exports.inputInit = function inputInit(globalStore, globalManifestStore) {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  (0, _sourceList2.default)(store, manifestStore);
+  // Subscribe to store changes
+  manifestStore.subscribe(Events.manifestStoreSubscribe);
+  store.subscribe(Events.storeSubscribe);
+  var thumbSize = window.localStorage ? localStorage.getItem('thumbSize') : null;
+  if (thumbSize !== null) {
+    store.dispatch((0, _ui.setThumbSize)(thumbSize));
+  }
+  $(document).ready(Events.domReady);
+};
+
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":37,"../helpers/iiif.js":38,"./derived-manifests.js":29,"./source-list.js":32,"./thumbs.js":34,"jquery":1}],31:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectionInit = exports.attachSelectionBehaviour = exports.attachMagnific = undefined;
+
+var _helpers = require('../helpers/helpers.js');
+
+var _selectedCollection = require('../actions/selected-collection.js');
+
+var _ui = require('../actions/ui.js');
+
+var _thumbs = require('./thumbs.js');
+
+var _leaflet = require('leaflet');
+
+var _leaflet2 = _interopRequireDefault(_leaflet);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var $ = require('jquery');
+
+
+var store = null;
+var manifestStore = null;
+
+var lastLocalSelectedCollectionState = null;
+var lastLocalLoadedManifestState = null;
+var lastLocalLightboxState = null;
+var clearSelectionButton = '.toolbar__clear';
+var thumbsContainer = '.thumbs-container';
+var map = null;
+
+var createDeepZoomViewer = function createDeepZoomViewer() {
+  var $thumb = $('.thumb[data-mfp-src=\'' + $('.mfp-img').attr('src') + '\']');
+  $('.mfp-container').prepend('<div class="zoom-toolbar__map" id="map"></div>');
+  $('#map').click(function (e) {
+    return e.stopPropagation();
+  });
+  map = _leaflet2.default.map('map', {
+    center: [0, 0],
+    crs: _leaflet2.default.CRS.Simple,
+    zoom: 2
+  }).on('layeradd', function (e) {
+    e.target.setZoom(3);
+    // e.target.panTo(center);
+  });
+
+  _leaflet2.default.tileLayer.iiif($thumb.attr('data-info')).addTo(map);
+};
+
+var destroyDeepZoomViewer = function destroyDeepZoomViewer() {
+  if (map !== null) {
+    map.remove();
+    $('#map').remove();
+    map = null;
+  }
+};
+
+var deepZoomToggle = function deepZoomToggle() {
+  if ($('#map').length) {
+    destroyDeepZoomViewer();
+  } else {
+    createDeepZoomViewer();
+  }
+};
+
+var isIndexInSelection = function isIndexInSelection(idx) {
+  if (store.getState().selectedCollection.selectedImages.indexOf(parseInt(idx, 10)) > -1) return true;
+  return false;
+};
+
+var addOrRemoveClick = function addOrRemoveClick() {
+  var $thumb = $('.thumb[data-mfp-src=\'' + $('.mfp-img').attr('src') + '\']');
+  var idx = $thumb.attr('data-idx');
+  store.dispatch((0, _selectedCollection.addOrRemoveFromSelection)(idx));
+  // console.log(store.getState().select);
+  if (isIndexInSelection(idx)) {
+    $('.zoom-toolbar').addClass('zoom-toolbar--selected');
+  } else {
+    $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
+  }
+};
+
+var collectionNameChange = function collectionNameChange(e) {
+  e.stopPropagation();
+  // console.log('collectionNameChange', $(this).val());
+  store.dispatch((0, _selectedCollection.setCollectionName)($(this).val()));
+};
+
+var createPopupToolbar = function createPopupToolbar() {
+  var collectionName = store.getState().selectedCollection.collectionName !== null ? store.getState().selectedCollection.collectionName : '';
+  var isSelected = isIndexInSelection(store.getState().ui.lightbox.currentImage.idx) ? ' zoom-toolbar--selected' : '';
+  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Toggle deep zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
+
+  $('.mfp-with-zoom').addClass('mfp-toolbar').append($toolbar);
+  $('.zoom-toolbar__collection-name input').keyup(collectionNameChange);
+  // console.log($('#collection-name'));
+  $('.zoom-toolbar').click(function (e) {
+    e.stopPropagation();
+  });
+  $('.zoom-toolbar__zoom-button').click(deepZoomToggle);
+  $('.zoom-toolbar__select-button').click(addOrRemoveClick);
+};
+
+var destroyPopupToolbar = function destroyPopupToolbar() {
+  $('.zoom-toolbar').remove();
+  $('.mfp-with-zoom').removeClass('mfp-toolbar');
+};
+
+var Config = {
+  magnificOptions: {
+    callbacks: {
+      change: function change() {
+        var $thumb = $('.thumb[data-mfp-src=\'' + $(this.content).find('.mfp-img').attr('src') + '\']');
+        var currentImageData = {
+          idx: $thumb.attr('data-idx'),
+          info: $thumb.attr('data-info')
+        };
+        // console.log(currentImageData, store.getState().select.currentImage);
+        store.dispatch((0, _ui.setCurrentImage)(currentImageData));
+        destroyDeepZoomViewer();
+      },
+      close: function close() {
+        destroyDeepZoomViewer();
+        destroyPopupToolbar();
+      },
+      open: function open() {
+        createPopupToolbar();
+      }
+    },
+    delegate: 'img.thumb:visible',
+    type: 'image',
+    closeOnContentClick: false,
+    closeBtnInside: false,
+    closeOnBgClick: false,
+    mainClass: 'mfp-with-zoom mfp-img-mobile',
+    image: {
+      verticalFit: true
+    },
+    gallery: {
+      enabled: true
+    },
+    zoom: {
+      enabled: true,
+      duration: 300, // don't foget to change the duration also in CSS
+      opener: function opener(element) {
+        return element;
+      }
+    }
+  }
+};
+
+var Events = {
+  contextMenu: function contextMenu(e) {
+    var $target = $(e.target);
+    // console.log(e, $target);
+    if (($target.hasClass('thumb') || $target.hasClass('tc')) && e.ctrlKey) {
+      var idx = $target.attr('data-idx');
+      // console.log(idx);
+      store.dispatch((0, _selectedCollection.addOrRemoveFromSelection)(idx));
+      e.preventDefault();
+    }
+  },
+  clearSelectionClick: function clearSelectionClick() {
+    store.dispatch((0, _selectedCollection.clearSelection)());
+  },
+  domReady: function domReady() {
+    $(clearSelectionButton).click(Events.clearSelectionClick);
+    $(document).on('contextmenu', Events.contextMenu);
+  },
+  manifestStoreSubscribe: function manifestStoreSubscribe() {
+    // console.log(store.getState());
+    // console.log('SEL - subscribe', store.getState(), lastLocalState);
+    var loadedManifestState = manifestStore.getState();
+    // console.log('manifestStoreSubscribe', loadedManifestState);
+    if ((0, _helpers.hasPropertyChanged)('allImages', loadedManifestState, lastLocalLoadedManifestState)) {
+      (0, _thumbs.drawThumbs)();
+    }
+    /* console.log('SEL - subscribe, before lastLocalState assignment',
+    staticState, lastLocalState);*/
+    lastLocalLoadedManifestState = loadedManifestState;
+  },
+  storeSubscribe: function storeSubscribe() {
+    var selectedCollectionState = store.getState().selectedCollection;
+    var lightboxState = store.getState().ui.lightbox;
+    if ((0, _helpers.hasPropertyChanged)('currentImage', lightboxState, lastLocalLightboxState)) {
+      if (isIndexInSelection(lightboxState.currentImage.idx)) {
+        $('.zoom-toolbar').addClass('zoom-toolbar--selected');
+      } else {
+        $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
+      }
+      // console.log('current image changed', state.currentImage);
+    }
+    if ((0, _helpers.hasPropertyChanged)('selectedImages', selectedCollectionState, lastLocalSelectedCollectionState)) {
+      // console.log('SEL - changed');
+      var $thumbActive = $('.thumb--active');
+      var $toolbarButtons = $('.toolbar__clear, .toolbar__make');
+      var $infoBar = $('.info-bar');
+      var selectedImages = selectedCollectionState.selectedImages;
+
+      $thumbActive.removeClass('thumb--active');
+
+      if (selectedImages.length) {
+        $toolbarButtons.removeAttr('disabled');
+        $infoBar.addClass('info-bar--active');
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = selectedImages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var idx = _step.value;
+
+            $('.thumb:eq(' + idx + ')').addClass('thumb--active');
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      } else {
+        $toolbarButtons.attr('disabled', 'disabled');
+        $infoBar.removeClass('info-bar--active');
+      }
+    }
+    lastLocalLightboxState = lightboxState;
+    lastLocalSelectedCollectionState = selectedCollectionState;
+  },
+  thumbClick: function thumbClick(e) {
+    var idx = $(this).attr('data-idx');
+    if (e.shiftKey) {
+      store.dispatch((0, _selectedCollection.selectImageRange)(idx));
+    } else {
+      store.dispatch((0, _selectedCollection.selectImage)(idx));
+    }
+    e.stopPropagation();
+  },
+  thumbZoomClick: function thumbZoomClick() {
+    var $thisContainer = $(this).closest('.tc');
+    // const $thisThumb = $thisContainer.find('.thumb');
+    var posInThumbs = $('.tc:visible').index($thisContainer);
+    // console.log(posInThumbs);
+    $(thumbsContainer).magnificPopup('open', posInThumbs);
+  }
+};
+
+var attachMagnific = exports.attachMagnific = function attachMagnific() {
+  $(thumbsContainer).removeData('magnificPopup');
+  $(thumbsContainer).magnificPopup(Config.magnificOptions);
+};
+
+var attachSelectionBehaviour = exports.attachSelectionBehaviour = function attachSelectionBehaviour() {
+  var $thumb = $('img.thumb');
+  $thumb.click(Events.thumbClick);
+  $('.thumb__zoom').click(Events.thumbZoomClick);
+  attachMagnific();
+  $thumb.unveil(300);
+};
+
+var selectionInit = exports.selectionInit = function selectionInit(globalStore, globalManifestStore) {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  $(document).ready(Events.domReady);
+  store.subscribe(Events.storeSubscribe);
+  manifestStore.subscribe(Events.manifestStoreSubscribe);
+};
+
+},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":37,"./thumbs.js":34,"jquery":1,"leaflet":2}],32:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _helpers = require('../helpers/helpers.js');
+
+var _sourceList = require('../actions/source-list.js');
+
+var _config = require('../config/config.js');
+
+var _ui = require('../actions/ui.js');
+
+var _input = require('./input.js');
+
+var $ = require('jquery');
+
+
+var store = null;
+
+var lastLocalSourceListState = null;
+var lastLocalUiState = null;
+
+var Init = function Init(globalStore) {
+  store = globalStore;
+};
+exports.default = Init;
+
+
+var DOM = {
+  $expandCollectionButton: null,
+  $expandedCollection: null,
+  $manifestInputList: null,
+
+  init: function init() {
+    DOM.$expandCollectionButton = $('.manifest-input__expand-button');
+    DOM.$expandedCollection = $('.manifest-input__list');
+    DOM.$manifestInputList = $('.manifest-input__list');
+  }
+};
+
+// Template for manifest links
+var urlTemplate = location.href.replace(location.search, '') + '?manifest=';
+
+function manifestLink(id, text) {
+  if (id && text) {
+    return '<a href="' + urlTemplate + id + '">' + text + '</a>';
+  }
+  return '';
+}
+
+var storeCollectionData = function storeCollectionData(data) {
+  store.dispatch((0, _sourceList.setSourceManifests)(data));
+};
+
+var getCollectionData = function getCollectionData() {
+  $.getJSON(_config.SortyConfiguration.sourceCollection, storeCollectionData);
+};
+
+function renderCollection(collection) {
+  // console.log('render collection');
+  var collectionToRender = collection;
+  var table = '<table class="table table-condensed"><thead><tr>';
+  if (collectionToRender.service && collectionToRender.service.headers) {
+    collectionToRender.service.headers.forEach(function (h) {
+      table += '<th>' + h + '</th>';
+    });
+  } else {
+    table += '<th>@id</th><th>label</th>';
+  }
+  table += '</tr></thead><tbody>';
+  if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
+  if (collectionToRender.members) {
+    collectionToRender.members.forEach(function (m) {
+      if (m.service && m.service.values) {
+        table += '<tr class="' + m.service.highlight + '">';
+        table += '<td style="white-space:nowrap;">        ' + manifestLink(m['@id'], m.service.values[0]) + '</td>';
+        var j = void 0;
+        for (j = 1; j < m.service.values.length; j++) {
+          table += '<td>' + m.service.values[j] + '</td>';
+        }
+        table += '</tr>';
+      } else {
+        table += '<tr>';
+        table += '<td>' + manifestLink(m['@id'], m['@id']) + '</td>';
+        table += '<td>' + m.label + '</td>';
+        table += '</tr>';
+      }
+    });
+  }
+  table += '</tbody></table>';
+  DOM.$expandedCollection.html(table);
+  // $expandedCollection.addClass(`${expandedCollection}--active`);
+
+  DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
+}
+
+var Events = {
+  domReady: function domReady() {
+    // Get DOM elements
+    DOM.init();
+    // Subscribe to store changes
+    store.subscribe(Events.storeSubscribe);
+    // Get list of manifests
+    getCollectionData();
+    // Hook up manifest list toggle
+    DOM.$expandCollectionButton.click(function () {
+      return store.dispatch((0, _ui.toggleList)());
+    });
+    // Hook up manifest list links to auto-load manifests
+    DOM.$manifestInputList.on('click', 'a', Events.loadManifestLinkClick);
+  },
+  loadManifestLinkClick: function loadManifestLinkClick(e) {
+    e.preventDefault();
+    (0, _input.processQueryStringFromInput)('?' + this.href.split('?')[1]);
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    store.dispatch((0, _ui.toggleList)());
+    (0, _input.ajaxLoadManifest)();
+  },
+  storeSubscribe: function storeSubscribe() {
+    var uiState = store.getState().ui;
+    var sourceListState = store.getState().sourceList;
+
+    if ((0, _helpers.hasPropertyChanged)('sourceManifests', sourceListState, lastLocalSourceListState)) {
+      renderCollection(sourceListState.sourceManifests);
+    }
+    if ((0, _helpers.hasPropertyChanged)('listVisible', uiState, lastLocalUiState)) {
+      var expandedCollectionActiveClass = 'manifest-input__list--active';
+      if (uiState.listVisible) {
+        DOM.$expandCollectionButton.html('<i class="material-icons">arrow_drop_up</i>Hide microfilm list');
+        DOM.$expandedCollection.addClass(expandedCollectionActiveClass);
+      } else {
+        DOM.$expandCollectionButton.html('<i class="material-icons">arrow_drop_down</i>Show microfilm list');
+        DOM.$expandedCollection.removeClass(expandedCollectionActiveClass);
+      }
+    }
+    lastLocalUiState = uiState;
+    lastLocalSourceListState = sourceListState;
+  }
+};
+
+$(document).ready(Events.domReady);
+
+},{"../actions/source-list.js":27,"../actions/ui.js":28,"../config/config.js":36,"../helpers/helpers.js":37,"./input.js":30,"jquery":1}],33:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.makeThumbSizeSelector = undefined;
+
+var _ui = require('../actions/ui.js');
+
+var $ = require('jquery');
+
+var store = null;
+var manifestStore = null;
+
+var Init = function Init(globalStore, globalManifestStore) {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+};
+exports.default = Init;
+
+
+var DOM = {
+  $thumbSizeSelector: null,
+
+  init: function init() {
+    DOM.$thumbSizeSelector = $('.toolbar__thumb-size');
+  }
+};
+
+var makeThumbSizeSelector = exports.makeThumbSizeSelector = function makeThumbSizeSelector() {
+  DOM.$thumbSizeSelector.empty();
+  var choices = manifestStore.getState().thumbSizes;
+  var html = '<select id="thumbSize">';
+  for (var i = 0; i < choices.length; i++) {
+    var box = choices[i];
+    var label = box;
+    html += '<option value="' + box + '">' + label + 'pixels</option>';
+  }
+  html += '</select>';
+  DOM.$thumbSizeSelector.append(html);
+  var thumbSize = localStorage.getItem('thumbSize');
+  if (!thumbSize) {
+    thumbSize = choices[0];
+    localStorage.setItem('thumbSize', thumbSize);
+  }
+  if (thumbSize !== choices[0]) {
+    $('#thumbSize option[value="' + thumbSize + '"]').prop('selected', true);
+  }
+  $('#thumbSize').change(function updateThumbSize() {
+    var ts = $(this).val();
+    localStorage.setItem('thumbSize', ts);
+    store.dispatch((0, _ui.setThumbSize)(ts));
+  });
+};
+
+var Events = {
+  domReady: function domReady() {
+    DOM.init();
+  }
+};
+
+$(document).ready(Events.domReady);
+
+},{"../actions/ui.js":28,"jquery":1}],34:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.thumbsUpdate = exports.storeThumbSizes = exports.drawThumbs = exports.storeThumbs = exports.updateThumbsWithStatus = exports.thumbsInit = undefined;
+
+var _selection = require('./selection.js');
+
+var _thumbSizeSelector = require('./thumb-size-selector.js');
+
+var _thumbSizeSelector2 = _interopRequireDefault(_thumbSizeSelector);
+
+var _loadedManifest = require('../actions/loaded-manifest.js');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var $ = require('jquery');
+// import { SortyConfiguration } from '../../config/config.js';
+
+
+var store = null;
+var manifestStore = null;
+
+var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore, globalManifestStore) {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  (0, _thumbSizeSelector2.default)(store, manifestStore);
+};
+
+var isActive = function isActive() {
+  return store.getState().selectedCollection.selectedImages.indexOf(this.index) > -1;
+};
+
+var isClassified = function isClassified() {
+  // console.log(this.canvasId, store.getState().derivedManifestsReducer.classifiedCanvases);
+  return manifestStore.getState().classifiedCanvases.has(this.canvasId);
+};
+
+var updateThumbsWithStatus = exports.updateThumbsWithStatus = function updateThumbsWithStatus() {
+  // console.log('updateThumbsWithStatus');
+  var classifiedThumbs = manifestStore.getState().classifiedCanvases;
+  var $thumbs = $('.thumb');
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = classifiedThumbs.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var thumbUri = _step.value;
+
+      // console.log(thumbUri);
+      $thumbs.filter('.thumb[data-uri="' + thumbUri + '"]').parent().addClass('tc--classified');
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+};
+
+var getThumbsFromCanvas = function getThumbsFromCanvas(canvas, thumbSizes) {
+  var thumbs = {};
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
+
+  try {
+    for (var _iterator2 = thumbSizes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var thumbSize = _step2.value;
+
+      var min = thumbSize < 100 ? 0 : Math.round(thumbSize * 0.8);
+      var max = thumbSize < 100 ? 200 : thumbSize * 2;
+      var thumb = canvas.getThumbnail(thumbSize, min, max);
+      thumbs[thumbSize] = thumb;
+    }
+  } catch (err) {
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+        _iterator2.return();
+      }
+    } finally {
+      if (_didIteratorError2) {
+        throw _iteratorError2;
+      }
+    }
+  }
+
+  return thumbs;
+};
+
+var storeThumbs = exports.storeThumbs = function storeThumbs(canvases) {
+  var allImages = [];
+  var thumbSizes = manifestStore.getState().thumbSizes;
+  var i = 0;
+  // console.log('storeThumbs called with', canvases);
+  var _iteratorNormalCompletion3 = true;
+  var _didIteratorError3 = false;
+  var _iteratorError3 = undefined;
+
+  try {
+    for (var _iterator3 = canvases[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+      var canvas = _step3.value;
+
+      var thumbs = getThumbsFromCanvas(canvas, thumbSizes);
+      // console.log(canvas);
+      allImages.push({
+        canvasId: canvas.id,
+        fullSrc: canvas.getThumbnail(1000, 800, 2000),
+        index: i,
+        info: thumbs[100].info,
+        isActive: isActive,
+        isClassified: isClassified,
+        thumbs: thumbs
+      });
+      i++;
+    }
+    // console.log('all images', allImages);
+  } catch (err) {
+    _didIteratorError3 = true;
+    _iteratorError3 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion3 && _iterator3.return) {
+        _iterator3.return();
+      }
+    } finally {
+      if (_didIteratorError3) {
+        throw _iteratorError3;
+      }
+    }
+  }
+
+  manifestStore.dispatch((0, _loadedManifest.setAllImages)(allImages));
+};
+
+var drawThumbs = exports.drawThumbs = function drawThumbs() {
+  var $titleAll = $('.viewer__title--all');
+  $titleAll.text('Showing all ' + manifestStore.getState().allImages.length + '\n  images');
+  var $thumbs = $('.thumbs-container');
+  $thumbs.empty();
+  var preferredSize = '' + store.getState().ui.thumbSize;
+  // console.log(preferredSize);
+  var _iteratorNormalCompletion4 = true;
+  var _didIteratorError4 = false;
+  var _iteratorError4 = undefined;
+
+  try {
+    for (var _iterator4 = manifestStore.getState().allImages[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+      var image = _step4.value;
+
+      // console.log(image, store.getState().loadedManifest.allImages);
+      var preferredThumb = image.thumbs[preferredSize];
+      var dimensions = preferredThumb.width && preferredThumb.height ? 'width="' + preferredThumb.width + '" height="' + preferredThumb.height + '"' : '';
+      var activeClass = image.isActive() ? ' thumb--active' : '';
+      var classifiedClass = image.isClassified() ? ' tc--classified' : '';
+      var thumbnail = '\n    <div class="tc' + classifiedClass + '">\n      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB      CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" class="thumb' + activeClass + '"\n      data-uri="' + image.canvasId + '"\n      data-src="' + preferredThumb.url + '"\n      data-mfp-src="' + image.fullSrc.url + '"\n      data-idx="' + image.index + '"\n      data-info="' + image.info + '"\n      ' + dimensions + ' />\n      <button class="thumb__zoom"><i class="material-icons">zoom_in</i></button>\n    </div>\n    ';
+      // console.log(thumbnail);
+      $thumbs.append(thumbnail);
+    }
+  } catch (err) {
+    _didIteratorError4 = true;
+    _iteratorError4 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion4 && _iterator4.return) {
+        _iterator4.return();
+      }
+    } finally {
+      if (_didIteratorError4) {
+        throw _iteratorError4;
+      }
+    }
+  }
+
+  (0, _selection.attachSelectionBehaviour)();
+};
+
+var storeThumbSizes = exports.storeThumbSizes = function storeThumbSizes(canvases) {
+  var choices = [100, 200, 400];
+  var foundSizes = [];
+  for (var i = 0; i < Math.min(canvases.length, 10); i++) {
+    var canvas = canvases[i];
+    if (canvas.thumbnail && canvas.thumbnail.service && canvas.thumbnail.service.sizes) {
+      var sizes = canvas.thumbnail.service.sizes;
+      var j = void 0;
+      for (j = 0; j < sizes.length; j++) {
+        var testSize = Math.max(sizes[j].width, sizes[j].height);
+        foundSizes.push(testSize);
+        if (choices.indexOf(testSize) === -1 && testSize <= 600) {
+          choices.push(testSize);
+        }
+      }
+    }
+  }
+  choices.sort(function (a, b) {
+    return a - b;
+  });
+  manifestStore.dispatch((0, _loadedManifest.setThumbSizes)(choices));
+};
+
+var thumbsUpdate = exports.thumbsUpdate = function thumbsUpdate() {
+  var canvases = manifestStore.getState().canvases;
+  storeThumbSizes(canvases);
+  storeThumbs(canvases);
+  (0, _thumbSizeSelector.makeThumbSizeSelector)();
+};
+
+},{"../actions/loaded-manifest.js":25,"./selection.js":31,"./thumb-size-selector.js":33,"jquery":1}],35:[function(require,module,exports){
+'use strict';
+
+var _selection = require('./selection.js');
+
+var $ = require('jquery');
+
+
+var DOM = {
+  $tabs: null,
+  $workspace: null,
+
+  init: function init() {
+    DOM.$tabs = $('.workspace-tabs__link');
+    DOM.$workspace = $('.viewer');
+  }
+};
+
+var Events = {
+  domReady: function domReady() {
+    DOM.init();
+    Events.init();
+  },
+  init: function init() {
+    DOM.$tabs.click(Events.tabClick);
+  },
+  tabClick: function tabClick(e) {
+    e.preventDefault();
+    var $thisTab = $(this);
+    DOM.$tabs.removeClass('workspace-tabs__link--active');
+    $thisTab.addClass('workspace-tabs__link--active');
+    DOM.$workspace.attr('class', 'viewer viewer--' + $thisTab.attr('data-modifier'));
+    (0, _selection.attachMagnific)();
+    $(window).trigger('lookup');
+  }
+};
+
+$(document).ready(Events.domReady);
+
+},{"./selection.js":31,"jquery":1}],36:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/* this file is where you customise sorty to do what you need */
+var SortyConfiguration = exports.SortyConfiguration = {};
+/* logic for naming IIIF resources in your CRUD server */
+
+var presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
+SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
+
+function getPath(url) {
+  var reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
+  return reg.exec(url)[1];
+}
+
+function getUriComponent(str) {
+  // for demo purposes! Not safe for general URL patterns
+  return getPath(str).replace(/\//g, '_');
+}
+
+function getIdentifier(loadedResource, start, end) {
+  return getUriComponent(loadedResource) + 'cvs-' + start + '-' + end;
+}
+
+SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, start, end) {
+  return getPath(loadedResource).replace(/\//g, ' ') + 'canvases' + start + '-' + end;
+};
+
+SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {
+  return presentationServer + 'collection/' + getUriComponent(loadedResource);
+};
+
+// These are MVP and don't offer a lot of flexibility.
+SortyConfiguration.getManifestUrl = function getManifestUrl(loadedResource, start, end) {
+  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/manifest';
+};
+
+SortyConfiguration.getSequenceUrl = function getSequenceUrl(loadedResource, start, end) {
+  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/sequence/s0';
+};
+
+SortyConfiguration.getCanvasUrl = function getCanvasUrl(loadedResource, start, end, canvasIndex) {
+  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/canvas/c' + canvasIndex;
+};
+
+/* application-specific extra stuff to show per canvas */
+SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) {
+  var divClass = 'ocrUnknown';
+  var additionalHtml = '';
+  var confBar = '<div class="confBarPlaceholder"></div>';
+  var imgLabel = '';
+  if (canvas.service && canvas.service.context === 'https://dlcs-ida.org/ocr-info') {
+    var isType = canvas.service.Typescript;
+    divClass = isType ? 'ocrType' : 'ocrHand';
+    if (isType) {
+      var conf = canvas.service.Average_confidence || 0;
+      var accu = canvas.service.Spelling_accuracy || 0;
+      confBar = '<div class="confBar"><div class="conf" style="width:' + conf + '%;"></div></div>\n                 <div class="confBar"><div class="accu" style="width: ' + accu + '%;"></div></div>';
+    }
+    var textLength = canvas.service.Full_text_length;
+    var entities = canvas.service.Total_entities_found;
+    additionalHtml += '<div class="imgInfo">';
+    if (textLength > 3) additionalHtml += 'T: ' + textLength + '&nbsp;&nbsp;';
+    if (entities > 1) additionalHtml += 'E: ' + entities;
+    additionalHtml += '&nbsp;</div>';
+    var stats = canvas.service.Entity_stats;
+    if (stats) {
+      stats.forEach(function (currentValue, index) {
+        imgLabel += '\r\n' + index + ': ' + currentValue;
+      });
+    }
+  }
+
+  return {
+    divClass: divClass,
+    label: imgLabel,
+    canvasInfo: confBar + additionalHtml
+  };
+};
+
+},{}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var hasPropertyChanged = exports.hasPropertyChanged = function hasPropertyChanged(propertyName, state, lastState) {
+  // console.log('hasPropertyChanged', propertyName);
   // First time this state has been looked at
-  if (state === null) return false;
+  if (state === null || state === lastState) return false;
   if (lastState === null && state[propertyName] !== null) return true;else if (lastState !== null && state[propertyName] !== null && state[propertyName] !== lastState[propertyName]) return true;
   return false;
 };
 
 var hasPropertyChangedNonZero = exports.hasPropertyChangedNonZero = function hasPropertyChangedNonZero(propertyName, state, lastState) {
   // First time this state has been looked at
-  if (state === null) return false;
+  if (state === null || state === lastState) return false;
   if (lastState === null && state[propertyName] !== null && state[propertyName].length) return true;else if (lastState !== null && state[propertyName] !== null && state[propertyName].length && state[propertyName] !== lastState[propertyName]) return true;
   return false;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27183,395 +28283,7 @@ IIIF.wrap = function wrap(rawObj, key) {
   }
 };
 
-},{}],30:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.inputInit = undefined;
-
-var _helpers = require('../helpers.js');
-
-var _inputActions = require('./inputActions.js');
-
-var _selectionActions = require('../selection/selectionActions.js');
-
-var _derivedManifests = require('../derivedManifests/derivedManifests.js');
-
-var _derivedManifestsActions = require('../derivedManifests/derivedManifestsActions');
-
-var _config = require('../../config/config.js');
-
-var _thumbs = require('../thumbs/thumbs.js');
-
-var _iiif = require('../iiif.js');
-
-var $ = require('jquery');
-
-var store = null;
-var lastLocalState = null;
-
-var DOM = {
-  $expandCollectionButton: null,
-  $expandedCollection: null,
-  $manifestInput: null,
-  $manifestInputLoad: null,
-  $manifestInputList: null,
-
-  init: function init() {
-    DOM.$expandCollectionButton = $('.manifest-input__expand-button');
-    DOM.$expandedCollection = $('.manifest-input__list');
-    DOM.$manifestInput = $('.manifest-input__text-input');
-    DOM.$manifestInputLoad = $('.manifest-input__load-button');
-    DOM.$manifestInputList = $('.manifest-input__list');
-  }
-};
-
-var loadIIIFResource = function loadIIIFResource(manifest) {
-  $('html').addClass('manifest-loaded');
-  $(window).trigger('lookup');
-  _iiif.IIIF.wrap(manifest);
-  (0, _derivedManifests.getCreatedManifests)();
-  if (!manifest.mediaSequences) {
-    store.dispatch((0, _inputActions.setCanvases)(manifest.sequences[0].canvases));
-    (0, _thumbs.thumbsUpdate)();
-  }
-};
-
-var ajaxLoadManifest = function ajaxLoadManifest() {
-  $('html').removeClass('dm-loaded');
-  $('.workspace-tabs__link[data-modifier="all"]').click();
-  store.dispatch((0, _selectionActions.clearSelection)());
-  store.dispatch((0, _derivedManifestsActions.resetDerivedManifests)());
-  $('html').removeClass('manifest-loaded');
-  var inputState = store.getState().input;
-  if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
-    if (typeof history !== 'undefined') {
-      history.replaceState(null, null, 'index.html?manifest=' + inputState.manifest);
-    }
-    $('.manifest-input__feedback').text('Loading \'' + inputState.manifest + '\'...');
-    store.dispatch((0, _inputActions.setLoading)(true));
-    $.ajax({
-      dataType: 'json',
-      url: inputState.manifest,
-      cache: true,
-      error: function error(data) {
-        alert('Error: ' + data.statusText);
-        store.dispatch((0, _inputActions.setLoading)(false));
-        // console.log(data);
-      },
-      success: function success(iiifResource) {
-        // console.log(iiifResource);
-        $('.manifest-input__feedback').text('Current manifest: \'' + iiifResource['@id'] + '\'');
-        store.dispatch((0, _inputActions.setLoading)(false));
-        if (iiifResource['@type'] === 'sc:Collection') {
-          // console.log('Render collection');
-          // renderCollection(iiifResource);
-          // TODO - collections
-          // window.loadedResource = iiifResource.manifests[0]['@id'];
-          // $.getJSON(window.loadedResource, function (cManifest) {
-          //     load(cManifest);
-          // });
-        } else {
-          // console.log('Load iiif resource');
-          loadIIIFResource(iiifResource);
-        }
-      }
-    });
-  }
-};
-
-var processQueryStringFromInput = function processQueryStringFromInput(url) {
-  // console.log('pqsfi[', url, ']');
-  if (url !== '') {
-    var qs = /manifest=(.*)/g.exec(url);
-    // console.log('qs', qs);
-    if (qs && qs[1]) {
-      // console.log('pqsfi');
-      store.dispatch((0, _inputActions.setManifest)(decodeURIComponent(qs[1].replace(/%2b/g, '%20'))));
-      ajaxLoadManifest();
-    }
-  }
-};
-
-var processQueryString = function processQueryString() {
-  // console.log('processQueryString');
-  processQueryStringFromInput(window.location.search);
-};
-
-// Template for manifest links
-var urlTemplate = location.href.replace(location.search, '') + '?manifest=';
-
-function manifestLink(id, text) {
-  if (id && text) {
-    return '<a href="' + urlTemplate + id + '">' + text + '</a>';
-  }
-  return '';
-}
-
-function renderCollection(collection) {
-  // console.log('render collection');
-  var collectionToRender = collection;
-  var table = '<table class="table table-condensed"><thead><tr>';
-  if (collectionToRender.service && collectionToRender.service.headers) {
-    collectionToRender.service.headers.forEach(function (h) {
-      table += '<th>' + h + '</th>';
-    });
-  } else {
-    table += '<th>@id</th><th>label</th>';
-  }
-  table += '</tr></thead><tbody>';
-  if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
-  if (collectionToRender.members) {
-    collectionToRender.members.forEach(function (m) {
-      if (m.service && m.service.values) {
-        table += '<tr class="' + m.service.highlight + '">';
-        table += '<td style="white-space:nowrap;">        ' + manifestLink(m['@id'], m.service.values[0]) + '</td>';
-        var j = void 0;
-        for (j = 1; j < m.service.values.length; j++) {
-          table += '<td>' + m.service.values[j] + '</td>';
-        }
-        table += '</tr>';
-      } else {
-        table += '<tr>';
-        table += '<td>' + manifestLink(m['@id'], m['@id']) + '</td>';
-        table += '<td>' + m.label + '</td>';
-        table += '</tr>';
-      }
-    });
-  }
-  table += '</tbody></table>';
-  DOM.$expandedCollection.html(table);
-  // $expandedCollection.addClass(`${expandedCollection}--active`);
-
-  DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
-}
-
-var storeCollectionData = function storeCollectionData(data) {
-  store.dispatch((0, _inputActions.setCollection)(data));
-};
-
-var getCollectionData = function getCollectionData() {
-  $.getJSON(_config.SortyConfiguration.sourceCollection, storeCollectionData);
-};
-
-/*
-function showCollectionUI() {
-  if (SortyConfiguration.sourceCollection) {
-    const $collectionLister = $('#collectionLister');
-    $collectionLister.click(() => {
-      $.getJSON(SortyConfiguration.sourceCollection, renderCollection);
-    });
-  }
-}*/
-
-var Events = {
-  domReady: function domReady() {
-    // Get DOM elements
-    DOM.init();
-    // Subscribe to store changes
-    store.subscribe(Events.storeSubscribe);
-    // Process query string for manifests
-    processQueryString();
-    // Get list of manifests
-    getCollectionData();
-    // Hook up manifest list toggle
-    DOM.$expandCollectionButton.click(function () {
-      return store.dispatch((0, _inputActions.toggleList)());
-    });
-    // Hook up manifest list links to auto-load manifests
-    DOM.$manifestInputList.on('click', 'a', Events.loadManifestLinkClick);
-    // Hook up load button event
-    DOM.$manifestInputLoad.click(Events.loadManifestClick);
-  },
-  loadManifestLinkClick: function loadManifestLinkClick(e) {
-    e.preventDefault();
-    store.dispatch((0, _inputActions.setManifest)(processQueryStringFromInput('?' + this.href.split('?')[1])));
-    store.dispatch((0, _inputActions.toggleList)());
-    ajaxLoadManifest();
-  },
-  loadManifestClick: function loadManifestClick(e) {
-    e.preventDefault();
-    store.dispatch((0, _inputActions.setManifest)(DOM.$manifestInput.val()));
-    ajaxLoadManifest();
-  },
-  storeSubscribe: function storeSubscribe() {
-    // console.log('IN - subscribe', lastLocalState, store.getState().input);
-    var state = store.getState().input;
-    if ((0, _helpers.hasPropertyChanged)('collection', state, lastLocalState)) {
-      renderCollection(state.collection);
-    }
-    if ((0, _helpers.hasPropertyChanged)('manifest', state, lastLocalState)) {
-      DOM.$manifestInput.val(state.manifest);
-    }
-    if ((0, _helpers.hasPropertyChanged)('listVisible', state, lastLocalState)) {
-      var expandedCollectionActiveClass = 'manifest-input__list--active';
-      if (state.listVisible) {
-        DOM.$expandCollectionButton.text('Hide microfilm list');
-        DOM.$expandedCollection.addClass(expandedCollectionActiveClass);
-      } else {
-        DOM.$expandCollectionButton.text('Show microfilm list');
-        DOM.$expandedCollection.removeClass(expandedCollectionActiveClass);
-      }
-    }
-    if ((0, _helpers.hasPropertyChanged)('loading', state, lastLocalState)) {
-      if (state.loading) {
-        $('.manifest-input').addClass('manifest-input--loading');
-      } else {
-        $('.manifest-input').removeClass('manifest-input--loading');
-      }
-    }
-    lastLocalState = state;
-  }
-};
-
-var inputInit = exports.inputInit = function inputInit(globalStore) {
-  store = globalStore;
-  var thumbSize = window.localStorage ? localStorage.getItem('thumbSize') : null;
-  if (thumbSize !== null) {
-    store.dispatch((0, _inputActions.setThumbSize)(thumbSize));
-  }
-  $(document).ready(Events.domReady);
-};
-
-},{"../../config/config.js":40,"../derivedManifests/derivedManifests.js":25,"../derivedManifests/derivedManifestsActions":26,"../helpers.js":28,"../iiif.js":29,"../selection/selectionActions.js":35,"../thumbs/thumbs.js":38,"./inputActions.js":31,"jquery":1}],31:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var SET_MANIFEST = exports.SET_MANIFEST = 'SET_MANIFEST';
-var SET_CANVASES = exports.SET_CANVASES = 'SET_CANVASES';
-var SET_THUMB_SIZE = exports.SET_THUMB_SIZE = 'SET_THUMB_SIZE';
-var SET_THUMB_SIZES = exports.SET_THUMB_SIZES = 'SET_THUMB_SIZES';
-var SET_COLLECTION = exports.SET_COLLECTION = 'SET_COLLECTION';
-var TOGGLE_LIST = exports.TOGGLE_LIST = 'TOGGLE_LIST';
-var SET_LOADING = exports.SET_LOADING = 'SET_LOADING';
-
-var setManifest = exports.setManifest = function setManifest(manifest) {
-  return {
-    type: SET_MANIFEST,
-    manifest: manifest
-  };
-};
-
-var setCanvases = exports.setCanvases = function setCanvases(canvases) {
-  return {
-    type: SET_CANVASES,
-    canvases: canvases
-  };
-};
-
-var setThumbSize = exports.setThumbSize = function setThumbSize(thumbSize) {
-  return {
-    type: SET_THUMB_SIZE,
-    thumbSize: thumbSize
-  };
-};
-
-var setThumbSizes = exports.setThumbSizes = function setThumbSizes(thumbSizes) {
-  return {
-    type: SET_THUMB_SIZES,
-    thumbSizes: thumbSizes
-  };
-};
-
-var setCollection = exports.setCollection = function setCollection(collection) {
-  return {
-    type: SET_COLLECTION,
-    collection: collection
-  };
-};
-
-var toggleList = exports.toggleList = function toggleList() {
-  return {
-    type: TOGGLE_LIST
-  };
-};
-
-var setLoading = exports.setLoading = function setLoading(loading) {
-  return {
-    type: SET_LOADING,
-    loading: loading
-  };
-};
-
-},{}],32:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var initialState = {
-  manifest: null,
-  canvases: null,
-  thumbSize: 150,
-  thumbSizes: [],
-  collection: null,
-  listVisible: false,
-  loading: false
-};
-
-var input = exports.input = function input() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-  var action = arguments[1];
-
-  switch (action.type) {
-    case 'SET_MANIFEST':
-      {
-        // console.log('SET MANIFEST', action.manifest);
-        if (typeof action.manifest !== 'undefined') {
-          return Object.assign({}, state, {
-            manifest: action.manifest
-          });
-        }
-        return state;
-      }
-    case 'SET_CANVASES':
-      {
-        return Object.assign({}, state, {
-          canvases: action.canvases
-        });
-      }
-    case 'SET_THUMB_SIZE':
-      {
-        return Object.assign({}, state, {
-          thumbSize: action.thumbSize
-        });
-      }
-    case 'SET_THUMB_SIZES':
-      {
-        // console.log('SET_THUMB_SIZES', action.thumbSizes);
-        return Object.assign({}, state, {
-          thumbSizes: action.thumbSizes
-        });
-      }
-    case 'SET_COLLECTION':
-      {
-        return Object.assign({}, state, {
-          collection: action.collection
-        });
-      }
-    case 'TOGGLE_LIST':
-      {
-        // console.log('toggle list called');
-        return Object.assign({}, state, {
-          listVisible: !state.listVisible
-        });
-      }
-    case 'SET_LOADING':
-      {
-        return Object.assign({}, state, {
-          loading: action.loading
-        });
-      }
-    default:
-      return state;
-  }
-};
-
-},{}],33:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27580,382 +28292,109 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = require('redux');
 
-var _selectionReducer = require('./selection/selectionReducer.js');
+var _selectedCollection = require('./selected-collection.js');
 
-var _derivedManifestsReducer = require('./derivedManifests/derivedManifestsReducer.js');
+var _sourceList = require('./source-list.js');
 
-var _inputReducer = require('./input/inputReducer.js');
+var _ui = require('./ui.js');
 
 exports.default = (0, _redux.combineReducers)({
-  select: _selectionReducer.select,
-  derivedManifestsReducer: _derivedManifestsReducer.derivedManifestsReducer,
-  input: _inputReducer.input
+  // loadedManifest,
+  selectedCollection: _selectedCollection.selectedCollection,
+  sourceList: _sourceList.sourceList,
+  ui: _ui.ui
 });
+// import { loadedManifest } from './loaded-manifest.js';
 
-},{"./derivedManifests/derivedManifestsReducer.js":27,"./input/inputReducer.js":32,"./selection/selectionReducer.js":36,"redux":20}],34:[function(require,module,exports){
+},{"./selected-collection.js":41,"./source-list.js":42,"./ui.js":43,"redux":20}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectionInit = exports.attachSelectionBehaviour = exports.attachMagnific = undefined;
+exports.loadedManifest = undefined;
 
-var _helpers = require('../helpers.js');
+var _loadedManifest = require('../actions/loaded-manifest.js');
 
-var _selectionActions = require('./selectionActions.js');
-
-var _thumbs = require('../thumbs/thumbs.js');
-
-var _leaflet = require('leaflet');
-
-var _leaflet2 = _interopRequireDefault(_leaflet);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var $ = require('jquery');
-
-
-var store = null;
-var lastLocalState = null;
-var clearSelectionButton = '.toolbar__clear';
-var thumbsContainer = '.thumbs-container';
-var map = null;
-
-var createDeepZoomViewer = function createDeepZoomViewer() {
-  var $thumb = $('.thumb[data-mfp-src=\'' + $('.mfp-img').attr('src') + '\']');
-  $('.mfp-container').prepend('<div class="zoom-toolbar__map" id="map"></div>');
-  $('#map').click(function (e) {
-    return e.stopPropagation();
-  });
-  map = _leaflet2.default.map('map', {
-    center: [0, 0],
-    crs: _leaflet2.default.CRS.Simple,
-    zoom: 10
-  });
-
-  _leaflet2.default.tileLayer.iiif($thumb.attr('data-info')).addTo(map);
+var initialState = {
+  manifest: null,
+  // All images with additional data
+  allImages: [],
+  // Canvases with limited data
+  canvases: null,
+  classifiedCanvases: new Set(),
+  derivedManifests: null,
+  derivedManifestsComplete: new Set(),
+  thumbSizes: null
 };
 
-var destroyDeepZoomViewer = function destroyDeepZoomViewer() {
-  if (map !== null) {
-    map.remove();
-    $('#map').remove();
-    map = null;
-  }
-};
+var loadedManifest = exports.loadedManifest = function loadedManifest() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments[1];
 
-var deepZoomToggle = function deepZoomToggle() {
-  if ($('#map').length) {
-    destroyDeepZoomViewer();
-  } else {
-    createDeepZoomViewer();
-  }
-};
-
-var isIndexInSelection = function isIndexInSelection(idx) {
-  if (store.getState().select.selectedImages.indexOf(parseInt(idx, 10)) > -1) return true;
-  return false;
-};
-
-var addOrRemoveClick = function addOrRemoveClick() {
-  var $thumb = $('.thumb[data-mfp-src=\'' + $('.mfp-img').attr('src') + '\']');
-  var idx = $thumb.attr('data-idx');
-  store.dispatch((0, _selectionActions.addOrRemoveFromSelection)(idx));
-  // console.log(store.getState().select);
-  if (isIndexInSelection(idx)) {
-    $('.zoom-toolbar').addClass('zoom-toolbar--selected');
-  } else {
-    $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
-  }
-};
-
-var collectionNameChange = function collectionNameChange(e) {
-  e.stopPropagation();
-  // console.log('collectionNameChange', $(this).val());
-  store.dispatch((0, _selectionActions.setCollectionName)($(this).val()));
-};
-
-var createPopupToolbar = function createPopupToolbar() {
-  var collectionName = store.getState().select.collectionName !== null ? store.getState().select.collectionName : '';
-  var isSelected = isIndexInSelection(store.getState().select.currentImage.idx) ? ' zoom-toolbar--selected' : '';
-  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name">\n        <label for="collection-name">Collection name</label>\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Collection name" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Toggle deep zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
-
-  $('.mfp-with-zoom').addClass('mfp-toolbar').append($toolbar);
-  $('.zoom-toolbar__collection-name input').keyup(collectionNameChange);
-  // console.log($('#collection-name'));
-  $('.zoom-toolbar').click(function (e) {
-    e.stopPropagation();
-  });
-  $('.zoom-toolbar__zoom-button').click(deepZoomToggle);
-  $('.zoom-toolbar__select-button').click(addOrRemoveClick);
-};
-
-var destroyPopupToolbar = function destroyPopupToolbar() {
-  $('.zoom-toolbar').remove();
-  $('.mfp-with-zoom').removeClass('mfp-toolbar');
-};
-
-var Config = {
-  magnificOptions: {
-    callbacks: {
-      change: function change() {
-        var $thumb = $('.thumb[data-mfp-src=\'' + $(this.content).find('.mfp-img').attr('src') + '\']');
-        var currentImageData = {
-          idx: $thumb.attr('data-idx'),
-          info: $thumb.attr('data-info')
-        };
-        // console.log(currentImageData, store.getState().select.currentImage);
-        store.dispatch((0, _selectionActions.setCurrentImage)(currentImageData));
-        destroyDeepZoomViewer();
-      },
-      close: function close() {
-        destroyDeepZoomViewer();
-        destroyPopupToolbar();
-      },
-      open: function open() {
-        createPopupToolbar();
+  switch (action.type) {
+    case _loadedManifest.SET_MANIFEST:
+      {
+        return Object.assign({}, state, { manifest: action.manifest });
       }
-    },
-    delegate: 'img.thumb:visible',
-    type: 'image',
-    closeOnContentClick: false,
-    closeBtnInside: false,
-    closeOnBgClick: false,
-    mainClass: 'mfp-with-zoom mfp-img-mobile',
-    image: {
-      verticalFit: true
-    },
-    gallery: {
-      enabled: true
-    },
-    zoom: {
-      enabled: true,
-      duration: 300, // don't foget to change the duration also in CSS
-      opener: function opener(element) {
-        return element;
+    case _loadedManifest.SET_ALL_IMAGES:
+      {
+        return Object.assign({}, state, { allImages: action.allImages });
       }
-    }
+    case _loadedManifest.SET_CANVASES:
+      {
+        return Object.assign({}, state, { canvases: action.canvases });
+      }
+    case _loadedManifest.SET_DERIVED_MANIFESTS:
+      {
+        return Object.assign({}, state, {
+          derivedManifests: action.derivedManifests
+        });
+      }
+    case _loadedManifest.RESET_DERIVED_MANIFESTS:
+      {
+        return Object.assign({}, state, {
+          derivedManifests: initialState.derivedManifests
+        });
+      }
+    case _loadedManifest.SET_DERIVED_MANIFESTS_COMPLETE:
+      {
+        return Object.assign({}, state, {
+          derivedManifestsComplete: action.derivedManifestsComplete
+        });
+      }
+    case _loadedManifest.SET_CLASSIFIED_CANVASES:
+      {
+        return Object.assign({}, state, {
+          classifiedCanvases: action.classifiedCanvases
+        });
+      }
+    case _loadedManifest.SET_THUMB_SIZES:
+      {
+        return Object.assign({}, state, {
+          thumbSizes: action.thumbSizes
+        });
+      }
+    default:
+      return state;
   }
 };
 
-var Events = {
-  contextMenu: function contextMenu(e) {
-    var $target = $(e.target);
-    // console.log(e, $target);
-    if (($target.hasClass('thumb') || $target.hasClass('tc')) && e.ctrlKey) {
-      var idx = $target.attr('data-idx');
-      // console.log(idx);
-      store.dispatch((0, _selectionActions.addOrRemoveFromSelection)(idx));
-      e.preventDefault();
-    }
-  },
-  clearSelectionClick: function clearSelectionClick() {
-    store.dispatch((0, _selectionActions.clearSelection)());
-  },
-  domReady: function domReady() {
-    $(clearSelectionButton).click(Events.clearSelectionClick);
-    $(document).on('contextmenu', Events.contextMenu);
-  },
-  storeSubscribe: function storeSubscribe() {
-    // console.log('SEL - subscribe', store.getState(), lastLocalState);
-    var state = store.getState().select;
-    if ((0, _helpers.hasPropertyChanged)('selectedImages', state, lastLocalState)) {
-      // console.log('SEL - changed');
-      var $thumbActive = $('.thumb--active');
-      var $toolbarButtons = $('.toolbar__clear, .toolbar__make');
-      var $infoBar = $('.info-bar');
-      var selectedImages = state.selectedImages;
-
-      $thumbActive.removeClass('thumb--active');
-
-      if (selectedImages.length) {
-        $toolbarButtons.removeAttr('disabled');
-        $infoBar.addClass('info-bar--active');
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = selectedImages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var idx = _step.value;
-
-            $('.thumb:eq(' + idx + ')').addClass('thumb--active');
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      } else {
-        $toolbarButtons.attr('disabled', 'disabled');
-        $infoBar.removeClass('info-bar--active');
-      }
-    }
-    if ((0, _helpers.hasPropertyChanged)('allImages', state, lastLocalState)) {
-      (0, _thumbs.drawThumbs)();
-    }
-    if ((0, _helpers.hasPropertyChanged)('currentImage', state, lastLocalState)) {
-      if (isIndexInSelection(state.currentImage.idx)) {
-        $('.zoom-toolbar').addClass('zoom-toolbar--selected');
-      } else {
-        $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
-      }
-      // console.log('current image changed', state.currentImage);
-    }
-    if ((0, _helpers.hasPropertyChanged)('collectionName', state, lastLocalState)) {
-      console.log(state.collectionName);
-    }
-    /* console.log('SEL - subscribe, before lastLocalState assignment',
-    staticState, lastLocalState);*/
-    lastLocalState = state;
-  },
-  thumbClick: function thumbClick(e) {
-    var idx = $(this).attr('data-idx');
-    if (e.shiftKey) {
-      store.dispatch((0, _selectionActions.selectImageRange)(idx));
-    } else {
-      store.dispatch((0, _selectionActions.selectImage)(idx));
-    }
-    e.stopPropagation();
-  },
-  thumbZoomClick: function thumbZoomClick() {
-    var $thisContainer = $(this).closest('.tc');
-    // const $thisThumb = $thisContainer.find('.thumb');
-    var posInThumbs = $('.tc:visible').index($thisContainer);
-    // console.log(posInThumbs);
-    $(thumbsContainer).magnificPopup('open', posInThumbs);
-  }
-};
-
-var attachMagnific = exports.attachMagnific = function attachMagnific() {
-  $(thumbsContainer).removeData('magnificPopup');
-  $(thumbsContainer).magnificPopup(Config.magnificOptions);
-};
-
-var attachSelectionBehaviour = exports.attachSelectionBehaviour = function attachSelectionBehaviour() {
-  var $thumb = $('img.thumb');
-  $thumb.click(Events.thumbClick);
-  $('.thumb__zoom').click(Events.thumbZoomClick);
-  attachMagnific();
-  $thumb.unveil(300);
-};
-
-var selectionInit = exports.selectionInit = function selectionInit(globalStore) {
-  store = globalStore;
-  $(document).ready(Events.domReady);
-  store.subscribe(Events.storeSubscribe);
-};
-
-},{"../helpers.js":28,"../thumbs/thumbs.js":38,"./selectionActions.js":35,"jquery":1,"leaflet":2}],35:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-/* Action Types */
-var SELECT = exports.SELECT = 'SELECT';
-var SELECT_IMAGE_RANGE = exports.SELECT_IMAGE_RANGE = 'SELECT_IMAGE_RANGE';
-// export const START_RANGE = 'START_RANGE';
-// export const END_RANGE = 'END_RANGE';
-var ADD_OR_REMOVE_FROM_SELECTION = exports.ADD_OR_REMOVE_FROM_SELECTION = 'ADD_OR_REMOVE_FROM_SELECTION';
-var CLEAR_SELECTION = exports.CLEAR_SELECTION = 'CLEAR_SELECTION';
-var REPLACE_SELECTION = exports.REPLACE_SELECTION = 'REPLACE_SELECTION';
-var SET_ALL_IMAGES = exports.SET_ALL_IMAGES = 'SET_ALL_IMAGES';
-var SET_CURRENT_IMAGE = exports.SET_CURRENT_IMAGE = 'SET_CURRENT_IMAGE';
-var SET_COLLECTION_NAME = exports.SET_COLLECTION_NAME = 'SET_COLLECTION_NAME';
+exports.selectedCollection = undefined;
 
-/* Action Creators */
-var selectImage = exports.selectImage = function selectImage(idx) {
-  return {
-    type: SELECT,
-    currentImage: parseInt(idx, 10)
-  };
-};
-
-var selectImageRange = exports.selectImageRange = function selectImageRange(idx) {
-  return {
-    type: SELECT_IMAGE_RANGE,
-    selectTo: parseInt(idx, 10)
-  };
-};
-
-var addOrRemoveFromSelection = exports.addOrRemoveFromSelection = function addOrRemoveFromSelection(idx) {
-  return {
-    type: ADD_OR_REMOVE_FROM_SELECTION,
-    addOrRemoveFromSelection: parseInt(idx, 10)
-  };
-};
-
-var replaceSelection = exports.replaceSelection = function replaceSelection(selection) {
-  return {
-    type: REPLACE_SELECTION,
-    selection: selection
-  };
-};
-
-var clearSelection = exports.clearSelection = function clearSelection() {
-  return {
-    type: CLEAR_SELECTION
-  };
-};
-
-var setAllImages = exports.setAllImages = function setAllImages(allImages) {
-  return {
-    type: SET_ALL_IMAGES,
-    allImages: allImages
-  };
-};
-
-var setCurrentImage = exports.setCurrentImage = function setCurrentImage(currentImage) {
-  return {
-    type: SET_CURRENT_IMAGE,
-    currentImage: currentImage
-  };
-};
-
-var setCollectionName = exports.setCollectionName = function setCollectionName(collectionName) {
-  return {
-    type: SET_COLLECTION_NAME,
-    collectionName: collectionName
-  };
-};
-
-/*
-export const startRange = (idx) => ({
-  type: START_RANGE,
-  startRange: parseInt(idx, 10),
-});
-
-export const endRange = (idx) => ({
-  type: END_RANGE,
-  endRange: parseInt(idx, 10),
-});*/
-
-},{}],36:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var _selectedCollection = require('../actions/selected-collection.js');
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 var initialState = {
-  // startRange: null,
-  // endRange: null,
-  currentImage: null,
-  allImages: [],
-  selectedImages: [],
-  collectionName: null
+  collectionName: null,
+  selectedImages: []
 };
 
 // Given a state, return array of index values based on start and end values
@@ -27968,33 +28407,12 @@ var selectImagesWithinRange = function selectImagesWithinRange(start, end) {
   return rangeCollection;
 };
 
-var select = exports.select = function select() {
+var selectedCollection = exports.selectedCollection = function selectedCollection() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
   var action = arguments[1];
 
   switch (action.type) {
-    /*
-    case 'START_RANGE': {
-      // If there's an end range, update the selected images array
-      let selectedImages = state.selectedImages;
-      if (state.endRange !== null) {
-        selectedImages = selectImagesWithinRange(action.startRange, state.endRange);
-      }
-      return Object.assign({}, state, { startRange: action.startRange, selectedImages });
-    }
-    case 'END_RANGE': {
-      // If there's an end range, update the selected images array
-      let selectedImages = state.selectedImages;
-      if (state.startRange !== null) {
-        selectedImages = selectImagesWithinRange(state.startRange, action.endRange);
-      }
-      return Object.assign({}, state, { endRange: action.endRange, selectedImages });
-    }*/
-    case 'SET_CURRENT_IMAGE':
-      {
-        return Object.assign({}, state, { currentImage: action.currentImage });
-      }
-    case 'SELECT':
+    case _selectedCollection.SELECT:
       {
         var selectedImagesArray = state.selectedImages;
         // If not selected
@@ -28007,7 +28425,7 @@ var select = exports.select = function select() {
           selectedImages: selectedImagesArray
         });
       }
-    case 'SELECT_IMAGE_RANGE':
+    case _selectedCollection.SELECT_IMAGE_RANGE:
       {
         var selectedImages = state.selectedImages;
         var min = Math.min.apply(Math, selectedImages);
@@ -28021,7 +28439,7 @@ var select = exports.select = function select() {
 
         return Object.assign({}, state, { selectedImages: selectedImages });
       }
-    case 'ADD_OR_REMOVE_FROM_SELECTION':
+    case _selectedCollection.ADD_OR_REMOVE_FROM_SELECTION:
       {
         var _selectedImages = state.selectedImages.slice(0);
         var _currentImageArrayPosition = _selectedImages.indexOf(action.addOrRemoveFromSelection);
@@ -28032,20 +28450,15 @@ var select = exports.select = function select() {
         }
         return Object.assign({}, state, { selectedImages: _selectedImages });
       }
-    case 'REPLACE_SELECTION':
+    case _selectedCollection.REPLACE_SELECTION:
       {
         return Object.assign({}, state, { selectedImages: action.selection });
       }
-    case 'CLEAR_SELECTION':
+    case _selectedCollection.CLEAR_SELECTION:
       {
         return Object.assign({}, state, { selectedImages: [] });
       }
-    case 'SET_ALL_IMAGES':
-      {
-        // console.log('set all images called with', action);
-        return Object.assign({}, state, { allImages: action.allImages });
-      }
-    case 'SET_COLLECTION_NAME':
+    case _selectedCollection.SET_COLLECTION_NAME:
       {
         return Object.assign({}, state, { collectionName: action.collectionName });
       }
@@ -28054,201 +28467,163 @@ var select = exports.select = function select() {
   }
 };
 
-},{}],37:[function(require,module,exports){
+},{"../actions/selected-collection.js":26}],42:[function(require,module,exports){
 'use strict';
 
-var _config = require('../config/config.js');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sourceList = undefined;
 
-var _iiif = require('./iiif.js');
+var _sourceList = require('../actions/source-list.js');
+
+var initialState = {
+  sourceManifests: null
+};
+
+var sourceList = exports.sourceList = function sourceList() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments[1];
+
+  switch (action.type) {
+    case _sourceList.SET_SOURCE_MANIFESTS:
+      {
+        return Object.assign({}, state, { sourceManifests: action.sourceManifests });
+      }
+    default:
+      return state;
+  }
+};
+
+},{"../actions/source-list.js":27}],43:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ui = undefined;
+
+var _ui = require('../actions/ui.js');
+
+var initialState = {
+  activeTab: null,
+  lightbox: {
+    currentImage: null,
+    index: null,
+    visible: false
+  },
+  listVisible: false,
+  loadingManifest: false,
+  thumbSize: null
+};
+
+var ui = exports.ui = function ui() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments[1];
+
+  switch (action.type) {
+    case _ui.SET_CURRENT_IMAGE:
+      {
+        var lightbox = Object.assign({}, state.lightbox, { currentImage: action.currentImage });
+        return Object.assign({}, state, { lightbox: lightbox });
+      }
+    case _ui.SET_TAB:
+      {
+        return Object.assign({}, state, { activeTab: action.tab });
+      }
+    case _ui.SHOW_LIGHTBOX:
+      {
+        var _lightbox = Object.assign({}, state.lightbox, { index: action.index, visible: true });
+        return Object.assign({}, state, { lightbox: _lightbox });
+      }
+    case _ui.HIDE_LIGHTBOX:
+      {
+        var _lightbox2 = Object.assign({}, state.lightbox, { index: null, visible: false });
+        return Object.assign({}, state, { lightbox: _lightbox2 });
+      }
+    case _ui.TOGGLE_LIST:
+      {
+        return Object.assign({}, state, { listVisible: !state.listVisible });
+      }
+    case _ui.SET_LOADING_MANIFEST:
+      {
+        return Object.assign({}, state, { loadingManifest: action.loading });
+      }
+    case _ui.SET_THUMB_SIZE:
+      {
+        return Object.assign({}, state, { thumbSize: action.thumbSize });
+      }
+    default:
+      return state;
+  }
+};
+
+},{"../actions/ui.js":28}],44:[function(require,module,exports){
+'use strict';
 
 var _redux = require('redux');
 
-var _reducers = require('./reducers.js');
+var _index = require('./reducers/index.js');
 
-var _reducers2 = _interopRequireDefault(_reducers);
+var _index2 = _interopRequireDefault(_index);
 
-var _selection = require('./selection/selection.js');
+var _loadedManifest = require('./reducers/loaded-manifest.js');
 
-var _selectionActions = require('./selection/selectionActions.js');
+var _config = require('./config/config.js');
 
-var _derivedManifests = require('./derivedManifests/derivedManifests.js');
+var _iiif = require('./helpers/iiif.js');
 
-var _derivedManifestsActions = require('./derivedManifests/derivedManifestsActions.js');
+var _helpers = require('./helpers/helpers.js');
 
-var _input = require('./input/input.js');
+var _selection = require('./components/selection.js');
 
-var _thumbs = require('./thumbs/thumbs.js');
+var _selectedCollection = require('./actions/selected-collection.js');
 
-require('./workspace/workspace.js');
+var _derivedManifests = require('./components/derived-manifests.js');
+
+var _loadedManifest2 = require('./actions/loaded-manifest.js');
+
+var _input = require('./components/input.js');
+
+var _thumbs = require('./components/thumbs.js');
+
+require('./components/workspace.js');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var $ = require('jquery');
 window.$ = window.jQuery = $;
-require('../vendor/jquery.unveil.js');
+require('./vendor/jquery.unveil.js');
 require('leaflet');
-require('../vendor/leaflet-iiif.js');
+require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
-// import { setCanvases } from './input/inputActions.js';
+
+// Redux
+
+
+// Reducers
+
+
+// Sorty config
+
+
+// IIIF helpers
 
 
 // Create the store for application
-var store = (0, _redux.createStore)(_reducers2.default);
+/* eslint-disable no-underscore-dangle */
+var store = (0, _redux.createStore)(_index2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+/* eslint-enable */
 
 // Pass the store to component initialisers
-(0, _thumbs.thumbsInit)(store);
-(0, _derivedManifests.derivedManifestsInit)(store);
-(0, _selection.selectionInit)(store);
-(0, _input.inputInit)(store);
+(0, _thumbs.thumbsInit)(store, manifestStore);
+(0, _derivedManifests.derivedManifestsInit)(store, manifestStore);
+(0, _selection.selectionInit)(store, manifestStore);
+(0, _input.inputInit)(store, manifestStore);
 
 // Keep track of previous state for state diffing
 var lastState = null;
-
-// let bigImage;
-// let authDo;
-
-// const manifestTemplate = {
-//   '@context': 'http://iiif.io/api/presentation/2/context.json',
-//   '@id': 'to be replaced',
-//   '@type': 'sc:Manifest',
-//   label: 'to be replaced',
-//   service: 'canvas map here',
-//   sequences: [
-//     {
-//       '@id': 'to be replaced',
-//       '@type': 'sc:Sequence',
-//       label: 'Default sequence',
-//       canvases: [],
-//     },
-//   ],
-// };
-
-// new : source
-// const canvasMapTemplate = {
-//   '@id': 'to be replaced',
-//   '@context': 'https://dlcs.info/context/presley',
-//   profile: 'https://dlcs.info/profiles/canvasmap',
-//   canvasMap: {},
-// };
-
-// function doInfoAjax(uri, callback, token) {
-//   const opts = {};
-//   opts.url = uri;
-//   opts.complete = callback;
-//   if (token) {
-//     opts.headers = { Authorization: `Bearer ${token.accessToken}` };
-//     opts.tokenServiceUsed = token['@id'];
-//   }
-//   $.ajax(opts);
-// }
-
-// function onInfoComplete(jqXHR) {
-//   const infoJson = $.parseJSON(jqXHR.responseText);
-//   const services = IIIF.getAuthServices(infoJson);
-//
-//   if (jqXHR.status === 200) {
-//     // TODO - degraded, other auth modes.
-//     return;
-//   }
-//
-//   if (jqXHR.status === 403) {
-//     alert('TODO... 403');
-//     return;
-//   }
-//
-//   if (services.clickthrough) {
-//     bigImage.hide();
-//     authDo.attr('data-token', services.clickthrough.token.id);
-//     authDo.attr('data-uri', services.clickthrough.id);
-//     $('#authOps').show();
-//     $('.modal-footer').hide();
-//     $('#authOps h5').text(services.clickthrough.label);
-//     $('#authOps div').html(services.clickthrough.description);
-//     authDo.text(services.clickthrough.confirmLabel);
-//   } else {
-//     alert('only clickthrough supported from here');
-//   }
-// }
-
-// function attemptAuth(imageService) {
-//   let imageServiceInfo = imageService;
-//   imageServiceInfo += '/info.json';
-//   doInfoAjax(imageServiceInfo, onInfoComplete);
-// }
-
-// function reloadImage() {
-//   bigImage.show();
-//   bigImage.attr('src', `${bigImage.attr('data-src')}#${new Date().getTime()}`);
-// }
-
-// function doClickthroughViaWindow() {
-//   const authSvc = $(this).attr('data-uri');
-//   const tokenSvc = $(this).attr('data-token');
-//   const win = window.open(authSvc); //
-//   const pollTimer = window.setInterval(() => {
-//     if (win.closed) {
-//       window.clearInterval(pollTimer);
-//       if (tokenSvc) {
-//         // on_authed(tokenSvc);
-//         $('#authOps').hide();
-//         $('.modal-footer').show();
-//         reloadImage(); // bypass token for now
-//       }
-//     }
-//   }, 500);
-// }
-
-
-/*
-const state = store.getState();
-const selectedImages = state.select.selectedImages;
-const manifest = state.input.manifest;
-const canvases = state.input.canvases;
-const s = Math.min.apply(Math, selectedImages);
-const e = Math.max.apply(Math, selectedImages);
- const newManifest = $.extend(true, {}, manifestTemplate);
-IIIF.wrap(newManifest);
- newManifest.id = SortyConfiguration.getManifestUrl(manifest, s, e);
-newManifest.label = SortyConfiguration.getManifestLabel(manifest, s, e);
-newManifest.sequences[0].id = SortyConfiguration.getSequenceUrl(manifest, s, e);
-const canvasMapService = $.extend(true, {}, canvasMapTemplate);
-IIIF.wrap(canvasMapService);
-canvasMapService.id = `${newManifest.id}/canvasmap`;
-newManifest.service = canvasMapService;
- console.log(selectedImages, typeof selectedImages);
- for (const cvsIdx of selectedImages) {
-  const sourceCanvas = canvases[cvsIdx];
-  const newCanvas = $.extend(true, {}, sourceCanvas);
-  IIIF.wrap(newCanvas);
-  newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-  canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-  newManifest.sequences[0].canvases.push(newCanvas);
-}
- console.log(newManifest);
-console.log(loadManifestPage);
- $.ajax({
-  url: newManifest.id,
-  type: 'PUT',
-  contentType: 'application/json',
-  data: JSON.stringify(newManifest),
-  dataType: 'json',
-}).done(() => {
-  newManifest.sequences = null;
-  newManifest.service = null;
-  $.ajax({
-    url: SortyConfiguration.getCollectionUrl(manifest),
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(newManifest),
-    dataType: 'json',
-  }).done(() => {
-    loadManifestPage(newManifest.id);
-  }).fail((xhr, textStatus, error) => {
-    alert(error);
-  });
-}).fail((xhr, textStatus, error) => {
-  alert(error);
-});*/
 
 var Config = {
   manifestTemplate: {
@@ -28296,11 +28671,12 @@ var Events = {
         beforeOpen: function beforeOpen() {
           $('html').addClass('mfp-modal');
           var state = store.getState();
-          var manifest = state.input.manifest;
-          var selectedImages = state.select.selectedImages;
+          var manifestState = manifestStore.getState();
+          var manifest = manifestState.manifest;
+          var selectedImages = state.selectedCollection.selectedImages;
           var s = Math.min.apply(Math, selectedImages);
           var e = Math.max.apply(Math, selectedImages);
-          var label = store.getState().select.collectionName !== null ? store.getState().select.collectionName : _config.SortyConfiguration.getManifestLabel(manifest, s, e).trim();
+          var label = store.getState().selectedCollection.collectionName !== null ? store.getState().selectedCollection.collectionName : _config.SortyConfiguration.getManifestLabel(manifest, s, e).trim();
           DOM.$manifestModalInput.val(label);
         },
         beforeClose: function beforeClose() {
@@ -28319,9 +28695,10 @@ var Events = {
   },
   modalMakeManifest: function modalMakeManifest() {
     var state = store.getState();
-    var selectedImages = state.select.selectedImages;
-    var manifest = state.input.manifest;
-    var canvases = state.input.canvases;
+    var manifestState = manifestStore.getState();
+    var selectedImages = state.selectedCollection.selectedImages;
+    var manifest = manifestState.manifest;
+    var canvases = manifestState.canvases;
     var s = Math.min.apply(Math, selectedImages);
     var e = Math.max.apply(Math, selectedImages);
 
@@ -28390,15 +28767,11 @@ var Events = {
         $activeThumbs.removeClass('thumb--active');
 
         // Clear selection
-        store.dispatch((0, _selectionActions.clearSelection)());
-        store.dispatch((0, _selectionActions.setCollectionName)(''));
-
-        // console.log('make manifest done data', data);
-        // console.log('new manifest data', newManifest);
-        // console.log('existing derivedManifests state', store.getState().derivedManifestsReducer);
+        store.dispatch((0, _selectedCollection.clearSelection)());
+        store.dispatch((0, _selectedCollection.setCollectionName)(''));
 
         // Push into derived manifests / derived manifests complete
-        store.dispatch((0, _derivedManifestsActions.resetDerivedManifests)());
+        manifestStore.dispatch((0, _loadedManifest2.resetDerivedManifests)());
         (0, _derivedManifests.getCreatedManifests)();
 
         // Switch to classified view to reflect new derived manifest
@@ -28412,20 +28785,14 @@ var Events = {
     });
   },
   storeSubscribe: function storeSubscribe() {
-    var inputState = store.getState().input;
-    // const selectionState = store.getState().select;
+    // console.log('scripts.js', store.getState());
+    var state = store.getState().ui;
 
-    if (lastState === null && inputState.canvases !== null || lastState !== null && inputState.canvases !== lastState.input.canvases) {
-      // console.log(inputState.canvases);
-      // makeThumbSizeSelector(inputState.canvases);
-      // drawThumbs(inputState.canvases);
-    }
-
-    if (lastState !== null && inputState.thumbSize !== lastState.input.thumbSize) {
+    if ((0, _helpers.hasPropertyChanged)('thumbSize', state, lastState)) {
       (0, _thumbs.drawThumbs)();
     }
 
-    lastState = store.getState();
+    lastState = state;
   }
 };
 
@@ -28433,379 +28800,7 @@ $(document).ready(Events.domReady);
 
 store.subscribe(Events.storeSubscribe);
 
-},{"../config/config.js":40,"../vendor/jquery.unveil.js":42,"../vendor/leaflet-iiif.js":43,"./derivedManifests/derivedManifests.js":25,"./derivedManifests/derivedManifestsActions.js":26,"./iiif.js":29,"./input/input.js":30,"./reducers.js":33,"./selection/selection.js":34,"./selection/selectionActions.js":35,"./thumbs/thumbs.js":38,"./workspace/workspace.js":39,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],38:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.thumbsUpdate = exports.makeThumbSizeSelector = exports.storeThumbSizes = exports.drawThumbs = exports.storeThumbs = exports.updateThumbsWithStatus = exports.thumbsInit = undefined;
-
-var _selection = require('../selection/selection.js');
-
-var _selectionActions = require('../selection/selectionActions.js');
-
-var _inputActions = require('../input/inputActions.js');
-
-var $ = require('jquery');
-// import { SortyConfiguration } from '../../config/config.js';
-
-
-var thumbSizeSelector = '.toolbar__thumb-size';
-var store = null;
-
-var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore) {
-  store = globalStore;
-};
-
-var isActive = function isActive() {
-  return store.getState().select.selectedImages.indexOf(this.index) > -1;
-};
-
-var isClassified = function isClassified() {
-  // console.log(this.canvasId, store.getState().derivedManifestsReducer.classifiedCanvases);
-  return store.getState().derivedManifestsReducer.classifiedCanvases.has(this.canvasId);
-};
-
-var updateThumbsWithStatus = exports.updateThumbsWithStatus = function updateThumbsWithStatus() {
-  // console.log('updateThumbsWithStatus');
-  var classifiedThumbs = store.getState().derivedManifestsReducer.classifiedCanvases;
-  var $thumbs = $('.thumb');
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = classifiedThumbs.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var thumbUri = _step.value;
-
-      // console.log(thumbUri);
-      $thumbs.filter('.thumb[data-uri="' + thumbUri + '"]').parent().addClass('tc--classified');
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-};
-
-var getThumbsFromCanvas = function getThumbsFromCanvas(canvas, thumbSizes) {
-  var thumbs = {};
-  var _iteratorNormalCompletion2 = true;
-  var _didIteratorError2 = false;
-  var _iteratorError2 = undefined;
-
-  try {
-    for (var _iterator2 = thumbSizes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-      var thumbSize = _step2.value;
-
-      var min = thumbSize < 100 ? 0 : Math.round(thumbSize * 0.8);
-      var max = thumbSize < 100 ? 200 : thumbSize * 2;
-      var thumb = canvas.getThumbnail(thumbSize, min, max);
-      thumbs[thumbSize] = thumb;
-    }
-  } catch (err) {
-    _didIteratorError2 = true;
-    _iteratorError2 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion2 && _iterator2.return) {
-        _iterator2.return();
-      }
-    } finally {
-      if (_didIteratorError2) {
-        throw _iteratorError2;
-      }
-    }
-  }
-
-  return thumbs;
-};
-
-var storeThumbs = exports.storeThumbs = function storeThumbs(canvases) {
-  // console.log('storeThumbs');
-  var allImages = [];
-  var thumbSizes = store.getState().input.thumbSizes;
-  var i = 0;
-  // console.log('storeThumbs called with', canvases);
-  var _iteratorNormalCompletion3 = true;
-  var _didIteratorError3 = false;
-  var _iteratorError3 = undefined;
-
-  try {
-    for (var _iterator3 = canvases[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-      var canvas = _step3.value;
-
-      var thumbs = getThumbsFromCanvas(canvas, thumbSizes);
-      // console.log(canvas);
-      allImages.push({
-        canvasId: canvas.id,
-        fullSrc: canvas.getThumbnail(1000, 800, 2000),
-        index: i,
-        info: thumbs[100].info,
-        isActive: isActive,
-        isClassified: isClassified,
-        thumbs: thumbs
-      });
-      i++;
-    }
-    // console.log(allImages);
-  } catch (err) {
-    _didIteratorError3 = true;
-    _iteratorError3 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion3 && _iterator3.return) {
-        _iterator3.return();
-      }
-    } finally {
-      if (_didIteratorError3) {
-        throw _iteratorError3;
-      }
-    }
-  }
-
-  store.dispatch((0, _selectionActions.setAllImages)(allImages));
-};
-
-var drawThumbs = exports.drawThumbs = function drawThumbs() {
-  var $titleAll = $('.viewer__title--all');
-  $titleAll.text('Showing all ' + store.getState().select.allImages.length + '\n  images');
-  var $thumbs = $('.thumbs-container');
-  $thumbs.empty();
-  var preferredSize = '' + store.getState().input.thumbSize;
-  var _iteratorNormalCompletion4 = true;
-  var _didIteratorError4 = false;
-  var _iteratorError4 = undefined;
-
-  try {
-    for (var _iterator4 = store.getState().select.allImages[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-      var image = _step4.value;
-
-      // console.log(image);
-      var preferredThumb = image.thumbs[preferredSize];
-      var dimensions = preferredThumb.width && preferredThumb.height ? 'width="' + preferredThumb.width + '" height="' + preferredThumb.height + '"' : '';
-      var activeClass = image.isActive() ? ' thumb--active' : '';
-      var classifiedClass = image.isClassified() ? ' tc--classified' : '';
-      var thumbnail = '\n    <div class="tc' + classifiedClass + '">\n      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB      CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" class="thumb' + activeClass + '"\n      data-uri="' + image.canvasId + '"\n      data-src="' + preferredThumb.url + '"\n      data-mfp-src="' + image.fullSrc.url + '"\n      data-idx="' + image.index + '"\n      data-info="' + image.info + '"\n      ' + dimensions + ' />\n      <button class="thumb__zoom"><i class="material-icons">zoom_in</i></button>\n    </div>\n    ';
-      // console.log(thumbnail);
-      $thumbs.append(thumbnail);
-    }
-  } catch (err) {
-    _didIteratorError4 = true;
-    _iteratorError4 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion4 && _iterator4.return) {
-        _iterator4.return();
-      }
-    } finally {
-      if (_didIteratorError4) {
-        throw _iteratorError4;
-      }
-    }
-  }
-
-  (0, _selection.attachSelectionBehaviour)();
-};
-
-var storeThumbSizes = exports.storeThumbSizes = function storeThumbSizes(canvases) {
-  var choices = [100, 200, 400];
-  var foundSizes = [];
-  for (var i = 0; i < Math.min(canvases.length, 10); i++) {
-    var canvas = canvases[i];
-    if (canvas.thumbnail && canvas.thumbnail.service && canvas.thumbnail.service.sizes) {
-      var sizes = canvas.thumbnail.service.sizes;
-      var j = void 0;
-      for (j = 0; j < sizes.length; j++) {
-        var testSize = Math.max(sizes[j].width, sizes[j].height);
-        foundSizes.push(testSize);
-        if (choices.indexOf(testSize) === -1 && testSize <= 600) {
-          choices.push(testSize);
-        }
-      }
-    }
-  }
-  choices.sort(function (a, b) {
-    return a - b;
-  });
-  store.dispatch((0, _inputActions.setThumbSizes)(choices));
-};
-
-var makeThumbSizeSelector = exports.makeThumbSizeSelector = function makeThumbSizeSelector() {
-  $(thumbSizeSelector).empty();
-  var choices = store.getState().input.thumbSizes;
-  var html = '<select id="thumbSize">';
-  for (var i = 0; i < choices.length; i++) {
-    var box = choices[i];
-    var label = box;
-    /*
-    if (foundSizes.indexOf(box) !== -1) {
-      label += '*';
-    }*/
-    html += '<option value="' + box + '">' + label + 'pixels</option>';
-  }
-  html += '</select>';
-  $(thumbSizeSelector).append(html);
-  var thumbSize = localStorage.getItem('thumbSize');
-  if (!thumbSize) {
-    thumbSize = choices[0];
-    localStorage.setItem('thumbSize', thumbSize);
-  }
-  if (thumbSize !== choices[0]) {
-    $('#thumbSize option[value="' + thumbSize + '"]').prop('selected', true);
-  }
-  $('#thumbSize').change(function updateThumbSize() {
-    var ts = $(this).val();
-    localStorage.setItem('thumbSize', ts);
-    store.dispatch((0, _inputActions.setThumbSize)(ts));
-  });
-};
-
-var thumbsUpdate = exports.thumbsUpdate = function thumbsUpdate() {
-  var canvases = store.getState().input.canvases;
-  storeThumbSizes(canvases);
-  storeThumbs(canvases);
-  makeThumbSizeSelector();
-};
-
-},{"../input/inputActions.js":31,"../selection/selection.js":34,"../selection/selectionActions.js":35,"jquery":1}],39:[function(require,module,exports){
-'use strict';
-
-var _selection = require('../selection/selection.js');
-
-var $ = require('jquery');
-
-
-var DOM = {
-  $tabs: null,
-  $workspace: null,
-
-  init: function init() {
-    DOM.$tabs = $('.workspace-tabs__link');
-    DOM.$workspace = $('.viewer');
-  }
-};
-
-var Events = {
-  domReady: function domReady() {
-    DOM.init();
-    Events.init();
-  },
-  init: function init() {
-    DOM.$tabs.click(Events.tabClick);
-  },
-  tabClick: function tabClick(e) {
-    e.preventDefault();
-    var $thisTab = $(this);
-    DOM.$tabs.removeClass('workspace-tabs__link--active');
-    $thisTab.addClass('workspace-tabs__link--active');
-    DOM.$workspace.attr('class', 'viewer viewer--' + $thisTab.attr('data-modifier'));
-    (0, _selection.attachMagnific)();
-    $(window).trigger('lookup');
-  }
-};
-
-$(document).ready(Events.domReady);
-
-},{"../selection/selection.js":34,"jquery":1}],40:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-/* this file is where you customise sorty to do what you need */
-var SortyConfiguration = exports.SortyConfiguration = {};
-/* logic for naming IIIF resources in your CRUD server */
-
-var presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
-SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
-
-function getPath(url) {
-  var reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
-  return reg.exec(url)[1];
-}
-
-function getUriComponent(str) {
-  // for demo purposes! Not safe for general URL patterns
-  return getPath(str).replace(/\//g, '_');
-}
-
-function getIdentifier(loadedResource, start, end) {
-  return getUriComponent(loadedResource) + 'cvs-' + start + '-' + end;
-}
-
-SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, start, end) {
-  return getPath(loadedResource).replace(/\//g, ' ') + 'canvases' + start + '-' + end;
-};
-
-SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {
-  return presentationServer + 'collection/' + getUriComponent(loadedResource);
-};
-
-// These are MVP and don't offer a lot of flexibility.
-SortyConfiguration.getManifestUrl = function getManifestUrl(loadedResource, start, end) {
-  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/manifest';
-};
-
-SortyConfiguration.getSequenceUrl = function getSequenceUrl(loadedResource, start, end) {
-  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/sequence/s0';
-};
-
-SortyConfiguration.getCanvasUrl = function getCanvasUrl(loadedResource, start, end, canvasIndex) {
-  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/canvas/c' + canvasIndex;
-};
-
-/* application-specific extra stuff to show per canvas */
-SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) {
-  var divClass = 'ocrUnknown';
-  var additionalHtml = '';
-  var confBar = '<div class="confBarPlaceholder"></div>';
-  var imgLabel = '';
-  if (canvas.service && canvas.service.context === 'https://dlcs-ida.org/ocr-info') {
-    var isType = canvas.service.Typescript;
-    divClass = isType ? 'ocrType' : 'ocrHand';
-    if (isType) {
-      var conf = canvas.service.Average_confidence || 0;
-      var accu = canvas.service.Spelling_accuracy || 0;
-      confBar = '<div class="confBar"><div class="conf" style="width:' + conf + '%;"></div></div>\n                 <div class="confBar"><div class="accu" style="width: ' + accu + '%;"></div></div>';
-    }
-    var textLength = canvas.service.Full_text_length;
-    var entities = canvas.service.Total_entities_found;
-    additionalHtml += '<div class="imgInfo">';
-    if (textLength > 3) additionalHtml += 'T: ' + textLength + '&nbsp;&nbsp;';
-    if (entities > 1) additionalHtml += 'E: ' + entities;
-    additionalHtml += '&nbsp;</div>';
-    var stats = canvas.service.Entity_stats;
-    if (stats) {
-      stats.forEach(function (currentValue, index) {
-        imgLabel += '\r\n' + index + ': ' + currentValue;
-      });
-    }
-  }
-
-  return {
-    divClass: divClass,
-    label: imgLabel,
-    canvasInfo: confBar + additionalHtml
-  };
-};
-
-},{}],41:[function(require,module,exports){
-'use strict';
-
-require('./components/sorty.js');
-
-},{"./components/sorty.js":37}],42:[function(require,module,exports){
+},{"./actions/loaded-manifest.js":25,"./actions/selected-collection.js":26,"./components/derived-manifests.js":29,"./components/input.js":30,"./components/selection.js":31,"./components/thumbs.js":34,"./components/workspace.js":35,"./config/config.js":36,"./helpers/helpers.js":37,"./helpers/iiif.js":38,"./reducers/index.js":39,"./reducers/loaded-manifest.js":40,"./vendor/jquery.unveil.js":45,"./vendor/leaflet-iiif.js":46,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],45:[function(require,module,exports){
 "use strict";
 
 /**
@@ -28863,7 +28858,7 @@ require('./components/sorty.js');
   };
 })(window.jQuery || window.Zepto);
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -29106,4 +29101,4 @@ L.tileLayer.iiif = function (url, options) {
   return new L.TileLayer.Iiif(url, options);
 };
 
-},{}]},{},[41]);
+},{}]},{},[44]);
