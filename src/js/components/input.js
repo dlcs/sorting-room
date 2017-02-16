@@ -7,7 +7,6 @@ import {
 } from '../actions/loaded-manifest.js';
 import {
   setLoading,
-  setThumbSize,
 } from '../actions/ui.js';
 import {
   clearSelection,
@@ -163,9 +162,5 @@ export const inputInit = (globalStore, globalManifestStore) => {
   // Subscribe to store changes
   manifestStore.subscribe(Events.manifestStoreSubscribe);
   store.subscribe(Events.storeSubscribe);
-  const thumbSize = window.localStorage ? localStorage.getItem('thumbSize') : null;
-  if (thumbSize !== null) {
-    store.dispatch(setThumbSize(thumbSize));
-  }
   $(document).ready(Events.domReady);
 };

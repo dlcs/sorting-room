@@ -1,0 +1,113 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>IIIF Sorting room</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Open+Sans:400,600" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1 class="header__title">Sorty: IIIF Sorting room</h1>
+        <div class="toolbar">
+          <label class="toolbar__label">Thumbnail size</label>
+          <div class="toolbar__thumb-size"></div>
+          <button class="toolbar__clear btn" disabled>
+            <i class="material-icons">cancel</i> Clear selection</button>
+          <button class="toolbar__make btn" disabled>
+            <i class="material-icons">note_add</i> Make manifest</button>
+        </div>
+      </header>
+      <main>
+        <div class="container body-content" id="mainContainer">
+          <div class="manifest-input">
+            <div class="manifest-input__input">
+              <form method="GET">
+                <input type="text" class="manifest-input__text-input" name="manifest" placeholder="Enter manifest uri..." />
+                <button type="submit" class="manifest-input__load-button btn">Load</button>
+                <button type="button" class="manifest-input__expand-button btn">
+                  <i class="material-icons">arrow_drop_down</i>Show microfilm list</button>
+              </form>
+            </div>
+            <div class="manifest-input__loaded">
+              <p class="manifest-input__feedback">Loading...</p>
+            </div>
+            <div class="manifest-input__list">
+            </div>
+            <div class="load-bar">
+              <div class="load-bar__inner"></div>
+            </div>
+          </div>
+          <div class="workspace">
+            <nav class="workspace-tabs">
+              <ul class="workspace-tabs__list">
+                <li class="workspace-tabs__item">
+                  <a class="workspace-tabs__link workspace-tabs__link--active" href="#all" data-modifier="all">
+                    <i class="material-icons">theaters</i>
+                    <br/>All Images</a> 
+                </li>
+                <li class="workspace-tabs__item workspace-tabs__item--dm">
+                  <a class="workspace-tabs__link" href="#add" data-modifier="add">
+                    <i class="material-icons">library_add</i>
+                    <br/>To Classify</a> 
+                </li>
+                <li class="workspace-tabs__item workspace-tabs__item--dm">
+                  <a class="workspace-tabs__link" href="#done" data-modifier="done">
+                    <i class="material-icons">done</i>
+                    <br/>Completed</a> 
+                </li>
+              </ul>
+            </nav>
+
+            <!-- viewer--done -->
+
+            <!-- viewer--all -->
+            <div class="viewer viewer--all">
+              <div class="viewer__classify">
+                <h3 class="viewer__title">
+                  <span class="viewer__title--all">Showing all {x} images for {manifest}</span> 
+                  <span class="viewer__title--add">Showing remaining {y} images to be classified for {manifest}</span> 
+                </h3>
+                <p class="viewer__help"></p>
+                <div class="thumbs-container">
+                </div>
+              </div>
+              <div class="viewer__classified">
+
+                <!-- <div class="manifest-select">
+  <select class="manifest-select__dropdown"></select>
+  <button class="manifest-select__view-uv btn">View in UV</button>
+</div>
+ -->
+                <h3 class="viewer__classified-title">Showing {x} completed for {manifest}</h3>
+                <div class="classified-material">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="info-bar">
+            <div class="info-bar__selection">
+              <p class="info-bar__tip">Hold [shift] to select a range</p>
+              <p class="info-bar__tip">Hold [ctrl] to add/remove from selection</p>
+            </div>
+          </div>
+          <footer>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <div id="manifestmodal" class="manifest-modal mfp-hide">
+      <h1>Make manifest</h1>
+      <p>Give your manifest a friendly name and submit, or cancel</p>
+      <input class="manifest-modal__input" type="text" placeholder="Manifest name" value="" />
+      <p class="manifest-modal__actions">
+        <button class="btn manifest-modal__dismiss popup-modal-dismiss">Cancel</button>
+        <button class="btn manifest-modal__make">Make manifest</button>
+      </p>
+    </div>
+    <script src="assets/js/script.js"></script>
+  </body>
+</html>

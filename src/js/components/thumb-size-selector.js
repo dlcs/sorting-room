@@ -8,6 +8,12 @@ let manifestStore = null;
 const Init = (globalStore, globalManifestStore) => {
   store = globalStore;
   manifestStore = globalManifestStore;
+  const thumbSize = window.localStorage ? localStorage.getItem('thumbSize') : null;
+  if (typeof thumbSize !== 'undefined' && thumbSize !== null) {
+    store.dispatch(setThumbSize(thumbSize));
+  } else {
+    store.dispatch(setThumbSize(100));
+  }
 };
 export default Init;
 
@@ -31,7 +37,8 @@ export const makeThumbSizeSelector = () => {
   html += '</select>';
   DOM.$thumbSizeSelector.append(html);
   let thumbSize = localStorage.getItem('thumbSize');
-  if (!thumbSize) {
+  console.log(thumbSize);
+  if (typeof thumbSize === 'undefined' || thumbSize === null) {
     thumbSize = choices[0];
     localStorage.setItem('thumbSize', thumbSize);
   }
