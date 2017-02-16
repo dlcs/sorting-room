@@ -41,6 +41,10 @@
     display: none;
     padding: 30px 0;
 
+    .info {
+      background-color: lighten($black, 95%);
+    }
+
     &--active {
       display: block;
     }

@@ -1,5 +1,8 @@
 const $ = require('jquery');
-// import { SortyConfiguration } from '../../config/config.js';
+import { SortyConfiguration } from '../config/config.js';
+import {
+  hasPropertyChanged,
+} from '../helpers/helpers.js';
 import { attachSelectionBehaviour } from './selection.js';
 import thumbSizeInit, { makeThumbSizeSelector } from './thumb-size-selector.js';
 import {
@@ -7,15 +10,11 @@ import {
   setThumbSizes,
 } from '../actions/loaded-manifest.js';
 
-
 let store = null;
 let manifestStore = null;
 
-export const thumbsInit = (globalStore, globalManifestStore) => {
-  store = globalStore;
-  manifestStore = globalManifestStore;
-  thumbSizeInit(store, manifestStore);
-};
+// Keep track of previous state for state diffing
+let lastState = null;
 
 const isActive = function () {
   return store.getState().selectedCollection.selectedImages.indexOf(this.index) > -1;
@@ -85,6 +84,8 @@ export const drawThumbs = () => {
     `width="${preferredThumb.width}" height="${preferredThumb.height}"` : '';
     const activeClass = image.isActive() ? ' thumb--active' : '';
     const classifiedClass = image.isClassified() ? ' tc--classified' : '';
+    const decorations = SortyConfiguration.getCanvasDecorations(image);
+    console.log(decorations);
     const thumbnail = `
     <div class="tc${classifiedClass}">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB\
@@ -96,6 +97,7 @@ export const drawThumbs = () => {
       data-info="${image.info}"
       ${dimensions} />
       <button class="thumb__zoom"><i class="material-icons">zoom_in</i></button>
+      ${decorations.canvasInfo}
     </div>
     `;
     // console.log(thumbnail);
@@ -125,9 +127,29 @@ export const storeThumbSizes = (canvases) => {
   manifestStore.dispatch(setThumbSizes(choices));
 };
 
+const Events = {
+  storeSubscribe() {
+    // console.log('scripts.js', store.getState());
+    const state = store.getState().ui;
+
+    if (hasPropertyChanged('thumbSize', state, lastState)) {
+      drawThumbs();
+    }
+
+    lastState = state;
+  },
+};
+
 export const thumbsUpdate = () => {
   const canvases = manifestStore.getState().canvases;
   storeThumbSizes(canvases);
   storeThumbs(canvases);
   makeThumbSizeSelector();
+};
+
+export const thumbsInit = (globalStore, globalManifestStore) => {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  store.subscribe(Events.storeSubscribe);
+  thumbSizeInit(store, manifestStore);
 };

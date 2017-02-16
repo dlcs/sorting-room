@@ -37,7 +37,6 @@ export const makeThumbSizeSelector = () => {
   html += '</select>';
   DOM.$thumbSizeSelector.append(html);
   let thumbSize = localStorage.getItem('thumbSize');
-  console.log(thumbSize);
   if (typeof thumbSize === 'undefined' || thumbSize === null) {
     thumbSize = choices[0];
     localStorage.setItem('thumbSize', thumbSize);

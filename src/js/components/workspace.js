@@ -1,5 +1,5 @@
 const $ = require('jquery');
-import { attachMagnific } from './selection.js';
+import { attachMagnific } from './lightbox.js';
 
 const DOM = {
   $tabs: null,
