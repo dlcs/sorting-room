@@ -17,7 +17,6 @@ import { updateThumbsWithStatus } from './thumbs.js';
 const manifestSelector = '.manifest-select__dropdown';
 const viewManifest = '.manifest-select__view-uv';
 
-let store = null;
 let manifestStore = null;
 let lastLocalState = null;
 
@@ -280,7 +279,7 @@ const subscribeActions = () => {
 };
 
 export const derivedManifestsInit = (globalStore, globalManifestStore) => {
-  store = globalStore;
+  // store = globalStore;
   manifestStore = globalManifestStore;
-  store.subscribe(subscribeActions);
+  manifestStore.subscribe(subscribeActions);
 };

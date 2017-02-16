@@ -91,7 +91,7 @@ export const ajaxLoadManifest = function () {
 };
 
 export const processQueryStringFromInput = function (url) {
-  console.log('pqsfi[', url, ']');
+  // console.log('pqsfi[', url, ']');
   if (url !== '') {
     const qs = /manifest=(.*)/g.exec(url);
     // console.log('qs', qs);

@@ -53,7 +53,7 @@ const getCollectionData = () => {
 };
 
 function renderCollection(collection) {
-  console.log('render collection');
+  // console.log('render collection');
   const collectionToRender = collection;
   let table = '<table class="table table-condensed"><thead><tr>';
   if (collectionToRender.service && collectionToRender.service.headers) {
@@ -107,6 +107,7 @@ const Events = {
   loadManifestLinkClick(e) {
     e.preventDefault();
     processQueryStringFromInput(`?${this.href.split('?')[1]}`);
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
     store.dispatch(toggleList());
     ajaxLoadManifest();
   },
@@ -120,10 +121,12 @@ const Events = {
     if (hasPropertyChanged('listVisible', uiState, lastLocalUiState)) {
       const expandedCollectionActiveClass = 'manifest-input__list--active';
       if (uiState.listVisible) {
-        DOM.$expandCollectionButton.text('Hide microfilm list');
+        DOM.$expandCollectionButton
+        .html('<i class="material-icons">arrow_drop_up</i>Hide microfilm list');
         DOM.$expandedCollection.addClass(expandedCollectionActiveClass);
       } else {
-        DOM.$expandCollectionButton.text('Show microfilm list');
+        DOM.$expandCollectionButton
+        .html('<i class="material-icons">arrow_drop_down</i>Show microfilm list');
         DOM.$expandedCollection.removeClass(expandedCollectionActiveClass);
       }
     }

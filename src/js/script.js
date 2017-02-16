@@ -135,7 +135,7 @@ const Events = {
   modalMakeManifest() {
     const state = store.getState();
     const manifestState = manifestStore.getState();
-    const selectedImages = state.select.selectedImages;
+    const selectedImages = state.selectedCollection.selectedImages;
     const manifest = manifestState.manifest;
     const canvases = manifestState.canvases;
     const s = Math.min.apply(Math, selectedImages);
@@ -203,7 +203,7 @@ const Events = {
     });
   },
   storeSubscribe() {
-    console.log('scripts.js', store.getState());
+    // console.log('scripts.js', store.getState());
     const state = store.getState().ui;
 
     if (hasPropertyChanged('thumbSize', state, lastState)) {

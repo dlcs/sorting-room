@@ -32,7 +32,10 @@ const createDeepZoomViewer = () => {
   map = L.map('map', {
     center: [0, 0],
     crs: L.CRS.Simple,
-    zoom: 10,
+    zoom: 2,
+  }).on('layeradd', (e) => {
+    e.target.setZoom(3);
+    // e.target.panTo(center);
   });
 
   L.tileLayer.iiif($thumb.attr('data-info')).addTo(map);
@@ -86,9 +89,8 @@ const createPopupToolbar = () => {
   const $toolbar = $(`
     <ul class="zoom-toolbar${isSelected}">
       <li class="zoom-toolbar__item zoom-toolbar__collection-name">
-        <label for="collection-name">Collection name</label>
         <input id="collection-name" type="text"
-        value="${collectionName}" placeholder="Collection name" />
+        value="${collectionName}" placeholder="Name your collection" />
       </li>
       <li class="zoom-toolbar__item">
         <button class="btn zoom-toolbar__zoom-button">
@@ -183,7 +185,7 @@ const Events = {
     // console.log(store.getState());
     // console.log('SEL - subscribe', store.getState(), lastLocalState);
     const loadedManifestState = manifestStore.getState();
-    console.log('manifestStoreSubscribe', loadedManifestState);
+    // console.log('manifestStoreSubscribe', loadedManifestState);
     if (hasPropertyChanged('allImages', loadedManifestState, lastLocalLoadedManifestState)) {
       drawThumbs();
     }
