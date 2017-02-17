@@ -41,15 +41,10 @@ const Events = {
     $(document).on('contextmenu', Events.contextMenu);
   },
   manifestStoreSubscribe() {
-    // console.log(store.getState());
-    // console.log('SEL - subscribe', store.getState(), lastLocalState);
     const loadedManifestState = manifestStore.getState();
-    // console.log('manifestStoreSubscribe', loadedManifestState);
     if (hasPropertyChanged('allImages', loadedManifestState, lastLocalLoadedManifestState)) {
       drawThumbs();
     }
-    /* console.log('SEL - subscribe, before lastLocalState assignment',
-    staticState, lastLocalState);*/
     lastLocalLoadedManifestState = loadedManifestState;
   },
   storeSubscribe() {

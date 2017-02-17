@@ -33,6 +33,8 @@ import {
   lightboxInit,
 } from './components/lightbox.js';
 
+import sourceListInit from './components/source-list.js';
+
 // Create the store for the application - hook up redux devtools
 /* eslint-disable no-underscore-dangle */
 const store = createStore(reducers,
@@ -42,6 +44,7 @@ const manifestStore = createStore(loadedManifest,
 /* eslint-enable */
 
 // Pass the store to component initialisers
+sourceListInit(store, manifestStore);
 thumbsInit(store, manifestStore);
 derivedManifestsInit(store, manifestStore);
 selectionInit(store, manifestStore);

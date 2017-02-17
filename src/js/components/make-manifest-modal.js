@@ -23,6 +23,21 @@ import { resetDerivedManifests } from '../actions/loaded-manifest.js';
 let store = null;
 let manifestStore = null;
 
+const DOM = {
+  $makeManifestButton: null,
+  $manifestModalInput: null,
+  $modalCancel: null,
+  $modalMakeManifest: null,
+  $html: null,
+  init() {
+    DOM.$makeManifestButton = $('.toolbar__make');
+    DOM.$manifestModalInput = $('.manifest-modal__input');
+    DOM.$modalCancel = $('.manifest-modal__dismiss');
+    DOM.$modalMakeManifest = $('.manifest-modal__make');
+    DOM.$html = $('html');
+  },
+};
+
 const Config = {
   manifestTemplate: {
     '@context': 'http://iiif.io/api/presentation/2/context.json',
@@ -45,52 +60,39 @@ const Config = {
     profile: 'https://dlcs.info/profiles/canvasmap',
     canvasMap: {},
   },
-};
-
-const DOM = {
-  $makeManifestButton: null,
-  $manifestModalInput: null,
-  $modalCancel: null,
-  $modalMakeManifest: null,
-  init() {
-    DOM.$makeManifestButton = $('.toolbar__make');
-    DOM.$manifestModalInput = $('.manifest-modal__input');
-    DOM.$modalCancel = $('.manifest-modal__dismiss');
-    DOM.$modalMakeManifest = $('.manifest-modal__make');
+  makeManifestModalOptions: {
+    callbacks: {
+      beforeOpen() {
+        DOM.$html.addClass('mfp-modal');
+        const state = store.getState();
+        const manifestState = manifestStore.getState();
+        const manifest = manifestState.manifest;
+        const selectedImages = state.selectedCollection.selectedImages;
+        const s = Math.min.apply(Math, selectedImages);
+        const e = Math.max.apply(Math, selectedImages);
+        const label = store.getState().selectedCollection.collectionName !== null ?
+        store.getState().selectedCollection.collectionName :
+        SortyConfiguration.getManifestLabel(manifest, s, e).trim();
+        DOM.$manifestModalInput.val(label);
+      },
+      beforeClose() {
+        DOM.$html.removeClass('mfp-modal');
+      },
+    },
+    items: {
+      src: '#manifestmodal',
+      type: 'inline',
+    },
+    modal: true,
   },
 };
 
 const Events = {
   domReady() {
     DOM.init();
-    // DOM.$makeManifestButton.click(Events.makeManifestClick);
     DOM.$modalCancel.click(Events.modalCancel);
     DOM.$modalMakeManifest.click(Events.modalMakeManifest);
-    DOM.$makeManifestButton.magnificPopup({
-      callbacks: {
-        beforeOpen() {
-          $('html').addClass('mfp-modal');
-          const state = store.getState();
-          const manifestState = manifestStore.getState();
-          const manifest = manifestState.manifest;
-          const selectedImages = state.selectedCollection.selectedImages;
-          const s = Math.min.apply(Math, selectedImages);
-          const e = Math.max.apply(Math, selectedImages);
-          const label = store.getState().selectedCollection.collectionName !== null ?
-          store.getState().selectedCollection.collectionName :
-          SortyConfiguration.getManifestLabel(manifest, s, e).trim();
-          DOM.$manifestModalInput.val(label);
-        },
-        beforeClose() {
-          $('html').removeClass('mfp-modal');
-        },
-      },
-      items: {
-        src: '#manifestmodal',
-        type: 'inline',
-      },
-      modal: true,
-    });
+    DOM.$makeManifestButton.magnificPopup(Config.makeManifestModalOptions);
   },
   modalCancel() {
     $.magnificPopup.close();
@@ -124,44 +126,54 @@ const Events = {
       newManifest.sequences[0].canvases.push(newCanvas);
     }
 
+    // PUTs the manifest
+    Events.putManifest(newManifest);
+  },
+  postComplete() {
+    $.magnificPopup.close();
+    // Collapse the selection away
+    // Give them the --classified class
+    const $activeThumbs = $('.thumb--active');
+    $activeThumbs.parent().addClass('tc--classified');
+    $activeThumbs.removeClass('thumb--active');
+
+    // Clear selection
+    store.dispatch(clearSelection());
+    store.dispatch(setCollectionName(''));
+
+    // Push into derived manifests / derived manifests complete
+    manifestStore.dispatch(resetDerivedManifests());
+    getCreatedManifests();
+
+    // Switch to classified view to reflect new derived manifest
+    $('workspace-tabs__link[data-modifier="done"]').click();
+  },
+  postManifest(newManifest) {
+    const newManifestInstance = Object.assign({}, newManifest);
+    newManifestInstance.sequences = null;
+    newManifestInstance.service = null;
+    $.ajax({
+      url: SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(newManifestInstance),
+      dataType: 'json',
+    })
+    .done(Events.postComplete)
+    .fail((xhr, textStatus, error) => {
+      alert(error);
+    });
+  },
+  putManifest(newManifest) {
     $.ajax({
       url: newManifest.id,
       type: 'PUT',
       contentType: 'application/json',
       data: JSON.stringify(newManifest),
       dataType: 'json',
-    }).done(() => {
-      newManifest.sequences = null;
-      newManifest.service = null;
-      $.ajax({
-        url: SortyConfiguration.getCollectionUrl(manifest),
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(newManifest),
-        dataType: 'json',
-      }).done(() => {
-        $.magnificPopup.close();
-        // Collapse the selection away
-        // Give them the --classified class
-        const $activeThumbs = $('.thumb--active');
-        $activeThumbs.parent().addClass('tc--classified');
-        $activeThumbs.removeClass('thumb--active');
-
-        // Clear selection
-        store.dispatch(clearSelection());
-        store.dispatch(setCollectionName(''));
-
-        // Push into derived manifests / derived manifests complete
-        manifestStore.dispatch(resetDerivedManifests());
-        getCreatedManifests();
-
-        // Switch to classified view to reflect new derived manifest
-        $('workspace-tabs__link[data-modifier="done"]').click();
-        // loadManifestPage(newManifest.id);
-      }).fail((xhr, textStatus, error) => {
-        alert(error);
-      });
-    }).fail((xhr, textStatus, error) => {
+    })
+    .done(Events.postManifest)
+    .fail((xhr, textStatus, error) => {
       alert(error);
     });
   },

@@ -11,14 +11,55 @@
   &__title {
     color: $white;
     float: left;
-    font-size: 1rem;
+    font-size: 1.4rem;
     line-height: 24px;
     margin: 5px 0 0;
+    text-transform: uppercase;
     vertical-align: middle;
+
+    a {
+      color: $white;
+      text-decoration: none;
+
+      &:hover {
+        border-bottom: 2px solid $white;
+      }
+    }
   }
 
   .mfp-modal &,
   .mfp-zoom-out-cur & {
     display: none;
+  }
+}
+
+.header-nav {
+  display: inline-block;
+  font-size: 1.2rem;
+  list-style: none;
+  margin: -4px 0 0 50px;
+  padding: 0;
+
+  &__item {
+    display: inline-block;
+    height: 29px;
+    margin-left: 20px;
+    position: relative;
+  }
+
+  &__link {
+    color: $white;
+    text-decoration: none;
+
+    &:hover {
+      border-bottom: 2px solid $white;
+    }
+  }
+
+  &__progress {
+    bottom: -14px;
+    left: 0;
+    position: absolute;
+    right: 0;
   }
 }

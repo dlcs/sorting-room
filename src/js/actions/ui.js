@@ -5,7 +5,6 @@ export const SET_LOADING_MANIFEST = 'SET_LOADING_MANIFEST';
 export const SET_TAB = 'SET_TAB';
 export const SET_THUMB_SIZE = 'SET_THUMB_SIZE';
 export const SHOW_LIGHTBOX = 'SHOW_LIGHTBOX';
-export const TOGGLE_LIST = 'TOGGLE_LIST';
 
 export const hideLightbox = () => ({
   type: HIDE_LIGHTBOX,
@@ -34,8 +33,4 @@ export const setTab = (tab) => ({
 export const setThumbSize = (thumbSize) => ({
   type: SET_THUMB_SIZE,
   thumbSize,
-});
-
-export const toggleList = () => ({
-  type: TOGGLE_LIST,
 });

@@ -45,6 +45,7 @@
 @import "elements/link";
 @import "elements/list";
 @import "elements/page";
+@import "elements/progress";
 @import "elements/quote";
 @import "elements/select";
 @import "elements/table";
@@ -65,7 +66,7 @@
 // Prefix class names with 'c-'
 //
 @import "components/button";
-@import "components/example";
+@import "components/description";
 @import "components/footer";
 @import "components/header";
 @import "components/info-bar";
@@ -73,6 +74,7 @@
 @import "components/manifest-input";
 @import "components/manifest-modal";
 @import "components/manifest-select";
+@import "components/source-list";
 @import "components/thumb";
 @import "components/toolbar";
 @import "components/viewer";

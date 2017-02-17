@@ -15,7 +15,6 @@ import {
 let store = null;
 
 let lastLocalSourceListState = null;
-let lastLocalUiState = null;
 
 const Init = (globalStore) => {
   store = globalStore;
@@ -23,14 +22,12 @@ const Init = (globalStore) => {
 export default Init;
 
 const DOM = {
-  $expandCollectionButton: null,
+  // $expandCollectionButton: null,
   $expandedCollection: null,
-  $manifestInputList: null,
 
   init() {
-    DOM.$expandCollectionButton = $('.manifest-input__expand-button');
-    DOM.$expandedCollection = $('.manifest-input__list');
-    DOM.$manifestInputList = $('.manifest-input__list');
+    // DOM.$expandCollectionButton = $('.manifest-input__expand-button');
+    DOM.$expandedCollection = $('.source-list__list');
   },
 };
 
@@ -45,11 +42,49 @@ function manifestLink(id, text) {
 }
 
 const storeCollectionData = (data) => {
+  // Try and add to localStorage with a timestamp
+  try {
+    localStorage.setItem('collectionData', JSON.stringify({
+      raw: data,
+      timestamp: new Date(),
+    }));
+  } catch (e) {
+    console.log(e, 'localStorage not supported for setItem');
+  }
   store.dispatch(setSourceManifests(data));
 };
 
 const getCollectionData = () => {
-  $.getJSON(SortyConfiguration.sourceCollection, storeCollectionData);
+  // Look in local storage first
+  let collectionData = null;
+  try {
+    collectionData = JSON.parse(localStorage.getItem('collectionData'));
+    if (typeof collectionData.raw === 'undefined'
+    || typeof collectionData.timestamp === 'undefined') {
+      localStorage.collectionData = null;
+    }
+  } catch (e) {
+    console.log(e, 'localStorage not supported for getItem');
+  }
+
+  console.log(collectionData);
+
+  // If collection is found display it
+  if (collectionData !== null) {
+    console.log('there is data');
+    store.dispatch(setSourceManifests(collectionData.raw));
+    const timestamp = new Date(collectionData.timestamp);
+    const now = new Date();
+    const offset = now.setMinutes(now.getMinutes() - 30);
+    if (timestamp < offset) {
+      console.log('data is old', timestamp, offset);
+      $.getJSON(SortyConfiguration.sourceCollection, storeCollectionData);
+    }
+  } else {
+    console.log('collection data is null');
+    // If the data we're showing is old, get a fresh copy
+    $.getJSON(SortyConfiguration.sourceCollection, storeCollectionData);
+  }
 };
 
 function renderCollection(collection) {
@@ -85,10 +120,10 @@ function renderCollection(collection) {
     });
   }
   table += '</tbody></table>';
-  DOM.$expandedCollection.html(table);
+  // DOM.$expandedCollection.html(table);
   // $expandedCollection.addClass(`${expandedCollection}--active`);
 
-  DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
+  // DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
 }
 
 const Events = {
@@ -100,9 +135,9 @@ const Events = {
     // Get list of manifests
     getCollectionData();
     // Hook up manifest list toggle
-    DOM.$expandCollectionButton.click(() => store.dispatch(toggleList()));
+    // DOM.$expandCollectionButton.click(() => store.dispatch(toggleList()));
     // Hook up manifest list links to auto-load manifests
-    DOM.$manifestInputList.on('click', 'a', Events.loadManifestLinkClick);
+    // DOM.$expandedCollection.on('click', 'a', Events.loadManifestLinkClick);
   },
   loadManifestLinkClick(e) {
     e.preventDefault();
@@ -112,25 +147,10 @@ const Events = {
     ajaxLoadManifest();
   },
   storeSubscribe() {
-    const uiState = store.getState().ui;
     const sourceListState = store.getState().sourceList;
-
     if (hasPropertyChanged('sourceManifests', sourceListState, lastLocalSourceListState)) {
       renderCollection(sourceListState.sourceManifests);
     }
-    if (hasPropertyChanged('listVisible', uiState, lastLocalUiState)) {
-      const expandedCollectionActiveClass = 'manifest-input__list--active';
-      if (uiState.listVisible) {
-        DOM.$expandCollectionButton
-        .html('<i class="material-icons">arrow_drop_up</i>Hide microfilm list');
-        DOM.$expandedCollection.addClass(expandedCollectionActiveClass);
-      } else {
-        DOM.$expandCollectionButton
-        .html('<i class="material-icons">arrow_drop_down</i>Show microfilm list');
-        DOM.$expandedCollection.removeClass(expandedCollectionActiveClass);
-      }
-    }
-    lastLocalUiState = uiState;
     lastLocalSourceListState = sourceListState;
   },
 };

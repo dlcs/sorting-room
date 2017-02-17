@@ -32,40 +32,31 @@ const DOM = {
 
 const buildClassified = (derivedManifestList) => {
   // console.log('buildClassified', DOM.$classifiedMaterial != null &&
-  // DOM.$classifiedMaterial.length);
   if (DOM.$classifiedMaterial != null && DOM.$classifiedMaterial.length) {
     const preferredHeight = parseInt(localStorage.getItem('thumbSize'), 10);
     const preferredWidth = preferredHeight / 1.5;
+    const placeholder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB'
+    + 'CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=';
 
     DOM.$classifiedMaterial.html('');
-    // console.log(derivedManifestList && derivedManifestList.members);
     if (derivedManifestList && derivedManifestList.members) {
       for (let i = 0; i < derivedManifestList.members.length; i++) {
         const manifest = derivedManifestList.members[i];
         const label = manifest.label || manifest.id;
-        // console.log(label);
-        /* can't do thumbs without another request
-        const min = preferredSize < 100 ? 0 : Math.round(preferredSize * 0.8);
-        const max = preferredSize < 100 ? 200 : preferredSize * 2;
-        const thumb = manifest.getThumbnail(preferredSize, min, max);
-        console.log('build classified', manifest, thumb);*/
         DOM.$classifiedMaterial.append(`
           <div class="classified-manifest" data-id="${manifest.id}">
             <h2 class="classified-manifest__title">${label}</h2>
             <p class="classified-manifest__num">{x} images in this collection</p>
             <div class="classified-manifest__front">
-              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB\
-              CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" \
+              <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
             <div class="classified-manifest__second">
-              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB\
-              CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" \
+              <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
             <div class="classified-manifest__third">
-              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB\
-              CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" \
+              <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
             <div class="classified-manifest__actions">
@@ -77,66 +68,11 @@ const buildClassified = (derivedManifestList) => {
   }
 };
 
-// const buildDropdown = (derivedManifestList, selectedDerivedManifest) => {
-//   if (DOM.$manifestSelector != null && DOM.$manifestSelector.length) {
-//     DOM.$manifestSelector.html('');
-//     DOM.$manifestSelector
-//     .append(`<option value="${window.loadedResource}">Original manifest</option>`);
-//     if (derivedManifestList && derivedManifestList.members) {
-//       for (let i = 0; i < derivedManifestList.members.length; i++) {
-//         const manifest = derivedManifestList.members[i];
-//         const label = manifest.label || manifest.id;
-//         const selected = selectedDerivedManifest !== null &&
-//         manifest.id === selectedDerivedManifest['@id'] ?
-//         ' selected="selected"' : null;
-//         DOM.$manifestSelector.append
-// (`<option value="${manifest.id}"${selected}>${label}</option>`);
-//       }
-//     }
-//   }
-// };
-
-// const getDerivedManifestById = (id) => {
-//   $.getJSON(id).done(fullManifest =>
-//     store.dispatch(selectDerivedManifest(fullManifest)));
-// };
-
 export const loadManifestPage = function loadManifestPage(manifestUrl) {
   window.open(`http://universalviewer.io/?manifest=${manifestUrl}`, '_blank');
 };
 
-// const preSelectFromDerivedManifest = (selectedDerivedManifest) => {
-//   if (selectedDerivedManifest !== null) {
-//     // console.log(selectedDerivedManifest);
-//     let i = 0;
-//     const selection = [];
-//     let firstThumb = null;
-//
-//     for (const canvas of Object.keys(selectedDerivedManifest.service.canvasMap)) {
-//       // console.log('pre-select', canvas, selectedDerivedManifest.service.canvasMap[canvas]);
-//       const $thumb = $(`.thumb[data-uri='
-// ${selectedDerivedManifest.service.canvasMap[canvas]}']`);
-//       const idx = $thumb.attr('data-idx');
-//       selection.push(idx);
-//       // store.dispatch(addOrRemoveFromSelection(idx));
-//       if (i === 0) firstThumb = $thumb[0];
-//       i++;
-//     }
-//     store.dispatch(replaceSelection(selection));
-//     firstThumb.scrollIntoView();
-//   }
-// };
-
 const Events = {
-  // derivedManifestChange() {
-  //   for (const manifest of store.getState().derivedManifestsReducer.derivedManifests.members) {
-  //     if (manifest.id === $(this).val()) {
-  //       // load this manifest
-  //       getDerivedManifestById(manifest.id);
-  //       break;
-  //     }
-  //   }
-  // },
   domReady() {
     DOM.init();
   },
@@ -188,10 +124,9 @@ const Events = {
 
 export const getCreatedManifests = function getCreatedManifests() {
   // get the container in presley
-  // console.log('getCreatedManifests', store.getState().input.manifest);
   const collectionId = SortyConfiguration
   .getCollectionUrl(manifestStore.getState().manifest);
-  // console.log(collectionId, 'cid');
+
   $.getJSON(collectionId)
       .done(Events.requestDerivedManifestsSuccess)
       .fail(Events.requestDerivedManifestsFailure);
@@ -199,20 +134,16 @@ export const getCreatedManifests = function getCreatedManifests() {
 
 const updateArchivalUnits = function () {
   const state = manifestStore.getState();
-  // console.log('inside update archival units', DOM.$classifiedMaterial,
-  // DOM.$classifiedMaterial.find('.classified-manifest'), state);
   // Make sure the list exists first
   if (DOM.$classifiedMaterial.find('.classified-manifest').length <
   state.derivedManifests.members.length) {
     // console.log('need to build first');
     buildClassified(state.derivedManifests);
   }
-  // console.log('update archival units');
   $('.viewer__classified-title').text(`Showing ${state.derivedManifestsComplete.length} completed
   archival units`);
-  // console.log(state);
+
   for (const dm of state.derivedManifestsComplete) {
-    // console.log('updating dm', dm);
     const $cmContainer = $(`.classified-manifest[data-id='${dm.id}']`);
     $cmContainer.find('.classified-manifest__num')
     .text(`${dm.imageSet.size} images in this collection`);
@@ -221,7 +152,6 @@ const updateArchivalUnits = function () {
     const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
     const imgSrcFront = $(`.thumb[data-uri='${[...dm.imageSet][0]}']`).attr('data-src');
     $cmImgFront.attr('src', imgSrcFront);
-    // console.log(dm.imageSet);
     if (dm.imageSet.size > 1) {
       const imgSrcSecond = $(`.thumb[data-uri='${[...dm.imageSet][1]}']`).attr('data-src');
       $cmImgSecond.attr('src', imgSrcSecond);
@@ -246,20 +176,9 @@ const subscribeActions = () => {
     // console.log('DM - changed');
     if (derivedState.derivedManifests.length) {
       const derivedManifestList = derivedState.derivedManifests;
-      // const selectedDerivedManifest =
-      // derivedState.selectedDerivedManifest;
-      // console.log('using derivedmanifests state', derivedState.derivedManifests);
       buildClassified(derivedManifestList);
-      // buildDropdown(derivedManifestList, selectedDerivedManifest);
-      // preSelectFromDerivedManifest(selectedDerivedManifest);
     }
   }
-  /*
-  console.log(lastLocalState !== null,
-  derivedState.classifiedCanvases.size,
-  derivedState.classifiedCanvases,
-  lastLocalState !== null ? derivedState.classifiedCanvases !==
-  lastLocalState.classifiedCanvases : 'lastLocal is null');*/
   if (hasPropertyChanged('classifiedCanvases', derivedState, lastLocalState)) {
     // console.log('classifiedCanvases changed', derivedState, lastLocalState);
     $('html').addClass('dm-loaded');

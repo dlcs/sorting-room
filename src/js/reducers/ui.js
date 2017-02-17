@@ -5,7 +5,6 @@ import {
   SET_TAB,
   SET_THUMB_SIZE,
   SHOW_LIGHTBOX,
-  TOGGLE_LIST,
 } from '../actions/ui.js';
 
 const initialState = {
@@ -15,7 +14,6 @@ const initialState = {
     index: null,
     visible: false,
   },
-  listVisible: false,
   loadingManifest: false,
   thumbSize: null,
 };
@@ -36,9 +34,6 @@ export const ui = (state = initialState, action) => {
     case HIDE_LIGHTBOX: {
       const lightbox = Object.assign({}, state.lightbox, { index: null, visible: false });
       return Object.assign({}, state, { lightbox });
-    }
-    case TOGGLE_LIST: {
-      return Object.assign({}, state, { listVisible: !state.listVisible });
     }
     case SET_LOADING_MANIFEST: {
       return Object.assign({}, state, { loadingManifest: action.loading });

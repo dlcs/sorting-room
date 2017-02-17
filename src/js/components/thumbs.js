@@ -85,7 +85,6 @@ export const drawThumbs = () => {
     const activeClass = image.isActive() ? ' thumb--active' : '';
     const classifiedClass = image.isClassified() ? ' tc--classified' : '';
     const decorations = SortyConfiguration.getCanvasDecorations(image);
-    console.log(decorations);
     const thumbnail = `
     <div class="tc${classifiedClass}">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB\

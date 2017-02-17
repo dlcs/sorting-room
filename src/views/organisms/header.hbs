@@ -3,6 +3,7 @@ jsfile: 'src/js/components/header.js'
 scssfile: 'src/scss/components/header.scss'
 ---
 <header class="header">
-  <h1 class="header__title">Sorty: {{default title 'Default header'}}</h1>
+  <h1 class="header__title"><a href="index.html">Sorty</a></h1>
+  {{> header-nav}}
   {{> toolbar }}
 </header>

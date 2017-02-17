@@ -11,7 +11,6 @@ import {
 import {
   clearSelection,
 } from '../actions/selected-collection.js';
-import sourceListInit from './source-list.js';
 
 import { getCreatedManifests } from './derived-manifests.js';
 import { thumbsUpdate } from './thumbs.js';
@@ -24,17 +23,21 @@ let lastLocalLoadedManifestState = null;
 let lastLocalState = null;
 
 const DOM = {
+  $manifestInputContainer: null,
   $manifestInput: null,
   $manifestInputLoad: null,
 
   init() {
+    DOM.$html = $('html');
+    DOM.$manifestInputContainer = $('.manifest-input');
     DOM.$manifestInput = $('.manifest-input__text-input');
     DOM.$manifestInputLoad = $('.manifest-input__load-button');
+    DOM.$manifestInputFeedback = $('.manifest-input__feedback');
   },
 };
 
 const loadIIIFResource = (manifest) => {
-  $('html').addClass('manifest-loaded');
+  DOM.$html.addClass('manifest-loaded');
   $(window).trigger('lookup');
   IIIF.wrap(manifest);
   // console.log(manifest);
@@ -46,18 +49,18 @@ const loadIIIFResource = (manifest) => {
 };
 
 export const ajaxLoadManifest = function () {
-  $('html').removeClass('dm-loaded');
+  DOM.$html.removeClass('dm-loaded');
   $('.workspace-tabs__link[data-modifier="all"]').click();
   store.dispatch(clearSelection());
   store.dispatch(resetDerivedManifests());
-  $('html').removeClass('manifest-loaded');
+  DOM.$html.removeClass('manifest-loaded');
   const inputState = manifestStore.getState();
 
   if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
     if (typeof history !== 'undefined') {
       history.replaceState(null, null, `index.html?manifest=${inputState.manifest}`);
     }
-    $('.manifest-input__feedback').text(`Loading '${inputState.manifest}'...`);
+    DOM.$manifestInputFeedback.text(`Loading '${inputState.manifest}'...`);
     store.dispatch(setLoading(true));
     $.ajax({
       dataType: 'json',
@@ -70,7 +73,7 @@ export const ajaxLoadManifest = function () {
       },
       success(iiifResource) {
         // console.log(iiifResource);
-        $('.manifest-input__feedback').text(`Current manifest: '${iiifResource['@id']}'`);
+        DOM.$manifestInputFeedback.text(`Current manifest: '${iiifResource['@id']}'`);
         store.dispatch(setLoading(false));
         if (iiifResource['@type'] === 'sc:Collection') {
           // console.log('Render collection');
@@ -144,11 +147,12 @@ const Events = {
     const state = store.getState().ui;
     // console.log('input store subscribe', state.loadingManifest,
     // hasPropertyChanged('loadingManifest', state, lastLocalState));
-    if (hasPropertyChanged('loadingManifest', state, lastLocalState)) {
+    if (DOM.$manifestInputContainer !== null
+      && hasPropertyChanged('loadingManifest', state, lastLocalState)) {
       if (state.loadingManifest) {
-        $('.manifest-input').addClass('manifest-input--loading');
+        DOM.$manifestInputContainer.addClass('manifest-input--loading');
       } else {
-        $('.manifest-input').removeClass('manifest-input--loading');
+        DOM.$manifestInputContainer.removeClass('manifest-input--loading');
       }
     }
     lastLocalState = state;
@@ -158,7 +162,6 @@ const Events = {
 export const inputInit = (globalStore, globalManifestStore) => {
   store = globalStore;
   manifestStore = globalManifestStore;
-  sourceListInit(store, manifestStore);
   // Subscribe to store changes
   manifestStore.subscribe(Events.manifestStoreSubscribe);
   store.subscribe(Events.storeSubscribe);
