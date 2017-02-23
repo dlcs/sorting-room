@@ -84,7 +84,7 @@ const createPopupToolbar = () => {
       </li>
       <li class="zoom-toolbar__item">
         <button class="btn zoom-toolbar__zoom-button">
-        <i class="material-icons">zoom_in</i> Toggle deep zoom</button>
+        <i class="material-icons">zoom_in</i> Zoom</button>
       </li>
       <li class="zoom-toolbar__item">
         <button class="btn zoom-toolbar__select-button">

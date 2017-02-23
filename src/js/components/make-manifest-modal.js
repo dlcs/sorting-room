@@ -18,6 +18,10 @@ import {
   getCreatedManifests,
 } from '../components/derived-manifests.js';
 
+import {
+  switchView,
+} from '../components/workspace.js';
+
 import { resetDerivedManifests } from '../actions/loaded-manifest.js';
 
 let store = null;
@@ -30,10 +34,14 @@ const DOM = {
   $modalMakeManifest: null,
   $html: null,
   init() {
-    DOM.$makeManifestButton = $('.toolbar__make');
+    DOM.$makeManifestButton = $('.classify-tools__make');
     DOM.$manifestModalInput = $('.manifest-modal__input');
     DOM.$modalCancel = $('.manifest-modal__dismiss');
     DOM.$modalMakeManifest = $('.manifest-modal__make');
+    DOM.$viewer = $('.viewer');
+    DOM.$savedFeedback = $('.saved__feedback');
+    DOM.$savedCollection = $('.saved__collection');
+    DOM.$savedProgress = $('.saved__progress-bar');
     DOM.$html = $('html');
   },
 };
@@ -70,7 +78,8 @@ const Config = {
         const selectedImages = state.selectedCollection.selectedImages;
         const s = Math.min.apply(Math, selectedImages);
         const e = Math.max.apply(Math, selectedImages);
-        const label = store.getState().selectedCollection.collectionName !== null ?
+        const label = store.getState().selectedCollection.collectionName !== null
+        && store.getState().selectedCollection.collectionName !== '' ?
         store.getState().selectedCollection.collectionName :
         SortyConfiguration.getManifestLabel(manifest, s, e).trim();
         DOM.$manifestModalInput.val(label);
@@ -85,6 +94,15 @@ const Config = {
     },
     modal: true,
   },
+};
+
+const setSavingState = (saving) => {
+  if (saving) {
+    $('html').addClass('saving-manifest');
+    $('.manifest-modal__input').attr('readonly');
+  } else {
+    $('html').removeClass('saving-manifest');
+  }
 };
 
 const Events = {
@@ -106,8 +124,12 @@ const Events = {
     const s = Math.min.apply(Math, selectedImages);
     const e = Math.max.apply(Math, selectedImages);
 
+    setSavingState(true);
+
     const newManifest = $.extend(true, {}, Config.manifestTemplate);
     IIIF.wrap(newManifest);
+
+    store.dispatch(setCollectionName(DOM.$manifestModalInput.val()));
 
     newManifest.id = SortyConfiguration.getManifestUrl(manifest, s, e);
     newManifest.label = DOM.$manifestModalInput.val();
@@ -130,10 +152,43 @@ const Events = {
     Events.putManifest(newManifest);
   },
   postComplete() {
-    $.magnificPopup.close();
-    // Collapse the selection away
-    // Give them the --classified class
+    // Remove loader
+    setSavingState(false);
+
+    // Grab active thumbs
     const $activeThumbs = $('.thumb--active');
+    const collectionName = store.getState().selectedCollection.collectionName;
+
+    // Update preview title
+    const savedFeedbackHtml = `
+    <p class="saved__feedback">
+      <i class="material-icons">done</i> Your new set "${collectionName}" is saved.
+      <span><a class="saved__make-set" href="">Start another set</a>, or
+      <a class="saved__view-sets" href="">view all the sets</a> ?</span>
+    </p>`;
+    DOM.$savedFeedback.html(savedFeedbackHtml);
+    DOM.$savedFeedback.find('.saved__make-set').click(Events.savedMakeSetClick);
+    DOM.$savedFeedback.find('.saved__view-sets').click(Events.savedViewSetsClick);
+
+    // Clone thumbs for preview
+    const $activeThumbsClone = $activeThumbs.parent().clone();
+    $activeThumbsClone.find('.thumb--active').removeClass('thumb--active');
+
+    // Display them as a preview
+    DOM.$savedCollection.empty().append($activeThumbsClone);
+    switchView('saved');
+
+    // Close the modal
+    $.magnificPopup.close();
+
+    // Update the progress bar's initial value
+    const manifestState = manifestStore.getState();
+    const classifiedTotal = manifestState.classifiedCanvases.size;
+    const total = manifestState.allImages.length;
+    const progressVal = total > 0 ? Math.round((classifiedTotal / total) * 100) : 0;
+    DOM.$savedProgress.val(progressVal);
+
+    // Give them the --classified class
     $activeThumbs.parent().addClass('tc--classified');
     $activeThumbs.removeClass('thumb--active');
 
@@ -144,9 +199,6 @@ const Events = {
     // Push into derived manifests / derived manifests complete
     manifestStore.dispatch(resetDerivedManifests());
     getCreatedManifests();
-
-    // Switch to classified view to reflect new derived manifest
-    $('workspace-tabs__link[data-modifier="done"]').click();
   },
   postManifest(newManifest) {
     const newManifestInstance = Object.assign({}, newManifest);
@@ -176,6 +228,14 @@ const Events = {
     .fail((xhr, textStatus, error) => {
       alert(error);
     });
+  },
+  savedMakeSetClick(e) {
+    e.preventDefault();
+    switchView('add');
+  },
+  savedViewSetsClick(e) {
+    e.preventDefault();
+    switchView('done');
   },
 };
 

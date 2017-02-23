@@ -1,6 +1,6 @@
 .btn {
-  background-color: lighten($primary, 10%);
-  border: 0;
+  background-color: $selected;
+  border: 2px solid $selected;
   border-radius: 3px;
   color: $white;
   display: inline-block;
@@ -18,7 +18,8 @@
   }
 
   &:hover {
-    background-color: $primary;
+    background-color: darken($selected, 10%);
+    border: 2px solid darken($selected, 10%);
   }
 
   &[disabled] {

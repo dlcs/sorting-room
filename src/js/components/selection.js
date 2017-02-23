@@ -10,17 +10,13 @@ import {
   attachLightboxBehaviour,
 } from './lightbox';
 
-import {
-  drawThumbs,
-} from './thumbs.js';
-
 let store = null;
 let manifestStore = null;
 
 let lastLocalSelectedCollectionState = null;
 let lastLocalLoadedManifestState = null;
 
-const clearSelectionButton = '.toolbar__clear';
+const clearSelectionButton = '.classify-tools__clear';
 
 const Events = {
   contextMenu(e) {
@@ -42,8 +38,8 @@ const Events = {
   },
   manifestStoreSubscribe() {
     const loadedManifestState = manifestStore.getState();
-    if (hasPropertyChanged('allImages', loadedManifestState, lastLocalLoadedManifestState)) {
-      drawThumbs();
+    if (hasPropertyChanged('manifestTitle', loadedManifestState, lastLocalLoadedManifestState)) {
+      console.log(loadedManifestState.manifestTitle);
     }
     lastLocalLoadedManifestState = loadedManifestState;
   },
@@ -53,21 +49,14 @@ const Events = {
     lastLocalSelectedCollectionState)) {
       // console.log('SEL - changed');
       const $thumbActive = $('.thumb--active');
-      const $toolbarButtons = $('.toolbar__clear, .toolbar__make');
-      const $infoBar = $('.info-bar');
       const selectedImages = selectedCollectionState.selectedImages;
 
       $thumbActive.removeClass('thumb--active');
 
       if (selectedImages.length) {
-        $toolbarButtons.removeAttr('disabled');
-        $infoBar.addClass('info-bar--active');
         for (const idx of selectedImages) {
           $(`.thumb:eq(${idx})`).addClass('thumb--active');
         }
-      } else {
-        $toolbarButtons.attr('disabled', 'disabled');
-        $infoBar.removeClass('info-bar--active');
       }
     }
     lastLocalSelectedCollectionState = selectedCollectionState;

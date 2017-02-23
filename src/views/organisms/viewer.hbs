@@ -1,22 +1,26 @@
 <div class="workspace">
-  {{> workspace-tabs }}
+  <!-- {{> workspace-tabs }} -->
   <!-- viewer--done -->
   <!-- viewer--all -->
-  <div class="viewer viewer--all">
-      <div class="viewer__classify">
-          <h3 class="viewer__title">
-            <span class="viewer__title--all">Showing all {x} images for {manifest}</span>
-            <span class="viewer__title--add">Showing remaining {y} images to be classified for {manifest}</span>
-          </h3>
-          <p class="viewer__help"></p>
-          <div class="thumbs-container">
-          </div>
+  <div class="viewer viewer--add">
+    {{> classify-tools }}
+    <div class="viewer__classify">
+      <div class="thumbs-container">
       </div>
-      <div class="viewer__classified">
-        <!-- {{> manifest-select }} -->
-        <h3 class="viewer__classified-title">Showing {x} completed for {manifest}</h3>
-        <div class="classified-material">
-        </div>
+    </div>
+    <div class="viewer__classified">
+      <!-- {{> manifest-select }} -->
+      <h3 class="viewer__classified-title">{x} sets</h3>
+
+      <div class="classified-material">
       </div>
+    </div>
+    <div class="viewer__saved saved">
+      <p class="saved__feedback"><i class="material-icons">done</i> Your new set "{set label}" is saved. <span><a href="">Start another set</a>, or <a href="">view all the sets</a>?</span></p>
+      <progress class="saved__progress-bar" value="0" max="100"></progress>
+      <div class="saved__collection">
+        
+      </div>
+    </div>
   </div>
 </div>

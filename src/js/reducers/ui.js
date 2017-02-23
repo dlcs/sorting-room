@@ -5,10 +5,12 @@ import {
   SET_TAB,
   SET_THUMB_SIZE,
   SHOW_LIGHTBOX,
+  TOGGLE_HELP_VISIBLE,
 } from '../actions/ui.js';
 
 const initialState = {
   activeTab: null,
+  helpVisible: false,
   lightbox: {
     currentImage: null,
     index: null,
@@ -40,6 +42,9 @@ export const ui = (state = initialState, action) => {
     }
     case SET_THUMB_SIZE: {
       return Object.assign({}, state, { thumbSize: action.thumbSize });
+    }
+    case TOGGLE_HELP_VISIBLE: {
+      return Object.assign({}, state, { helpVisible: !state.helpVisible });
     }
     default: return state;
   }

@@ -8,14 +8,120 @@
 
   &__input {
     width: 100%;
+
+    &[readonly] {
+      border-color: $white;
+    }
   }
 
   &__actions {
     margin-top: 30px;
     overflow: hidden;
+    padding: 5px 0;
+    text-align: right;
+
+    .saving-manifest & {
+      display: none;
+    }
   }
 
   &__make {
+    border: 2px solid $selected;
     float: right;
+    margin-left: 10px;
+    min-width: 80px;
+  }
+
+  &__saving {
+    display: none;
+    font-size: 1.1rem;
+    height: 40px;
+    margin-top: 30px;
+    overflow: hidden;
+    padding: 5px 0;
+    text-align: center;
+
+    .saving-manifest & {
+      display: block;
+    }
+  }
+
+  &__dismiss {
+    background-color: $white;
+    border: 2px solid $cancel;
+    color: $cancel;
+
+    &:hover {
+      background: $cancel;
+      border: 2px solid $cancel;
+      color: $white;
+    }
+  }
+}
+
+.loading {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+
+  &:before,
+  &:after {
+    content: "";
+  }
+
+  &:before,
+  &:after,
+  span {
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-name: selected;
+    background: $light-grey;
+    float: left;
+    height: 22px;
+    margin: 0 5px 0 0;
+    width: 15px;
+  }
+
+  &:before {
+    animation-delay: .5s;
+  }
+
+  span {
+    animation-delay: 1s;
+  }
+
+  &:after {
+    animation-delay: 1.5s;
+  }
+}
+
+@keyframes selected {
+  0% {
+    background-color: $light-grey;
+  }
+
+  10% {
+    background-color: $selected;
+    transform: scale(1.2);
+  }
+
+  15% {
+    background-color: $selected;
+    transform: scale(1);
+  }
+
+  50% {
+    background-color: $selected;
+    transform: scale(1);
+  }
+
+  60% {
+    background-color: $light-grey;
+    transform: scale(1);
+  }
+
+  100% {
+    background-color: $light-grey;
+    transform: scale(1);
   }
 }

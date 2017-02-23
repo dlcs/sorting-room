@@ -1,0 +1,51 @@
+.thumb-size {
+  box-sizing: border-box;
+  display: none;
+  height: 60px;
+  margin-right: 20px;
+  padding-top: 10px;
+  vertical-align: top;
+
+  .manifest-loaded & {
+    display: inline-block;
+  }
+
+  &__label {
+    color: $white;
+    display: inline-block;
+    font-size: 1rem;
+    vertical-align: middle;
+  }
+
+  &__button {
+    background-color: $white;
+    border: 0;
+    display: inline-block;
+    height: 40px;
+    overflow: hidden;
+    margin: 0 8px 0;
+    padding: 0;
+    text-indent: -99em;
+    vertical-align: middle;
+    width: 29px;
+
+    &--small {
+      height: 22px;
+      width: 16px;
+    }
+
+    &--medium {
+      height: 30px;
+      width: 22px;
+    }
+
+    &:hover {
+      background-color: $highlight;
+    }
+
+    &--active,
+    &--active:hover {
+      background-color: $highlighted;
+    }
+  }
+}

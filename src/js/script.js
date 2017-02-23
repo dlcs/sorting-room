@@ -15,6 +15,8 @@ import { loadedManifest } from './reducers/loaded-manifest.js';
 // Imports
 import { selectionInit } from './components/selection.js';
 
+import classifyToolsInit from './components/classify-tools.js';
+
 import {
   derivedManifestsInit,
 } from './components/derived-manifests.js';
@@ -33,6 +35,10 @@ import {
   lightboxInit,
 } from './components/lightbox.js';
 
+import {
+  helpInit,
+} from './components/help.js';
+
 import sourceListInit from './components/source-list.js';
 
 // Create the store for the application - hook up redux devtools
@@ -45,8 +51,10 @@ const manifestStore = createStore(loadedManifest,
 
 // Pass the store to component initialisers
 sourceListInit(store, manifestStore);
+helpInit(store);
 thumbsInit(store, manifestStore);
 derivedManifestsInit(store, manifestStore);
+classifyToolsInit(store, manifestStore);
 selectionInit(store, manifestStore);
 inputInit(store, manifestStore);
 makeManifestInit(store, manifestStore);

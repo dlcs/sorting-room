@@ -4,6 +4,7 @@ import {
   resetDerivedManifests,
   setCanvases,
   setManifest,
+  setManifestData,
 } from '../actions/loaded-manifest.js';
 import {
   setLoading,
@@ -11,9 +12,8 @@ import {
 import {
   clearSelection,
 } from '../actions/selected-collection.js';
-
-import { getCreatedManifests } from './derived-manifests.js';
 import { thumbsUpdate } from './thumbs.js';
+import { getCreatedManifests } from './derived-manifests.js';
 import { IIIF } from '../helpers/iiif.js';
 
 let store = null;
@@ -37,10 +37,8 @@ const DOM = {
 };
 
 const loadIIIFResource = (manifest) => {
-  DOM.$html.addClass('manifest-loaded');
-  $(window).trigger('lookup');
   IIIF.wrap(manifest);
-  // console.log(manifest);
+  manifestStore.dispatch(setManifestData(manifest));
   getCreatedManifests();
   if (!manifest.mediaSequences) {
     manifestStore.dispatch(setCanvases(manifest.sequences[0].canvases));
@@ -58,7 +56,7 @@ export const ajaxLoadManifest = function () {
 
   if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
     if (typeof history !== 'undefined') {
-      history.replaceState(null, null, `index.html?manifest=${inputState.manifest}`);
+      history.replaceState(null, null, `classify.html?manifest=${inputState.manifest}`);
     }
     DOM.$manifestInputFeedback.text(`Loading '${inputState.manifest}'...`);
     store.dispatch(setLoading(true));
@@ -141,6 +139,7 @@ const Events = {
     if (hasPropertyChanged('manifest', loadedManifestState, lastLocalLoadedManifestState)) {
       DOM.$manifestInput.val(loadedManifestState.manifest);
     }
+
     lastLocalLoadedManifestState = loadedManifestState;
   },
   storeSubscribe() {

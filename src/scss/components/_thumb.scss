@@ -8,7 +8,7 @@
 
 .thumb {
   &--active {
-    outline: 12px solid $blue;
+    outline: 18px solid $selected;
   }
 
   &__zoom {
@@ -45,7 +45,7 @@
 
   &.selected {
     .thumb {
-      outline: 12px solid $blue;
+      outline: 12px solid $selected;
     }
   }
 }

@@ -66,16 +66,23 @@
 // Prefix class names with 'c-'
 //
 @import "components/button";
+@import "components/classified-manifest";
+@import "components/classify-tools";
 @import "components/description";
 @import "components/footer";
 @import "components/header";
+@import "components/help";
+@import "components/help-button";
 @import "components/info-bar";
 @import "components/load-bar";
 @import "components/manifest-input";
 @import "components/manifest-modal";
 @import "components/manifest-select";
+@import "components/manifest-select";
+@import "components/saved";
 @import "components/source-list";
 @import "components/thumb";
+@import "components/thumb-size";
 @import "components/toolbar";
 @import "components/viewer";
 @import "components/workspace-tabs";

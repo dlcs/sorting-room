@@ -6,11 +6,13 @@ import {
   SET_DERIVED_MANIFESTS,
   SET_DERIVED_MANIFESTS_COMPLETE,
   SET_MANIFEST,
+  SET_MANIFEST_DATA,
   SET_THUMB_SIZES,
 } from '../actions/loaded-manifest.js';
 
 const initialState = {
   manifest: null,
+  manifestData: null,
   // All images with additional data
   allImages: [],
   // Canvases with limited data
@@ -25,6 +27,9 @@ export const loadedManifest = (state = initialState, action) => {
   switch (action.type) {
     case SET_MANIFEST: {
       return Object.assign({}, state, { manifest: action.manifest });
+    }
+    case SET_MANIFEST_DATA: {
+      return Object.assign({}, state, { manifestData: action.manifestData });
     }
     case SET_ALL_IMAGES: {
       return Object.assign({}, state, { allImages: action.allImages });

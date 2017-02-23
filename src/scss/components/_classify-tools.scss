@@ -1,0 +1,55 @@
+.classify-tools {
+  overflow: hidden;
+  padding: 20px;
+
+  &__progress {
+    float: right;
+    padding-left: 100px;
+    padding-right: 110px;
+    padding-top: 20px;
+    position: relative;
+  }
+
+  &__progress-bar {
+    height: 25px;
+  }
+
+  &__num-images {
+    left: 0;
+    position: absolute;
+  }
+
+  &__num-sets {
+    .viewer--done & {
+      visibility: hidden;
+    }
+  }
+
+  &__selection,
+  &__no-selection {
+    display: none;
+    position: absolute;
+    top: -10px;
+  }
+
+  &--no-selection &__no-selection,
+  &--selection &__selection {
+    display: block;
+  }
+
+  &__make {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 16px;
+  }
+
+  &--selection &__make {
+    display: block;
+  }
+
+  &__title {
+    float: left;
+    max-width: 500px;
+  }
+}

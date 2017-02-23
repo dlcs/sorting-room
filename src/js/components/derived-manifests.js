@@ -45,7 +45,11 @@ const buildClassified = (derivedManifestList) => {
         const label = manifest.label || manifest.id;
         DOM.$classifiedMaterial.append(`
           <div class="classified-manifest" data-id="${manifest.id}">
-            <h2 class="classified-manifest__title">${label}</h2>
+            <h2 class="classified-manifest__title">${label}
+              <button class="classified-manifest__title-edit" title="Edit label">
+                <i class="material-icons">mode_edit</i>
+              </button>
+            </h2>
             <p class="classified-manifest__num">{x} images in this collection</p>
             <div class="classified-manifest__front">
               <img src="${placeholder}" \
@@ -81,6 +85,8 @@ const Events = {
   },
   requestDerivedManifestsFailure() {
     manifestStore.dispatch(resetDerivedManifests());
+    // If there's no derived manifest - just show the list
+    $('html').addClass('manifest-loaded');
   },
   requestDerivedManifestsSuccess(collection) {
     IIIF.wrap(collection);
@@ -112,6 +118,8 @@ const Events = {
       }
       manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
       manifestStore.dispatch(setDerivedManifestsComplete(classifiedManifests));
+      $('html').addClass('dm-loaded manifest-loaded');
+      updateThumbsWithStatus();
     }, reason => {
       console.log('Promise fail', reason);
     });
@@ -140,8 +148,7 @@ const updateArchivalUnits = function () {
     // console.log('need to build first');
     buildClassified(state.derivedManifests);
   }
-  $('.viewer__classified-title').text(`Showing ${state.derivedManifestsComplete.length} completed
-  archival units`);
+  $('.viewer__classified-title').text(`${state.derivedManifestsComplete.length} sets`);
 
   for (const dm of state.derivedManifestsComplete) {
     const $cmContainer = $(`.classified-manifest[data-id='${dm.id}']`);
@@ -181,14 +188,6 @@ const subscribeActions = () => {
   }
   if (hasPropertyChanged('classifiedCanvases', derivedState, lastLocalState)) {
     // console.log('classifiedCanvases changed', derivedState, lastLocalState);
-    $('html').addClass('dm-loaded');
-    const $titleAdd = $('.viewer__title--add');
-    const classifiedTotal = manifestStore.getState()
-    .classifiedCanvases.size;
-    const total = manifestStore.getState().allImages.length;
-    $titleAdd.text(`Showing ${total - classifiedTotal} of ${total}
-    images to be classified`);
-    updateThumbsWithStatus();
   }
   if (hasPropertyChangedNonZero('derivedManifestsComplete', derivedState, lastLocalState)) {
     // console.log('derivedManifestsComplete - updateArchivalUnits');

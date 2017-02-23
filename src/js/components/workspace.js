@@ -2,31 +2,24 @@ const $ = require('jquery');
 import { attachMagnific } from './lightbox.js';
 
 const DOM = {
-  $tabs: null,
   $workspace: null,
 
   init() {
-    DOM.$tabs = $('.workspace-tabs__link');
     DOM.$workspace = $('.viewer');
   },
+};
+
+export const switchView = (modifier) => {
+  // Wipe out modifiers and set the new one
+  const viewerClass = 'viewer';
+  DOM.$workspace.attr('class', viewerClass).addClass(`${viewerClass}--${modifier}`);
+  attachMagnific();
+  $(window).trigger('lookup');
 };
 
 const Events = {
   domReady() {
     DOM.init();
-    Events.init();
-  },
-  init() {
-    DOM.$tabs.click(Events.tabClick);
-  },
-  tabClick(e) {
-    e.preventDefault();
-    const $thisTab = $(this);
-    DOM.$tabs.removeClass('workspace-tabs__link--active');
-    $thisTab.addClass('workspace-tabs__link--active');
-    DOM.$workspace.attr('class', `viewer viewer--${$thisTab.attr('data-modifier')}`);
-    attachMagnific();
-    $(window).trigger('lookup');
   },
 };
 

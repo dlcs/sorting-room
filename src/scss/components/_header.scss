@@ -2,9 +2,9 @@
   background: $black90;
   min-height: 56px;
   overflow: hidden;
-  padding: 10px 20px;
-  position: fixed;
-  top: 0;
+  padding: 0;
+  //position: fixed;
+  //top: 0;
   width: 100%;
   z-index: 2000;
 
@@ -13,7 +13,7 @@
     float: left;
     font-size: 1.4rem;
     line-height: 24px;
-    margin: 5px 0 0;
+    margin: 15px 0 0 20px;
     text-transform: uppercase;
     vertical-align: middle;
 
@@ -26,25 +26,32 @@
       }
     }
   }
-
-  .mfp-modal &,
-  .mfp-zoom-out-cur & {
-    display: none;
-  }
 }
 
 .header-nav {
+  color: $white;
   display: inline-block;
   font-size: 1.2rem;
   list-style: none;
-  margin: -4px 0 0 50px;
+  margin: 13px 0 0 50px;
   padding: 0;
 
   &__item {
     display: inline-block;
     height: 29px;
-    margin-left: 20px;
+    line-height: 1;
+    margin-left: 25px;
     position: relative;
+
+    &--manifest {
+      display: none;
+    }
+
+    i {
+      left: -10px;
+      position: relative;
+      top: 4px;
+    }
   }
 
   &__link {

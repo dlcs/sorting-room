@@ -1,13 +1,5 @@
 .toolbar {
-  display: none;
   float: right;
-  font-size: .8rem;
-  line-height: 24px;
-  vertical-align: middle;
-
-  .manifest-loaded & {
-    display: block;
-  }
 
   &__label,
   &__thumb-size,
