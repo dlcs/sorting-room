@@ -39,7 +39,7 @@ const Events = {
   manifestStoreSubscribe() {
     const loadedManifestState = manifestStore.getState();
     if (hasPropertyChanged('manifestTitle', loadedManifestState, lastLocalLoadedManifestState)) {
-      console.log(loadedManifestState.manifestTitle);
+      // console.log(loadedManifestState.manifestTitle);
     }
     lastLocalLoadedManifestState = loadedManifestState;
   },

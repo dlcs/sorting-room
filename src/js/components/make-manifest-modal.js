@@ -10,6 +10,10 @@ import {
 } from '../helpers/iiif.js';
 
 import {
+ IIIFActions,
+} from './iiif-actions.js';
+
+import {
   clearSelection,
   setCollectionName,
 } from '../actions/selected-collection.js';
@@ -148,10 +152,32 @@ const Events = {
       newManifest.sequences[0].canvases.push(newCanvas);
     }
 
+    // console.log('newManifest', newManifest);
+
     // PUTs the manifest
-    Events.putManifest(newManifest);
+    IIIFActions.putManifest(newManifest, Events.putSuccess, Events.putError);
   },
-  postComplete() {
+  postManifest(newManifest) {
+    const newManifestInstance = Object.assign({}, newManifest);
+    newManifestInstance.sequences = null;
+    newManifestInstance.service = null;
+    IIIFActions.postManifest();
+    $.ajax({
+      url: SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(newManifestInstance),
+      dataType: 'json',
+    })
+    .done(Events.postComplete)
+    .fail((xhr, textStatus, error) => {
+      alert(error);
+    });
+  },
+  postError(xhr, textStatus, error) {
+    alert(error);
+  },
+  postSuccess() {
     // Remove loader
     setSavingState(false);
 
@@ -200,34 +226,19 @@ const Events = {
     manifestStore.dispatch(resetDerivedManifests());
     getCreatedManifests();
   },
-  postManifest(newManifest) {
-    const newManifestInstance = Object.assign({}, newManifest);
+  putError(xhr, textStatus, error) {
+    alert(error);
+  },
+  putSuccess(manifest) {
+    const newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
-    $.ajax({
-      url: SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(newManifestInstance),
-      dataType: 'json',
-    })
-    .done(Events.postComplete)
-    .fail((xhr, textStatus, error) => {
-      alert(error);
-    });
-  },
-  putManifest(newManifest) {
-    $.ajax({
-      url: newManifest.id,
-      type: 'PUT',
-      contentType: 'application/json',
-      data: JSON.stringify(newManifest),
-      dataType: 'json',
-    })
-    .done(Events.postManifest)
-    .fail((xhr, textStatus, error) => {
-      alert(error);
-    });
+    IIIFActions.postManifest(
+      manifest,
+      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      Events.postSuccess,
+      Events.postError
+    );
   },
   savedMakeSetClick(e) {
     e.preventDefault();

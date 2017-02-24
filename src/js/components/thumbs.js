@@ -52,7 +52,7 @@ const getThumbsFromCanvas = (canvas, thumbSizes) => {
 };
 
 export const storeThumbs = (canvases) => {
-  console.log('storeThumbs');
+  // console.log('storeThumbs');
   const allImages = [];
   const thumbSizes = manifestStore.getState().thumbSizes;
   let i = 0;
@@ -79,8 +79,7 @@ export const storeThumbs = (canvases) => {
 const getPreferredSize = () => {
   const preferredSize = parseInt(store.getState().ui.thumbSize, 10);
   const availableThumbSizes = manifestStore.getState().thumbSizes;
-  console.log('availableThumbSizes', preferredSize, availableThumbSizes, manifestStore.getState());
-  console.log(availableThumbSizes.indexOf(preferredSize));
+  // console.log(availableThumbSizes.indexOf(preferredSize));
   if (availableThumbSizes.indexOf(preferredSize) > -1) {
     return `${preferredSize}`;
   }
@@ -92,7 +91,7 @@ export const drawThumbs = () => {
   // const $title = $('.viewer__title');
   // const $subtitle = $('.viewer__sub-title');
   // $title.text(`${manifestStore.getState().allImages.length}`);
-  console.log('drawThumbs');
+  // console.log('drawThumbs');
   const manifestState = manifestStore.getState();
   if (manifestState.allImages !== null
     && manifestState.allImages.length
@@ -100,7 +99,7 @@ export const drawThumbs = () => {
     const $thumbs = $('.thumbs-container');
     $thumbs.empty();
     const preferredSize = getPreferredSize();
-    console.log(preferredSize);
+    // console.log(preferredSize);
     // console.log(preferredSize);
     for (const image of manifestStore.getState().allImages) {
       // console.log(image, store.getState().loadedManifest.allImages);
@@ -175,7 +174,7 @@ const getSmallMediumLargeSizes = (foundSizes, defaultChoices) => {
 };
 
 export const storeThumbSizes = (canvases) => {
-  console.log('storeThumbSizes');
+  // console.log('storeThumbSizes');
   const defaultChoices = [100, 200, 400];
   const foundSizes = getThumbSizesFromCanvases(canvases);
   defaultChoices.sort((a, b) => a - b);
@@ -185,7 +184,7 @@ export const storeThumbSizes = (canvases) => {
 };
 
 export const thumbsUpdate = () => {
-  console.log('thumbsUpdate');
+  // console.log('thumbsUpdate');
   const canvases = manifestStore.getState().canvases;
   storeThumbSizes(canvases);
   storeThumbs(canvases);
@@ -200,11 +199,11 @@ const Events = {
   manifestStoreSubscribe() {
     const state = manifestStore.getState();
     if (hasPropertyChanged('canvases', state, lastManifestState)) {
-      console.log('canvases changed');
+      // console.log('canvases changed');
       // thumbsUpdate();
     }
     if (hasPropertyChanged('manifestData', state, lastManifestState)) {
-      console.log('manifestData changed');
+      // console.log('manifestData changed');
       // drawThumbs();
     }
     lastManifestState = state;

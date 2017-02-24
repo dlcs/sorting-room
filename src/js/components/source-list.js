@@ -33,17 +33,6 @@ const DOM = {
   },
 };
 
-// Template for manifest links
-// const urlTemplate = `${location.href.replace(location.search, '')}?manifest=`;
-
-/*
-function manifestLink(id, text) {
-  if (id && text) {
-    return `<a href="${urlTemplate}${id}">${text}</a>`;
-  }
-  return '';
-}*/
-
 const storeCollectionData = (data) => {
   // Try and add to localStorage with a timestamp
   try {
@@ -70,9 +59,10 @@ const getCollectionData = () => {
     console.log(e, 'localStorage not supported for getItem');
   }
 
+
   // If collection is found display it
   if (collectionData !== null) {
-    // console.log('there is data');
+    // console.log('there is data', collectionData);
     store.dispatch(setSourceManifests(collectionData.raw));
     const timestamp = new Date(collectionData.timestamp);
     const now = new Date();
@@ -98,8 +88,7 @@ function renderCollectionNew(collection) {
   if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
   if (collectionToRender.members) {
     collectionToRender.members.forEach(m => {
-      if (m.service && m.service.values) {
-        // console.log(m);
+      if (m !== null && m.service && m.service.values) {
         listItems += `
         <li class="source-list__item">
           ${img}

@@ -15,6 +15,7 @@ import {
 import { thumbsUpdate } from './thumbs.js';
 import { getCreatedManifests } from './derived-manifests.js';
 import { IIIF } from '../helpers/iiif.js';
+import { IIIFActions } from './iiif-actions.js';
 
 let store = null;
 let manifestStore = null;
@@ -22,7 +23,11 @@ let manifestStore = null;
 let lastLocalLoadedManifestState = null;
 let lastLocalState = null;
 
-const DOM = {
+let Actions = {};
+let DOM = {};
+let Events = {};
+
+DOM = {
   $manifestInputContainer: null,
   $manifestInput: null,
   $manifestInputLoad: null,
@@ -36,78 +41,6 @@ const DOM = {
   },
 };
 
-const loadIIIFResource = (manifest) => {
-  IIIF.wrap(manifest);
-  manifestStore.dispatch(setManifestData(manifest));
-  getCreatedManifests();
-  if (!manifest.mediaSequences) {
-    manifestStore.dispatch(setCanvases(manifest.sequences[0].canvases));
-    thumbsUpdate();
-  }
-};
-
-export const ajaxLoadManifest = function () {
-  DOM.$html.removeClass('dm-loaded');
-  $('.workspace-tabs__link[data-modifier="all"]').click();
-  store.dispatch(clearSelection());
-  store.dispatch(resetDerivedManifests());
-  DOM.$html.removeClass('manifest-loaded');
-  const inputState = manifestStore.getState();
-
-  if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
-    if (typeof history !== 'undefined') {
-      history.replaceState(null, null, `classify.html?manifest=${inputState.manifest}`);
-    }
-    DOM.$manifestInputFeedback.text(`Loading '${inputState.manifest}'...`);
-    store.dispatch(setLoading(true));
-    $.ajax({
-      dataType: 'json',
-      url: inputState.manifest,
-      cache: true,
-      error(data) {
-        alert(`Error: ${data.statusText}`);
-        store.dispatch(setLoading(false));
-        // console.log(data);
-      },
-      success(iiifResource) {
-        // console.log(iiifResource);
-        DOM.$manifestInputFeedback.text(`Current manifest: '${iiifResource['@id']}'`);
-        store.dispatch(setLoading(false));
-        if (iiifResource['@type'] === 'sc:Collection') {
-          // console.log('Render collection');
-          // renderCollection(iiifResource);
-          // TODO - collections
-          // window.loadedResource = iiifResource.manifests[0]['@id'];
-          // $.getJSON(window.loadedResource, function (cManifest) {
-          //     load(cManifest);
-          // });
-        } else {
-          // console.log('Load iiif resource');
-          loadIIIFResource(iiifResource);
-        }
-      },
-    });
-  }
-};
-
-export const processQueryStringFromInput = function (url) {
-  // console.log('pqsfi[', url, ']');
-  if (url !== '') {
-    const qs = /manifest=(.*)/g.exec(url);
-    // console.log('qs', qs);
-    if (qs && qs[1]) {
-      // console.log('pqsfi');
-      manifestStore.dispatch(setManifest(decodeURIComponent(qs[1].replace(/%2b/g, '%20'))));
-      ajaxLoadManifest();
-    }
-  }
-};
-
-const processQueryString = function () {
-  // console.log('processQueryString');
-  processQueryStringFromInput(window.location.search);
-};
-
 /*
 function showCollectionUI() {
   if (SortyConfiguration.sourceCollection) {
@@ -118,19 +51,79 @@ function showCollectionUI() {
   }
 }*/
 
-const Events = {
+Actions = {
+  loadIIIFResource(manifest) {
+    IIIF.wrap(manifest);
+    manifestStore.dispatch(setManifestData(manifest));
+    getCreatedManifests();
+    if (!manifest.mediaSequences) {
+      manifestStore.dispatch(setCanvases(manifest.sequences[0].canvases));
+      thumbsUpdate();
+    }
+  },
+  ajaxLoadManifest() {
+    DOM.$html.removeClass('dm-loaded');
+    $('.workspace-tabs__link[data-modifier="all"]').click();
+    store.dispatch(clearSelection());
+    store.dispatch(resetDerivedManifests());
+    DOM.$html.removeClass('manifest-loaded');
+    const inputState = manifestStore.getState();
+
+    if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
+      if (typeof history !== 'undefined') {
+        history.replaceState(null, null, `classify.html?manifest=${inputState.manifest}`);
+      }
+      DOM.$manifestInputFeedback.text(`Loading '${inputState.manifest}'...`);
+      store.dispatch(setLoading(true));
+
+      IIIFActions.loadManifest(
+        inputState.manifest,
+        Events.manifestLoadSuccess,
+        Events.manifestLoadError
+      );
+    }
+  },
+  processQueryStringFromInput(url) {
+    // console.log('pqsfi[', url, ']');
+    if (url !== '') {
+      const qs = /manifest=(.*)/g.exec(url);
+      // console.log('qs', qs);
+      if (qs && qs[1]) {
+        // console.log('pqsfi');
+        manifestStore.dispatch(setManifest(decodeURIComponent(qs[1].replace(/%2b/g, '%20'))));
+        Actions.ajaxLoadManifest();
+      }
+    }
+  },
+};
+
+Events = {
   domReady() {
     // Get DOM elements
     DOM.init();
     // Process query string for manifests
-    processQueryString();
+    Actions.processQueryStringFromInput(window.location.search);
     // Hook up load button event
     DOM.$manifestInputLoad.click(Events.loadManifestClick);
   },
   loadManifestClick(e) {
     e.preventDefault();
     manifestStore.dispatch(setManifest(DOM.$manifestInput.val()));
-    ajaxLoadManifest();
+    Actions.ajaxLoadManifest();
+  },
+  manifestLoadError(data) {
+    alert(`Error: ${data.statusText}`);
+    store.dispatch(setLoading(false));
+  },
+  manifestLoadSuccess(iiifResource) {
+    // console.log('manifestLoadSuccess', iiifResource);
+    DOM.$manifestInputFeedback.text(`Current manifest: '${iiifResource['@id']}'`);
+    store.dispatch(setLoading(false));
+    if (iiifResource['@type'] === 'sc:Collection') {
+      // TODO - collections
+    } else {
+      Actions.loadIIIFResource(iiifResource);
+    }
   },
   manifestStoreSubscribe() {
     // console.log('IN - subscribe', lastLocalState, store.getState().input);

@@ -43,7 +43,7 @@ const Events = {
   },
   manifestStoreSubscribe() {
     const manifestState = manifestStore.getState();
-    console.log(manifestState);
+    // console.log(manifestState);
     if (hasPropertyChanged('allImages', manifestState, lastManifestState)) {
       DOM.$classifyNumImages.html(`${manifestState.allImages.length} images`);
     }
@@ -99,7 +99,7 @@ const Events = {
 };
 
 const Init = (globalStore, globalManifestStore) => {
-  console.log('classify init');
+  // console.log('classify init');
   store = globalStore;
   manifestStore = globalManifestStore;
 };
