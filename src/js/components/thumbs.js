@@ -64,7 +64,7 @@ export const storeThumbs = (canvases) => {
       canvasId: canvas.id,
       fullSrc: canvas.getThumbnail(1000, 800, 2000),
       index: i,
-      info: thumbs[100].info,
+      info: `${canvas.getDefaultImageService().id}/info.json`,
       isActive,
       isClassified,
       thumbs,
