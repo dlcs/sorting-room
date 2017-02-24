@@ -8,7 +8,7 @@ IIIFActions.postManifest = (manifest, url, success, error) => {
   $.ajax({
     url,
     type: 'POST',
-    contentType: 'application/json',
+    contentType: 'application/json; charset=utf-8',
     data: JSON.stringify(newManifestInstance),
     dataType: 'json',
     error,
@@ -17,10 +17,11 @@ IIIFActions.postManifest = (manifest, url, success, error) => {
 };
 
 IIIFActions.putManifest = (manifest, success, error) => {
+  console.log(manifest);
   $.ajax({
     url: manifest['@id'],
     type: 'PUT',
-    contentType: 'application/json',
+    contentType: 'application/json; charset=utf-8',
     data: JSON.stringify(manifest),
     dataType: 'json',
     error,

@@ -176,7 +176,7 @@ const Events = {
     // Hook up manifest list toggle
     // DOM.$expandCollectionButton.click(() => store.dispatch(toggleList()));
     // Hook up manifest list links to auto-load manifests
-    DOM.$expandedCollection.on('click', 'a', Events.loadManifestLinkClick);
+    // DOM.$expandedCollection.on('click', 'a', Events.loadManifestLinkClick);
   },
   /*
   loadManifestLinkClick() {

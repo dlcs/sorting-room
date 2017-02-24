@@ -102,6 +102,8 @@ const updateArchivalUnits = function () {
     const $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
     const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
 
+    console.log(id, canvases, dm);
+
     const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
     $cmImgFront.attr('src', imgSrcFront);
     if (canvases.length > 1) {
@@ -189,11 +191,12 @@ const Events = {
   },
   requestDerivedManifestsSuccess(collection) {
     // IIIF.wrap(collection);
-    // console.log(collection);
+    console.log('Request derived manifests success', collection);
     manifestStore.dispatch(setDerivedManifests(collection));
     // console.log('RDMS', collection);
     const promises = [];
     for (const dm of collection.members) {
+      console.log('dm', dm);
       promises.push(new Promise((resolve, reject) => {
         $.getJSON(dm['@id'])
         .done(resolve)
@@ -206,6 +209,7 @@ const Events = {
       for (const manifest of values) {
         // const classifiedManifest = new Set();
         for (const canvas of manifest.sequences[0].canvases) {
+          console.log(canvas.images[0].on);
           classifiedCanvases.add(canvas.images[0].on);
           // classifiedManifest.add(canvas.images[0].on);
         }/*
@@ -213,6 +217,7 @@ const Events = {
           id: manifest['@id'],
           imageSet: classifiedManifest,
         });*/
+        console.log(manifest);
         classifiedManifests.push(manifest);
       }
       manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
@@ -254,7 +259,7 @@ const Events = {
     const derivedState = manifestStore.getState();
     // console.log('DM - subscribe', lastLocalState, derivedState);
     if (hasPropertyChanged('derivedManifests', derivedState, lastLocalState)) {
-      // console.log('DM - changed');
+      console.log('DM - changed', derivedState);
       if (derivedState.derivedManifests.length) {
         const derivedManifestList = derivedState.derivedManifests;
         buildClassified(derivedManifestList);

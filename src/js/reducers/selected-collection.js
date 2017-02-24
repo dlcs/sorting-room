@@ -5,11 +5,13 @@ import {
   SELECT,
   SELECT_IMAGE_RANGE,
   SET_COLLECTION_NAME,
+  SET_COLLECTION_MANIFEST,
 } from '../actions/selected-collection.js';
 
 const initialState = {
   collectionName: null,
   selectedImages: [],
+  collectionManifest: null,
 };
 
 // Given a state, return array of index values based on start and end values
@@ -22,6 +24,9 @@ const selectImagesWithinRange = (start, end) => {
 
 export const selectedCollection = (state = initialState, action) => {
   switch (action.type) {
+    case SET_COLLECTION_MANIFEST: {
+      return Object.assign({}, state, { collectionManifest: action.collectionManifest });
+    }
     case SELECT: {
       let selectedImagesArray = state.selectedImages;
       // If not selected

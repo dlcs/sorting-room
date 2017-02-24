@@ -4,6 +4,7 @@ export const ADD_OR_REMOVE_FROM_SELECTION = 'ADD_OR_REMOVE_FROM_SELECTION';
 export const REPLACE_SELECTION = 'REPLACE_SELECTION';
 export const CLEAR_SELECTION = 'CLEAR_SELECTION';
 export const SET_COLLECTION_NAME = 'SET_COLLECTION_NAME';
+export const SET_COLLECTION_MANIFEST = 'SET_COLLECTION_MANIFEST';
 
 /* Action Creators */
 export const selectImage = (idx) => ({
@@ -33,4 +34,9 @@ export const clearSelection = () => ({
 export const setCollectionName = (collectionName) => ({
   type: SET_COLLECTION_NAME,
   collectionName,
+});
+
+export const setCollectionManifest = (collectionManifest) => ({
+  type: SET_COLLECTION_MANIFEST,
+  collectionManifest,
 });

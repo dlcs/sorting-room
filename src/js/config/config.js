@@ -2,8 +2,11 @@
 export const SortyConfiguration = {};
 /* logic for naming IIIF resources in your CRUD server */
 
-const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
+// const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
+const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+
 SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
+SortyConfiguration.mintCanvasIds = true;
 
 function getPath(url) {
   const reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;

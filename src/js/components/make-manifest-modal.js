@@ -16,6 +16,7 @@ import {
 import {
   clearSelection,
   setCollectionName,
+  setCollectionManifest,
 } from '../actions/selected-collection.js';
 
 import {
@@ -138,41 +139,39 @@ const Events = {
     newManifest.id = SortyConfiguration.getManifestUrl(manifest, s, e);
     newManifest.label = DOM.$manifestModalInput.val();
     newManifest.sequences[0].id = SortyConfiguration.getSequenceUrl(manifest, s, e);
-    const canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
-    IIIF.wrap(canvasMapService);
-    canvasMapService.id = `${newManifest.id}/canvasmap`;
-    newManifest.service = canvasMapService;
 
-    for (const cvsIdx of selectedImages) {
-      const sourceCanvas = canvases[cvsIdx];
-      const newCanvas = $.extend(true, {}, sourceCanvas);
-      IIIF.wrap(newCanvas);
-      newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-      canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-      newManifest.sequences[0].canvases.push(newCanvas);
+    // TODO: mintCanvasIds should be more flexible than a global config.
+    if (SortyConfiguration.mintCanvasIds) {
+      const canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
+      IIIF.wrap(canvasMapService);
+      canvasMapService.id = `${newManifest.id}/canvasmap`;
+      newManifest.service = canvasMapService;
+      for (const cvsIdx of selectedImages) {
+        const sourceCanvas = canvases[cvsIdx];
+        const newCanvas = $.extend(true, {}, sourceCanvas);
+        IIIF.wrap(newCanvas);
+        newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
+        canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
+        newManifest.sequences[0].canvases.push(newCanvas);
+      }
+    } else {
+      for (const cvsIdx of selectedImages) {
+        const sourceCanvas = canvases[cvsIdx];
+        newManifest.sequences[0].canvases.push(sourceCanvas);
+      }
     }
 
-    // console.log('newManifest', newManifest);
+    // Store new manifest
+    store.dispatch(setCollectionManifest(newManifest));
 
     // PUTs the manifest
     IIIFActions.putManifest(newManifest, Events.putSuccess, Events.putError);
   },
   postManifest(newManifest) {
-    const newManifestInstance = Object.assign({}, newManifest);
-    newManifestInstance.sequences = null;
-    newManifestInstance.service = null;
-    IIIFActions.postManifest();
-    $.ajax({
-      url: SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(newManifestInstance),
-      dataType: 'json',
-    })
-    .done(Events.postComplete)
-    .fail((xhr, textStatus, error) => {
-      alert(error);
-    });
+    IIIFActions.postManifest(newManifest,
+      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      Events.postComplete,
+      Events.postError);
   },
   postError(xhr, textStatus, error) {
     alert(error);
@@ -229,7 +228,8 @@ const Events = {
   putError(xhr, textStatus, error) {
     alert(error);
   },
-  putSuccess(manifest) {
+  putSuccess() {
+    const manifest = store.getState().selectedCollection.collectionManifest;
     const newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
