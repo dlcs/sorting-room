@@ -134,20 +134,27 @@ const Events = {
     newManifest.id = SortyConfiguration.getManifestUrl(manifest, s, e);
     newManifest.label = DOM.$manifestModalInput.val();
     newManifest.sequences[0].id = SortyConfiguration.getSequenceUrl(manifest, s, e);
-    const canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
-    IIIF.wrap(canvasMapService);
-    canvasMapService.id = `${newManifest.id}/canvasmap`;
-    newManifest.service = canvasMapService;
 
-    for (const cvsIdx of selectedImages) {
-      const sourceCanvas = canvases[cvsIdx];
-      const newCanvas = $.extend(true, {}, sourceCanvas);
-      IIIF.wrap(newCanvas);
-      newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-      canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-      newManifest.sequences[0].canvases.push(newCanvas);
+    // TODO: mintCanvasIds should be more flexible than a global config.
+    if (SortyConfiguration.mintCanvasIds) {
+      const canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
+      IIIF.wrap(canvasMapService);
+      canvasMapService.id = `${newManifest.id}/canvasmap`;
+      newManifest.service = canvasMapService;
+      for (const cvsIdx of selectedImages) {
+        const sourceCanvas = canvases[cvsIdx];
+        const newCanvas = $.extend(true, {}, sourceCanvas);
+        IIIF.wrap(newCanvas);
+        newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
+        canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
+        newManifest.sequences[0].canvases.push(newCanvas);
+      }
+    } else {
+      for (const cvsIdx of selectedImages) {
+        const sourceCanvas = canvases[cvsIdx];
+        newManifest.sequences[0].canvases.push(sourceCanvas);
+      }
     }
-
     // PUTs the manifest
     Events.putManifest(newManifest);
   },
@@ -207,7 +214,7 @@ const Events = {
     $.ajax({
       url: SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
       type: 'POST',
-      contentType: 'application/json',
+      contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(newManifestInstance),
       dataType: 'json',
     })
@@ -220,7 +227,7 @@ const Events = {
     $.ajax({
       url: newManifest.id,
       type: 'PUT',
-      contentType: 'application/json',
+      contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(newManifest),
       dataType: 'json',
     })
