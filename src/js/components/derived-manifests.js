@@ -102,8 +102,6 @@ const updateArchivalUnits = function () {
     const $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
     const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
 
-    console.log(id, canvases, dm);
-
     const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
     $cmImgFront.attr('src', imgSrcFront);
     if (canvases.length > 1) {

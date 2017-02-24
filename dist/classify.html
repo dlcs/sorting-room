@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head>
     <meta charset="utf-8">
-    <title>SORTY</title>
+    <title>List | SORTY</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Open+Sans:400,600" rel="stylesheet" />
@@ -65,28 +65,75 @@
       </div>
       <main>
         <div class="container body-content" id="mainContainer">
-          <section class="page page--home">
-            <section class="description">
-              <aside class="description__aside">
-                <ul class="description__visual" aria-hidden="true">
-                  <li><span></span> </li>
-                  <li><span></span> </li>
-                  <li><span></span> </li>
-                  <li><span></span> </li>
-                  <li><span></span> </li>
-                  <li><span></span> </li>
-                  <li><span></span> </li>
-                </ul>
-              </aside>
-              <article class="description__body">
-                <p><strong>SORTY</strong> is a tool to help you organise microfilm reels into logical groups.</p>
-                <p>Review all the images on any reel, gather sets of images that should go together, and give them a label.</p>
-                <p>We’ll also show your progress, so you know how much is left to do.</p>
-                <p>
-                  <a href="list.html">Start on the list of 136 reels.</a> 
-                </p>
-              </article>
-            </section>
+          <section class="page page--classify">
+            <div class="workspace">
+
+              <!-- <nav class="workspace-tabs">
+  <ul class="workspace-tabs__list">
+    <li class="workspace-tabs__item">
+      <a class="workspace-tabs__link workspace-tabs__link--active" href="#all" data-modifier="all"><i class="material-icons">theaters</i><br/>All Images</a> 
+    </li>
+    <li class="workspace-tabs__item workspace-tabs__item--dm">
+      <a class="workspace-tabs__link" href="#add" data-modifier="add"><i class="material-icons">library_add</i><br/>To Classify</a> 
+    </li>
+    <li class="workspace-tabs__item workspace-tabs__item--dm">
+      <a class="workspace-tabs__link" href="#done" data-modifier="done"><i class="material-icons">done</i><br/>Completed</a> 
+    </li>
+  </ul>
+</nav>
+ -->
+
+              <!-- viewer--done -->
+
+              <!-- viewer--all -->
+              <div class="viewer viewer--add">
+                <div class="classify-tools classify-tools--no-selection">
+                  <h3 class="classify-tools__title"></h3>
+                  <h4 class="classify-tools__sub-title"></h4>
+                  <div class="classify-tools__progress">
+                    <div class="classify-tools__no-selection">
+                      <a class="classify-tools__num-sets" href="#">{x} sets</a> 
+                    </div>
+                    <div class="classify-tools__selection">
+                      <span class="classify-tools__feedback">{x} selected</span> 
+                      <a class="classify-tools__clear" href="#clear">Clear</a> 
+                    </div>
+                    <span class="classify-tools__num-images">{x} images</span> 
+                    <progress class="classify-tools__progress-bar" value="0" max="100"></progress>
+                    <button class="classify-tools__make btn">
+                      <i class="material-icons">note_add</i> Make set</button>
+                  </div>
+                </div>
+                <div class="viewer__classify">
+                  <div class="thumbs-container">
+                  </div>
+                </div>
+                <div class="viewer__classified">
+
+                  <!-- <div class="manifest-select">
+  <select class="manifest-select__dropdown"></select>
+  <button class="manifest-select__view-uv btn">View in UV</button>
+</div>
+ -->
+                  <h3 class="viewer__classified-title">{x} sets</h3>
+                  <div class="classified-material">
+                  </div>
+                </div>
+                <div class="viewer__saved saved">
+                  <p class="saved__feedback">
+                    <i class="material-icons">done</i> Your new set "{set label}" is saved. <span><a href="">Start another set</a>, or <a href="">view all the sets</a> ?</span> </p>
+                  <progress class="saved__progress-bar" value="0" max="100"></progress>
+                  <div class="saved__collection">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="info-bar">
+              <div class="info-bar__selection">
+                <p class="info-bar__tip">Hold [shift] to select a range</p>
+                <p class="info-bar__tip">Hold [ctrl] to add/remove from selection</p>
+              </div>
+            </div>
           </section>
         </div>
       </main>

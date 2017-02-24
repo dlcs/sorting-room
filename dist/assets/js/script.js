@@ -26468,6 +26468,7 @@ var RESET_DERIVED_MANIFESTS = exports.RESET_DERIVED_MANIFESTS = 'RESET_DERIVED_M
 var SET_DERIVED_MANIFESTS_COMPLETE = exports.SET_DERIVED_MANIFESTS_COMPLETE = 'SET_DERIVED_MANIFESTS_COMPLETE';
 var SET_CLASSIFIED_CANVASES = exports.SET_CLASSIFIED_CANVASES = 'SET_CLASSIFIED_CANVASES';
 var SET_MANIFEST = exports.SET_MANIFEST = 'SET_MANIFEST';
+var SET_MANIFEST_DATA = exports.SET_MANIFEST_DATA = 'SET_MANIFEST_DATA';
 var SET_THUMB_SIZES = exports.SET_THUMB_SIZES = 'SET_THUMB_SIZES';
 
 /* Action Creators */
@@ -26475,6 +26476,13 @@ var setManifest = exports.setManifest = function setManifest(manifest) {
   return {
     type: SET_MANIFEST,
     manifest: manifest
+  };
+};
+
+var setManifestData = exports.setManifestData = function setManifestData(manifestData) {
+  return {
+    type: SET_MANIFEST_DATA,
+    manifestData: manifestData
   };
 };
 
@@ -26538,6 +26546,7 @@ var ADD_OR_REMOVE_FROM_SELECTION = exports.ADD_OR_REMOVE_FROM_SELECTION = 'ADD_O
 var REPLACE_SELECTION = exports.REPLACE_SELECTION = 'REPLACE_SELECTION';
 var CLEAR_SELECTION = exports.CLEAR_SELECTION = 'CLEAR_SELECTION';
 var SET_COLLECTION_NAME = exports.SET_COLLECTION_NAME = 'SET_COLLECTION_NAME';
+var SET_COLLECTION_MANIFEST = exports.SET_COLLECTION_MANIFEST = 'SET_COLLECTION_MANIFEST';
 
 /* Action Creators */
 var selectImage = exports.selectImage = function selectImage(idx) {
@@ -26581,6 +26590,13 @@ var setCollectionName = exports.setCollectionName = function setCollectionName(c
   };
 };
 
+var setCollectionManifest = exports.setCollectionManifest = function setCollectionManifest(collectionManifest) {
+  return {
+    type: SET_COLLECTION_MANIFEST,
+    collectionManifest: collectionManifest
+  };
+};
+
 },{}],27:[function(require,module,exports){
 'use strict';
 
@@ -26609,7 +26625,7 @@ var SET_LOADING_MANIFEST = exports.SET_LOADING_MANIFEST = 'SET_LOADING_MANIFEST'
 var SET_TAB = exports.SET_TAB = 'SET_TAB';
 var SET_THUMB_SIZE = exports.SET_THUMB_SIZE = 'SET_THUMB_SIZE';
 var SHOW_LIGHTBOX = exports.SHOW_LIGHTBOX = 'SHOW_LIGHTBOX';
-var TOGGLE_LIST = exports.TOGGLE_LIST = 'TOGGLE_LIST';
+var TOGGLE_HELP_VISIBLE = exports.TOGGLE_HELP_VISIBLE = 'TOGGLE_HELP_VISIBLE';
 
 var hideLightbox = exports.hideLightbox = function hideLightbox() {
   return {
@@ -26652,13 +26668,127 @@ var setThumbSize = exports.setThumbSize = function setThumbSize(thumbSize) {
   };
 };
 
-var toggleList = exports.toggleList = function toggleList() {
+var toggleHelpVisible = exports.toggleHelpVisible = function toggleHelpVisible() {
   return {
-    type: TOGGLE_LIST
+    type: TOGGLE_HELP_VISIBLE
   };
 };
 
 },{}],29:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _helpers = require('../helpers/helpers.js');
+
+var _workspace = require('./workspace.js');
+
+var $ = require('jquery');
+
+var store = null;
+var manifestStore = null;
+var lastSelectionState = null;
+var lastManifestState = null;
+
+var classNamespace = 'classify-tools';
+
+var DOM = {
+  $classifyTools: null,
+  $classifyFeedback: null,
+  $classifyNumImages: null,
+  $classifyMake: null,
+  $classifyClear: null,
+  $classifyProgress: null,
+  $classifyNumSets: null,
+  init: function init() {
+    DOM.$classifyTools = $('.' + classNamespace);
+    DOM.$classifyFeedback = $('.' + classNamespace + '__feedback');
+    DOM.$classifyNumImages = $('.' + classNamespace + '__num-images');
+    DOM.$classifyMake = $('.' + classNamespace + '__make');
+    DOM.$classifyClear = $('.' + classNamespace + '__clear');
+    DOM.$classifyProgress = $('.' + classNamespace + '__progress-bar');
+    DOM.$classifyNumSets = $('.' + classNamespace + '__num-sets');
+    DOM.$classifyTitle = $('.classify-tools__title');
+    DOM.$savedProgress = $('.saved__progress-bar');
+    DOM.$viewer = $('.viewer');
+  }
+};
+
+var Events = {
+  domReady: function domReady() {
+    DOM.init();
+    Events.init();
+    store.subscribe(Events.storeSubscribe);
+    manifestStore.subscribe(Events.manifestStoreSubscribe);
+  },
+  init: function init() {
+    DOM.$classifyNumSets.click(Events.numSetsClick);
+    DOM.$classifyTitle.on('click', 'a', Events.titleClick);
+  },
+  manifestStoreSubscribe: function manifestStoreSubscribe() {
+    var manifestState = manifestStore.getState();
+    // console.log(manifestState);
+    if ((0, _helpers.hasPropertyChanged)('allImages', manifestState, lastManifestState)) {
+      DOM.$classifyNumImages.html(manifestState.allImages.length + ' images');
+    }
+    if ((0, _helpers.hasPropertyChanged)('derivedManifestsComplete', manifestState, lastManifestState)) {
+      if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
+        DOM.$classifyNumSets.show();
+        DOM.$classifyNumSets.html(manifestState.derivedManifestsComplete.length + ' complete sets');
+      } else {
+        DOM.$classifyNumSets.hide();
+      }
+    }
+    if ((0, _helpers.hasPropertyChanged)('manifestData', manifestState, lastManifestState)) {
+      DOM.$classifyTitle.html('<a class="classify-tools__link" href="#">\n      ' + manifestState.manifestData.metadata[0].value + '</a>');
+    }
+    if ((0, _helpers.hasPropertyChanged)('classifiedCanvases', manifestState, lastManifestState)) {
+      // console.log('classifiedCanvases changed', derivedState, lastLocalState);
+      var classifiedTotal = manifestState.classifiedCanvases.size;
+      var total = manifestState.allImages.length;
+      var progressVal = total > 0 ? Math.round(classifiedTotal / total * 100) : 0;
+      DOM.$classifyProgress.val(progressVal);
+      DOM.$savedProgress.val(progressVal);
+    }
+    lastManifestState = manifestState;
+  },
+  numSetsClick: function numSetsClick(e) {
+    e.preventDefault();
+    (0, _workspace.switchView)('done');
+  },
+  storeSubscribe: function storeSubscribe() {
+    var selectionState = store.getState().selectedCollection;
+    if ((0, _helpers.hasPropertyChanged)('selectedImages', selectionState, lastSelectionState)) {
+      if (selectionState.selectedImages.length) {
+        // Show selected context controls
+        DOM.$classifyTools.removeClass(classNamespace + '--no-selection').addClass(classNamespace + '--selection');
+        DOM.$classifyFeedback.html(selectionState.selectedImages.length + ' selected');
+      } else {
+        // Show unselected context controls
+        DOM.$classifyTools.removeClass(classNamespace + '--selection').addClass(classNamespace + '--no-selection');
+      }
+    }
+    lastSelectionState = selectionState;
+  },
+  titleClick: function titleClick(e) {
+    e.preventDefault();
+    (0, _workspace.switchView)('add');
+  }
+};
+
+var Init = function Init(globalStore, globalManifestStore) {
+  // console.log('classify init');
+  store = globalStore;
+  manifestStore = globalManifestStore;
+};
+
+exports.default = Init;
+
+$(document).ready(Events.domReady);
+
+},{"../helpers/helpers.js":42,"./workspace.js":40,"jquery":1}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26670,15 +26800,15 @@ var _helpers = require('../helpers/helpers.js');
 
 var _config = require('../config/config.js');
 
-var _iiif = require('../helpers/iiif.js');
-
 var _loadedManifest = require('../actions/loaded-manifest.js');
 
 var _thumbs = require('./thumbs.js');
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _iiifActions = require('./iiif-actions.js');
 
 var $ = require('jquery');
+// import { IIIF } from '../helpers/iiif.js';
+
 // import { replaceSelection } from '../selection/selectionActions.js';
 
 
@@ -26687,6 +26817,7 @@ var viewManifest = '.manifest-select__view-uv';
 
 var manifestStore = null;
 var lastLocalState = null;
+var lastTitleText = null;
 
 var DOM = {
   $manifestSelector: null,
@@ -26700,132 +26831,177 @@ var DOM = {
 
 var buildClassified = function buildClassified(derivedManifestList) {
   // console.log('buildClassified', DOM.$classifiedMaterial != null &&
-  // DOM.$classifiedMaterial.length);
   if (DOM.$classifiedMaterial != null && DOM.$classifiedMaterial.length) {
     var preferredHeight = parseInt(localStorage.getItem('thumbSize'), 10);
     var preferredWidth = preferredHeight / 1.5;
+    var placeholder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB' + 'CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=';
 
     DOM.$classifiedMaterial.html('');
-    // console.log(derivedManifestList && derivedManifestList.members);
     if (derivedManifestList && derivedManifestList.members) {
       for (var i = 0; i < derivedManifestList.members.length; i++) {
         var manifest = derivedManifestList.members[i];
-        var label = manifest.label || manifest.id;
-        // console.log(label);
-        /* can't do thumbs without another request
-        const min = preferredSize < 100 ? 0 : Math.round(preferredSize * 0.8);
-        const max = preferredSize < 100 ? 200 : preferredSize * 2;
-        const thumb = manifest.getThumbnail(preferredSize, min, max);
-        console.log('build classified', manifest, thumb);*/
-        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest.id + '">\n            <h2 class="classified-manifest__title">' + label + '</h2>\n            <p class="classified-manifest__num">{x} images in this collection</p>\n            <div class="classified-manifest__front">\n              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB              CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII="               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB              CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII="               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB              CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII="               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest.id + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
+        var label = manifest.label || manifest['@id'];
+        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images in this collection</p>\n            <div class="classified-manifest__front">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest['@id'] + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
       }
     }
   }
 };
 
-// const buildDropdown = (derivedManifestList, selectedDerivedManifest) => {
-//   if (DOM.$manifestSelector != null && DOM.$manifestSelector.length) {
-//     DOM.$manifestSelector.html('');
-//     DOM.$manifestSelector
-//     .append(`<option value="${window.loadedResource}">Original manifest</option>`);
-//     if (derivedManifestList && derivedManifestList.members) {
-//       for (let i = 0; i < derivedManifestList.members.length; i++) {
-//         const manifest = derivedManifestList.members[i];
-//         const label = manifest.label || manifest.id;
-//         const selected = selectedDerivedManifest !== null &&
-//         manifest.id === selectedDerivedManifest['@id'] ?
-//         ' selected="selected"' : null;
-//         DOM.$manifestSelector.append
-// (`<option value="${manifest.id}"${selected}>${label}</option>`);
-//       }
-//     }
-//   }
-// };
-
-// const getDerivedManifestById = (id) => {
-//   $.getJSON(id).done(fullManifest =>
-//     store.dispatch(selectDerivedManifest(fullManifest)));
-// };
-
 var loadManifestPage = exports.loadManifestPage = function loadManifestPage(manifestUrl) {
   window.open('http://universalviewer.io/?manifest=' + manifestUrl, '_blank');
 };
 
-// const preSelectFromDerivedManifest = (selectedDerivedManifest) => {
-//   if (selectedDerivedManifest !== null) {
-//     // console.log(selectedDerivedManifest);
-//     let i = 0;
-//     const selection = [];
-//     let firstThumb = null;
-//
-//     for (const canvas of Object.keys(selectedDerivedManifest.service.canvasMap)) {
-//       // console.log('pre-select', canvas, selectedDerivedManifest.service.canvasMap[canvas]);
-//       const $thumb = $(`.thumb[data-uri='
-// ${selectedDerivedManifest.service.canvasMap[canvas]}']`);
-//       const idx = $thumb.attr('data-idx');
-//       selection.push(idx);
-//       // store.dispatch(addOrRemoveFromSelection(idx));
-//       if (i === 0) firstThumb = $thumb[0];
-//       i++;
-//     }
-//     store.dispatch(replaceSelection(selection));
-//     firstThumb.scrollIntoView();
-//   }
-// };
+var updateArchivalUnits = function updateArchivalUnits() {
+  var state = manifestStore.getState();
+  // Make sure the list exists first
+  if (DOM.$classifiedMaterial.find('.classified-manifest').length < state.derivedManifests.members.length) {
+    // console.log('need to build first');
+    buildClassified(state.derivedManifests);
+  }
+  $('.viewer__classified-title').text(state.derivedManifestsComplete.length + ' sets');
+
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = state.derivedManifestsComplete[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var dm = _step.value;
+
+      var id = dm['@id'];
+      var canvases = dm.sequences[0].canvases;
+      var $cmContainer = $('.classified-manifest[data-id=\'' + id + '\']');
+      $cmContainer.find('.classified-manifest__num').text(canvases.length + ' images in this collection');
+      var $cmImgFront = $cmContainer.find('.classified-manifest__front img');
+      var $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
+      var $cmImgThird = $cmContainer.find('.classified-manifest__third img');
+
+      var imgSrcFront = $('.thumb[data-uri=\'' + canvases[0].images[0].on + '\']').attr('data-src');
+      $cmImgFront.attr('src', imgSrcFront);
+      if (canvases.length > 1) {
+        var imgSrcSecond = $('.thumb[data-uri=\'' + canvases[1].images[0].on + '\']').attr('data-src');
+        $cmImgSecond.attr('src', imgSrcSecond);
+      } else {
+        $cmImgSecond.hide();
+      }
+      if (canvases.length > 2) {
+        var imgSrcThird = $('.thumb[data-uri=\'' + canvases[2].images[0].on + '\']').attr('data-src');
+        $cmImgThird.attr('src', imgSrcThird);
+      } else {
+        $cmImgThird.hide();
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+};
+
+var cancelEdits = function cancelEdits() {
+  var resetText = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+  var $contentEditableTitleText = $('.classified-manifest__title-text[contenteditable]');
+  var $contentEditableTitle = $('.classified-manifest__title--edit');
+  $contentEditableTitleText.removeAttr('contenteditable');
+  $contentEditableTitle.removeClass('classified-manifest__title--edit');
+  if (resetText) $contentEditableTitleText.html(lastTitleText);
+};
 
 var Events = {
-  // derivedManifestChange() {
-  //   for (const manifest of store.getState().derivedManifestsReducer.derivedManifests.members) {
-  //     if (manifest.id === $(this).val()) {
-  //       // load this manifest
-  //       getDerivedManifestById(manifest.id);
-  //       break;
-  //     }
-  //   }
-  // },
   domReady: function domReady() {
     DOM.init();
+    Events.init();
+  },
+  editTitleClick: function editTitleClick() {
+    // Cancel any other edit operations first
+    cancelEdits(true);
+
+    // Make the title editable
+    var $parentTitle = $(this).closest('.classified-manifest__title');
+    $parentTitle.addClass('classified-manifest__title--edit');
+
+    var $editableText = $parentTitle.find('.classified-manifest__title-text');
+
+    lastTitleText = $editableText.text();
+    $editableText.attr('contenteditable', 'true');
+    $editableText.focus();
+  },
+  editTitleKeypress: function editTitleKeypress(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      $(this).closest('.classified-manifest').find('.classified-manifest__title-save').click();
+    }
   },
   init: function init() {
-    DOM.$manifestSelector.change(Events.derivedManifestChange);
+    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-edit', Events.editTitleClick);
+    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
+    DOM.$classifiedMaterial.on('keypress', '.classified-manifest__title--edit .classified-manifest__title-text', Events.editTitleKeypress);
+  },
+  postError: function postError(xhr, textStatus, error) {
+    alert(error);
+  },
+  postSuccess: function postSuccess() {
+    cancelEdits();
+    $('.classified-manifest--saving-label').removeClass('classified-manifest--saving-label');
+  },
+  putError: function putError(xhr, textStatus, error) {
+    alert(error);
+  },
+  putSuccess: function putSuccess(manifest) {
+    var newManifestInstance = Object.assign({}, manifest);
+    newManifestInstance.sequences = null;
+    newManifestInstance.service = null;
+    _iiifActions.IIIFActions.postManifest(manifest, _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest), Events.postSuccess, Events.postError);
   },
   requestDerivedManifestsFailure: function requestDerivedManifestsFailure() {
     manifestStore.dispatch((0, _loadedManifest.resetDerivedManifests)());
+    // If there's no derived manifest - just show the list
+    $('html').addClass('manifest-loaded');
   },
   requestDerivedManifestsSuccess: function requestDerivedManifestsSuccess(collection) {
-    _iiif.IIIF.wrap(collection);
-    // console.log(collection);
+    // IIIF.wrap(collection);
+    console.log('Request derived manifests success', collection);
     manifestStore.dispatch((0, _loadedManifest.setDerivedManifests)(collection));
     // console.log('RDMS', collection);
     var promises = [];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
 
     try {
       var _loop = function _loop() {
-        var dm = _step.value;
+        var dm = _step2.value;
 
-        // console.log(dm);
+        console.log('dm', dm);
         promises.push(new Promise(function (resolve, reject) {
-          $.getJSON(dm.id).done(resolve).fail(reject);
+          $.getJSON(dm['@id']).done(resolve).fail(reject);
         }));
       };
 
-      for (var _iterator = collection.members[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      for (var _iterator2 = collection.members[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
         _loop();
       }
     } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
+      _didIteratorError2 = true;
+      _iteratorError2 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
+        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+          _iterator2.return();
         }
       } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
+        if (_didIteratorError2) {
+          throw _iteratorError2;
         }
       }
     }
@@ -26833,67 +27009,139 @@ var Events = {
     var classifiedCanvases = new Set();
     var classifiedManifests = [];
     Promise.all(promises).then(function (values) {
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
 
       try {
-        for (var _iterator2 = values[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var manifest = _step2.value;
+        for (var _iterator3 = values[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var manifest = _step3.value;
 
-          var classifiedManifest = new Set();
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
+          // const classifiedManifest = new Set();
+          var _iteratorNormalCompletion4 = true;
+          var _didIteratorError4 = false;
+          var _iteratorError4 = undefined;
 
           try {
-            for (var _iterator3 = manifest.sequences[0].canvases[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var canvas = _step3.value;
+            for (var _iterator4 = manifest.sequences[0].canvases[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+              var canvas = _step4.value;
 
+              console.log(canvas.images[0].on);
               classifiedCanvases.add(canvas.images[0].on);
-              classifiedManifest.add(canvas.images[0].on);
-            }
+              // classifiedManifest.add(canvas.images[0].on);
+            } /*
+              classifiedManifests.push({
+               id: manifest['@id'],
+               imageSet: classifiedManifest,
+              });*/
           } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
+              if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                _iterator4.return();
               }
             } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
+              if (_didIteratorError4) {
+                throw _iteratorError4;
               }
             }
           }
 
-          classifiedManifests.push({
-            id: manifest['@id'],
-            imageSet: classifiedManifest
-          });
+          console.log(manifest);
+          classifiedManifests.push(manifest);
         }
       } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
           }
         } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
+          if (_didIteratorError3) {
+            throw _iteratorError3;
           }
         }
       }
 
       manifestStore.dispatch((0, _loadedManifest.setClassifiedCanvases)(classifiedCanvases));
       manifestStore.dispatch((0, _loadedManifest.setDerivedManifestsComplete)(classifiedManifests));
+      $('html').addClass('dm-loaded manifest-loaded');
+      (0, _thumbs.updateThumbsWithStatus)();
     }, function (reason) {
       console.log('Promise fail', reason);
     });
     $(viewManifest).click(Events.viewManifestClick);
+  },
+  saveTitleClick: function saveTitleClick() {
+    var $parentTitle = $(this).closest('.classified-manifest__title');
+    var $container = $(this).closest('.classified-manifest');
+    var $editableText = $parentTitle.find('.classified-manifest__title-text');
+    var manifestId = $container.attr('data-id');
+    var titleText = $editableText.text();
+    var derivedManifests = manifestStore.getState().derivedManifestsComplete;
+    var manifestToUpdate = null;
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
+
+    try {
+      for (var _iterator5 = derivedManifests[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+        var _dm = _step5.value;
+
+        if (_dm['@id'] === manifestId) {
+          manifestToUpdate = _dm;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError5 = true;
+      _iteratorError5 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+          _iterator5.return();
+        }
+      } finally {
+        if (_didIteratorError5) {
+          throw _iteratorError5;
+        }
+      }
+    }
+
+    if (manifestToUpdate !== null) {
+      // Update label
+      manifestToUpdate.label = titleText;
+      // Set saving state
+      $container.addClass('classified-manifest--saving-label');
+      // RE-PUT
+      _iiifActions.IIIFActions.putManifest(manifestToUpdate, Events.putSuccess, Events.putError);
+    } else {
+      // Cancel edit
+      cancelEdits(true);
+    }
+  },
+  subscribeActions: function subscribeActions() {
+    var derivedState = manifestStore.getState();
+    // console.log('DM - subscribe', lastLocalState, derivedState);
+    if ((0, _helpers.hasPropertyChanged)('derivedManifests', derivedState, lastLocalState)) {
+      console.log('DM - changed', derivedState);
+      if (derivedState.derivedManifests.length) {
+        var derivedManifestList = derivedState.derivedManifests;
+        buildClassified(derivedManifestList);
+      }
+    }
+    if ((0, _helpers.hasPropertyChanged)('classifiedCanvases', derivedState, lastLocalState)) {
+      // console.log('classifiedCanvases changed', derivedState, lastLocalState);
+    }
+    if ((0, _helpers.hasPropertyChangedNonZero)('derivedManifestsComplete', derivedState, lastLocalState)) {
+      // console.log('derivedManifestsComplete - updateArchivalUnits');
+      updateArchivalUnits();
+    }
+    lastLocalState = derivedState;
   },
   viewManifestClick: function viewManifestClick() {
     loadManifestPage(DOM.$manifestSelector.val());
@@ -26902,122 +27150,131 @@ var Events = {
 
 var getCreatedManifests = exports.getCreatedManifests = function getCreatedManifests() {
   // get the container in presley
-  // console.log('getCreatedManifests', store.getState().input.manifest);
   var collectionId = _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest);
-  // console.log(collectionId, 'cid');
+
   $.getJSON(collectionId).done(Events.requestDerivedManifestsSuccess).fail(Events.requestDerivedManifestsFailure);
-};
-
-var updateArchivalUnits = function updateArchivalUnits() {
-  var state = manifestStore.getState();
-  // console.log('inside update archival units', DOM.$classifiedMaterial,
-  // DOM.$classifiedMaterial.find('.classified-manifest'), state);
-  // Make sure the list exists first
-  if (DOM.$classifiedMaterial.find('.classified-manifest').length < state.derivedManifests.members.length) {
-    // console.log('need to build first');
-    buildClassified(state.derivedManifests);
-  }
-  // console.log('update archival units');
-  $('.viewer__classified-title').text('Showing ' + state.derivedManifestsComplete.length + ' completed\n  archival units');
-  // console.log(state);
-  var _iteratorNormalCompletion4 = true;
-  var _didIteratorError4 = false;
-  var _iteratorError4 = undefined;
-
-  try {
-    for (var _iterator4 = state.derivedManifestsComplete[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-      var _dm = _step4.value;
-
-      // console.log('updating dm', dm);
-      var $cmContainer = $('.classified-manifest[data-id=\'' + _dm.id + '\']');
-      $cmContainer.find('.classified-manifest__num').text(_dm.imageSet.size + ' images in this collection');
-      var $cmImgFront = $cmContainer.find('.classified-manifest__front img');
-      var $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
-      var $cmImgThird = $cmContainer.find('.classified-manifest__third img');
-      var imgSrcFront = $('.thumb[data-uri=\'' + [].concat(_toConsumableArray(_dm.imageSet))[0] + '\']').attr('data-src');
-      $cmImgFront.attr('src', imgSrcFront);
-      // console.log(dm.imageSet);
-      if (_dm.imageSet.size > 1) {
-        var imgSrcSecond = $('.thumb[data-uri=\'' + [].concat(_toConsumableArray(_dm.imageSet))[1] + '\']').attr('data-src');
-        $cmImgSecond.attr('src', imgSrcSecond);
-      } else {
-        $cmImgSecond.hide();
-      }
-      if (_dm.imageSet.size > 2) {
-        var imgSrcThird = $('.thumb[data-uri=\'' + [].concat(_toConsumableArray(_dm.imageSet))[2] + '\']').attr('data-src');
-        $cmImgThird.attr('src', imgSrcThird);
-      } else {
-        $cmImgThird.hide();
-      }
-    }
-  } catch (err) {
-    _didIteratorError4 = true;
-    _iteratorError4 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion4 && _iterator4.return) {
-        _iterator4.return();
-      }
-    } finally {
-      if (_didIteratorError4) {
-        throw _iteratorError4;
-      }
-    }
-  }
 };
 
 $(document).ready(Events.domReady);
 
-var subscribeActions = function subscribeActions() {
-  var derivedState = manifestStore.getState();
-  // console.log('DM - subscribe', lastLocalState, derivedState);
-  if ((0, _helpers.hasPropertyChanged)('derivedManifests', derivedState, lastLocalState)) {
-    // console.log('DM - changed');
-    if (derivedState.derivedManifests.length) {
-      var derivedManifestList = derivedState.derivedManifests;
-      // const selectedDerivedManifest =
-      // derivedState.selectedDerivedManifest;
-      // console.log('using derivedmanifests state', derivedState.derivedManifests);
-      buildClassified(derivedManifestList);
-      // buildDropdown(derivedManifestList, selectedDerivedManifest);
-      // preSelectFromDerivedManifest(selectedDerivedManifest);
-    }
-  }
-  /*
-  console.log(lastLocalState !== null,
-  derivedState.classifiedCanvases.size,
-  derivedState.classifiedCanvases,
-  lastLocalState !== null ? derivedState.classifiedCanvases !==
-  lastLocalState.classifiedCanvases : 'lastLocal is null');*/
-  if ((0, _helpers.hasPropertyChanged)('classifiedCanvases', derivedState, lastLocalState)) {
-    // console.log('classifiedCanvases changed', derivedState, lastLocalState);
-    $('html').addClass('dm-loaded');
-    var $titleAdd = $('.viewer__title--add');
-    var classifiedTotal = manifestStore.getState().classifiedCanvases.size;
-    var total = manifestStore.getState().allImages.length;
-    $titleAdd.text('Showing ' + (total - classifiedTotal) + ' of ' + total + '\n    images to be classified');
-    (0, _thumbs.updateThumbsWithStatus)();
-  }
-  if ((0, _helpers.hasPropertyChangedNonZero)('derivedManifestsComplete', derivedState, lastLocalState)) {
-    // console.log('derivedManifestsComplete - updateArchivalUnits');
-    updateArchivalUnits();
-  }
-  lastLocalState = derivedState;
-};
-
 var derivedManifestsInit = exports.derivedManifestsInit = function derivedManifestsInit(globalStore, globalManifestStore) {
   // store = globalStore;
   manifestStore = globalManifestStore;
-  manifestStore.subscribe(subscribeActions);
+  manifestStore.subscribe(Events.subscribeActions);
 };
 
-},{"../actions/loaded-manifest.js":25,"../config/config.js":36,"../helpers/helpers.js":37,"../helpers/iiif.js":38,"./thumbs.js":34,"jquery":1}],30:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../config/config.js":41,"../helpers/helpers.js":42,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.inputInit = exports.processQueryStringFromInput = exports.ajaxLoadManifest = undefined;
+exports.helpInit = undefined;
+
+var _helpers = require('../helpers/helpers.js');
+
+var _ui = require('../actions/ui.js');
+
+var $ = require('jquery');
+
+var store = null;
+var lastState = null;
+
+var DOM = {
+  $helpButton: null,
+  $helpText: null,
+
+  init: function init() {
+    DOM.$helpButton = $('.help-button');
+    DOM.$helpText = $('.help');
+  }
+};
+
+var Events = {
+  domReady: function domReady() {
+    DOM.init();
+    Events.init();
+    store.subscribe(Events.storeSubscribe);
+  },
+  init: function init() {
+    DOM.$helpButton.click(Events.helpToggle);
+  },
+  helpToggle: function helpToggle() {
+    store.dispatch((0, _ui.toggleHelpVisible)());
+  },
+  storeSubscribe: function storeSubscribe() {
+    var state = store.getState().ui;
+    if ((0, _helpers.hasPropertyChanged)('helpVisible', state, lastState)) {
+      if (state.helpVisible) {
+        DOM.$helpText.addClass('help--active');
+      } else {
+        DOM.$helpText.removeClass('help--active');
+      }
+    }
+    lastState = state;
+  }
+};
+
+var helpInit = exports.helpInit = function helpInit(globalStore) {
+  store = globalStore;
+};
+
+$(document).ready(Events.domReady);
+
+},{"../actions/ui.js":28,"../helpers/helpers.js":42,"jquery":1}],32:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var $ = require('jquery');
+var IIIFActions = exports.IIIFActions = {};
+
+IIIFActions.postManifest = function (manifest, url, success, error) {
+  var newManifestInstance = Object.assign({}, manifest);
+  newManifestInstance.sequences = null;
+  newManifestInstance.service = null;
+  $.ajax({
+    url: url,
+    type: 'POST',
+    contentType: 'application/json; charset=utf-8',
+    data: JSON.stringify(newManifestInstance),
+    dataType: 'json',
+    error: error,
+    success: success
+  });
+};
+
+IIIFActions.putManifest = function (manifest, success, error) {
+  console.log(manifest);
+  $.ajax({
+    url: manifest['@id'],
+    type: 'PUT',
+    contentType: 'application/json; charset=utf-8',
+    data: JSON.stringify(manifest),
+    dataType: 'json',
+    error: error,
+    success: success
+  });
+};
+
+IIIFActions.loadManifest = function (url, success, error) {
+  $.ajax({
+    dataType: 'json',
+    url: url,
+    cache: true,
+    error: error,
+    success: success
+  });
+};
+
+},{"jquery":1}],33:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.inputInit = undefined;
 
 var _helpers = require('../helpers/helpers.js');
 
@@ -27027,17 +27284,13 @@ var _ui = require('../actions/ui.js');
 
 var _selectedCollection = require('../actions/selected-collection.js');
 
-var _sourceList = require('./source-list.js');
-
-var _sourceList2 = _interopRequireDefault(_sourceList);
+var _thumbs = require('./thumbs.js');
 
 var _derivedManifests = require('./derived-manifests.js');
 
-var _thumbs = require('./thumbs.js');
-
 var _iiif = require('../helpers/iiif.js');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _iiifActions = require('./iiif-actions.js');
 
 var $ = require('jquery');
 
@@ -27048,88 +27301,22 @@ var manifestStore = null;
 var lastLocalLoadedManifestState = null;
 var lastLocalState = null;
 
-var DOM = {
+var Actions = {};
+var DOM = {};
+var Events = {};
+
+DOM = {
+  $manifestInputContainer: null,
   $manifestInput: null,
   $manifestInputLoad: null,
 
   init: function init() {
+    DOM.$html = $('html');
+    DOM.$manifestInputContainer = $('.manifest-input');
     DOM.$manifestInput = $('.manifest-input__text-input');
     DOM.$manifestInputLoad = $('.manifest-input__load-button');
+    DOM.$manifestInputFeedback = $('.manifest-input__feedback');
   }
-};
-
-var loadIIIFResource = function loadIIIFResource(manifest) {
-  $('html').addClass('manifest-loaded');
-  $(window).trigger('lookup');
-  _iiif.IIIF.wrap(manifest);
-  // console.log(manifest);
-  (0, _derivedManifests.getCreatedManifests)();
-  if (!manifest.mediaSequences) {
-    manifestStore.dispatch((0, _loadedManifest.setCanvases)(manifest.sequences[0].canvases));
-    (0, _thumbs.thumbsUpdate)();
-  }
-};
-
-var ajaxLoadManifest = exports.ajaxLoadManifest = function ajaxLoadManifest() {
-  $('html').removeClass('dm-loaded');
-  $('.workspace-tabs__link[data-modifier="all"]').click();
-  store.dispatch((0, _selectedCollection.clearSelection)());
-  store.dispatch((0, _loadedManifest.resetDerivedManifests)());
-  $('html').removeClass('manifest-loaded');
-  var inputState = manifestStore.getState();
-
-  if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
-    if (typeof history !== 'undefined') {
-      history.replaceState(null, null, 'index.html?manifest=' + inputState.manifest);
-    }
-    $('.manifest-input__feedback').text('Loading \'' + inputState.manifest + '\'...');
-    store.dispatch((0, _ui.setLoading)(true));
-    $.ajax({
-      dataType: 'json',
-      url: inputState.manifest,
-      cache: true,
-      error: function error(data) {
-        alert('Error: ' + data.statusText);
-        store.dispatch((0, _ui.setLoading)(false));
-        // console.log(data);
-      },
-      success: function success(iiifResource) {
-        // console.log(iiifResource);
-        $('.manifest-input__feedback').text('Current manifest: \'' + iiifResource['@id'] + '\'');
-        store.dispatch((0, _ui.setLoading)(false));
-        if (iiifResource['@type'] === 'sc:Collection') {
-          // console.log('Render collection');
-          // renderCollection(iiifResource);
-          // TODO - collections
-          // window.loadedResource = iiifResource.manifests[0]['@id'];
-          // $.getJSON(window.loadedResource, function (cManifest) {
-          //     load(cManifest);
-          // });
-        } else {
-          // console.log('Load iiif resource');
-          loadIIIFResource(iiifResource);
-        }
-      }
-    });
-  }
-};
-
-var processQueryStringFromInput = exports.processQueryStringFromInput = function processQueryStringFromInput(url) {
-  // console.log('pqsfi[', url, ']');
-  if (url !== '') {
-    var qs = /manifest=(.*)/g.exec(url);
-    // console.log('qs', qs);
-    if (qs && qs[1]) {
-      // console.log('pqsfi');
-      manifestStore.dispatch((0, _loadedManifest.setManifest)(decodeURIComponent(qs[1].replace(/%2b/g, '%20'))));
-      ajaxLoadManifest();
-    }
-  }
-};
-
-var processQueryString = function processQueryString() {
-  // console.log('processQueryString');
-  processQueryStringFromInput(window.location.search);
 };
 
 /*
@@ -27142,19 +27329,75 @@ function showCollectionUI() {
   }
 }*/
 
-var Events = {
+Actions = {
+  loadIIIFResource: function loadIIIFResource(manifest) {
+    _iiif.IIIF.wrap(manifest);
+    manifestStore.dispatch((0, _loadedManifest.setManifestData)(manifest));
+    (0, _derivedManifests.getCreatedManifests)();
+    if (!manifest.mediaSequences) {
+      manifestStore.dispatch((0, _loadedManifest.setCanvases)(manifest.sequences[0].canvases));
+      (0, _thumbs.thumbsUpdate)();
+    }
+  },
+  ajaxLoadManifest: function ajaxLoadManifest() {
+    DOM.$html.removeClass('dm-loaded');
+    $('.workspace-tabs__link[data-modifier="all"]').click();
+    store.dispatch((0, _selectedCollection.clearSelection)());
+    store.dispatch((0, _loadedManifest.resetDerivedManifests)());
+    DOM.$html.removeClass('manifest-loaded');
+    var inputState = manifestStore.getState();
+
+    if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
+      if (typeof history !== 'undefined') {
+        history.replaceState(null, null, 'classify.html?manifest=' + inputState.manifest);
+      }
+      DOM.$manifestInputFeedback.text('Loading \'' + inputState.manifest + '\'...');
+      store.dispatch((0, _ui.setLoading)(true));
+
+      _iiifActions.IIIFActions.loadManifest(inputState.manifest, Events.manifestLoadSuccess, Events.manifestLoadError);
+    }
+  },
+  processQueryStringFromInput: function processQueryStringFromInput(url) {
+    // console.log('pqsfi[', url, ']');
+    if (url !== '') {
+      var qs = /manifest=(.*)/g.exec(url);
+      // console.log('qs', qs);
+      if (qs && qs[1]) {
+        // console.log('pqsfi');
+        manifestStore.dispatch((0, _loadedManifest.setManifest)(decodeURIComponent(qs[1].replace(/%2b/g, '%20'))));
+        Actions.ajaxLoadManifest();
+      }
+    }
+  }
+};
+
+Events = {
   domReady: function domReady() {
     // Get DOM elements
     DOM.init();
     // Process query string for manifests
-    processQueryString();
+    Actions.processQueryStringFromInput(window.location.search);
     // Hook up load button event
     DOM.$manifestInputLoad.click(Events.loadManifestClick);
   },
   loadManifestClick: function loadManifestClick(e) {
     e.preventDefault();
     manifestStore.dispatch((0, _loadedManifest.setManifest)(DOM.$manifestInput.val()));
-    ajaxLoadManifest();
+    Actions.ajaxLoadManifest();
+  },
+  manifestLoadError: function manifestLoadError(data) {
+    alert('Error: ' + data.statusText);
+    store.dispatch((0, _ui.setLoading)(false));
+  },
+  manifestLoadSuccess: function manifestLoadSuccess(iiifResource) {
+    // console.log('manifestLoadSuccess', iiifResource);
+    DOM.$manifestInputFeedback.text('Current manifest: \'' + iiifResource['@id'] + '\'');
+    store.dispatch((0, _ui.setLoading)(false));
+    if (iiifResource['@type'] === 'sc:Collection') {
+      // TODO - collections
+    } else {
+      Actions.loadIIIFResource(iiifResource);
+    }
   },
   manifestStoreSubscribe: function manifestStoreSubscribe() {
     // console.log('IN - subscribe', lastLocalState, store.getState().input);
@@ -27163,17 +27406,18 @@ var Events = {
     if ((0, _helpers.hasPropertyChanged)('manifest', loadedManifestState, lastLocalLoadedManifestState)) {
       DOM.$manifestInput.val(loadedManifestState.manifest);
     }
+
     lastLocalLoadedManifestState = loadedManifestState;
   },
   storeSubscribe: function storeSubscribe() {
     var state = store.getState().ui;
     // console.log('input store subscribe', state.loadingManifest,
     // hasPropertyChanged('loadingManifest', state, lastLocalState));
-    if ((0, _helpers.hasPropertyChanged)('loadingManifest', state, lastLocalState)) {
+    if (DOM.$manifestInputContainer !== null && (0, _helpers.hasPropertyChanged)('loadingManifest', state, lastLocalState)) {
       if (state.loadingManifest) {
-        $('.manifest-input').addClass('manifest-input--loading');
+        DOM.$manifestInputContainer.addClass('manifest-input--loading');
       } else {
-        $('.manifest-input').removeClass('manifest-input--loading');
+        DOM.$manifestInputContainer.removeClass('manifest-input--loading');
       }
     }
     lastLocalState = state;
@@ -27183,36 +27427,29 @@ var Events = {
 var inputInit = exports.inputInit = function inputInit(globalStore, globalManifestStore) {
   store = globalStore;
   manifestStore = globalManifestStore;
-  (0, _sourceList2.default)(store, manifestStore);
   // Subscribe to store changes
   manifestStore.subscribe(Events.manifestStoreSubscribe);
   store.subscribe(Events.storeSubscribe);
-  var thumbSize = window.localStorage ? localStorage.getItem('thumbSize') : null;
-  if (thumbSize !== null) {
-    store.dispatch((0, _ui.setThumbSize)(thumbSize));
-  }
   $(document).ready(Events.domReady);
 };
 
-},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":37,"../helpers/iiif.js":38,"./derived-manifests.js":29,"./source-list.js":32,"./thumbs.js":34,"jquery":1}],31:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":42,"../helpers/iiif.js":43,"./derived-manifests.js":30,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectionInit = exports.attachSelectionBehaviour = exports.attachMagnific = undefined;
+exports.attachLightboxBehaviour = exports.lightboxInit = exports.attachMagnific = undefined;
 
 var _helpers = require('../helpers/helpers.js');
 
-var _selectedCollection = require('../actions/selected-collection.js');
-
 var _ui = require('../actions/ui.js');
-
-var _thumbs = require('./thumbs.js');
 
 var _leaflet = require('leaflet');
 
 var _leaflet2 = _interopRequireDefault(_leaflet);
+
+var _selectedCollection = require('../actions/selected-collection.js');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27220,12 +27457,8 @@ var $ = require('jquery');
 
 
 var store = null;
-var manifestStore = null;
 
-var lastLocalSelectedCollectionState = null;
-var lastLocalLoadedManifestState = null;
 var lastLocalLightboxState = null;
-var clearSelectionButton = '.toolbar__clear';
 var thumbsContainer = '.thumbs-container';
 var map = null;
 
@@ -27289,7 +27522,7 @@ var collectionNameChange = function collectionNameChange(e) {
 var createPopupToolbar = function createPopupToolbar() {
   var collectionName = store.getState().selectedCollection.collectionName !== null ? store.getState().selectedCollection.collectionName : '';
   var isSelected = isIndexInSelection(store.getState().ui.lightbox.currentImage.idx) ? ' zoom-toolbar--selected' : '';
-  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Toggle deep zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
+  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
 
   $('.mfp-with-zoom').addClass('mfp-toolbar').append($toolbar);
   $('.zoom-toolbar__collection-name input').keyup(collectionNameChange);
@@ -27350,6 +27583,349 @@ var Config = {
 };
 
 var Events = {
+  storeSubscribe: function storeSubscribe() {
+    var lightboxState = store.getState().ui.lightbox;
+    if ((0, _helpers.hasPropertyChanged)('currentImage', lightboxState, lastLocalLightboxState)) {
+      if (isIndexInSelection(lightboxState.currentImage.idx)) {
+        $('.zoom-toolbar').addClass('zoom-toolbar--selected');
+      } else {
+        $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
+      }
+      // console.log('current image changed', state.currentImage);
+    }
+    lastLocalLightboxState = lightboxState;
+  },
+  thumbZoomClick: function thumbZoomClick() {
+    var $thisContainer = $(this).closest('.tc');
+    // const $thisThumb = $thisContainer.find('.thumb');
+    var posInThumbs = $('.tc:visible').index($thisContainer);
+    // console.log(posInThumbs);
+    $(thumbsContainer).magnificPopup('open', posInThumbs);
+  }
+};
+
+var attachMagnific = exports.attachMagnific = function attachMagnific() {
+  $(thumbsContainer).removeData('magnificPopup');
+  $(thumbsContainer).magnificPopup(Config.magnificOptions);
+};
+
+var lightboxInit = exports.lightboxInit = function lightboxInit(globalStore) {
+  store = globalStore;
+  store.subscribe(Events.storeSubscribe);
+};
+
+var attachLightboxBehaviour = exports.attachLightboxBehaviour = function attachLightboxBehaviour() {
+  $('.thumb__zoom').click(Events.thumbZoomClick);
+  attachMagnific();
+};
+
+},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":42,"jquery":1,"leaflet":2}],35:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.makeManifestInit = undefined;
+
+var _config = require('../config/config.js');
+
+var _iiif = require('../helpers/iiif.js');
+
+var _iiifActions = require('./iiif-actions.js');
+
+var _selectedCollection = require('../actions/selected-collection.js');
+
+var _derivedManifests = require('../components/derived-manifests.js');
+
+var _workspace = require('../components/workspace.js');
+
+var _loadedManifest = require('../actions/loaded-manifest.js');
+
+var $ = require('jquery');
+// Sorty config
+
+
+// IIIF helpers
+
+
+var store = null;
+var manifestStore = null;
+
+var DOM = {
+  $makeManifestButton: null,
+  $manifestModalInput: null,
+  $modalCancel: null,
+  $modalMakeManifest: null,
+  $html: null,
+  init: function init() {
+    DOM.$makeManifestButton = $('.classify-tools__make');
+    DOM.$manifestModalInput = $('.manifest-modal__input');
+    DOM.$modalCancel = $('.manifest-modal__dismiss');
+    DOM.$modalMakeManifest = $('.manifest-modal__make');
+    DOM.$viewer = $('.viewer');
+    DOM.$savedFeedback = $('.saved__feedback');
+    DOM.$savedCollection = $('.saved__collection');
+    DOM.$savedProgress = $('.saved__progress-bar');
+    DOM.$html = $('html');
+  }
+};
+
+var Config = {
+  manifestTemplate: {
+    '@context': 'http://iiif.io/api/presentation/2/context.json',
+    '@id': 'to be replaced',
+    '@type': 'sc:Manifest',
+    label: 'to be replaced',
+    service: 'canvas map here',
+    sequences: [{
+      '@id': 'to be replaced',
+      '@type': 'sc:Sequence',
+      label: 'Default sequence',
+      canvases: []
+    }]
+  },
+  canvasMapTemplate: {
+    '@id': 'to be replaced',
+    '@context': 'https://dlcs.info/context/presley',
+    profile: 'https://dlcs.info/profiles/canvasmap',
+    canvasMap: {}
+  },
+  makeManifestModalOptions: {
+    callbacks: {
+      beforeOpen: function beforeOpen() {
+        DOM.$html.addClass('mfp-modal');
+        var state = store.getState();
+        var manifestState = manifestStore.getState();
+        var manifest = manifestState.manifest;
+        var selectedImages = state.selectedCollection.selectedImages;
+        var s = Math.min.apply(Math, selectedImages);
+        var e = Math.max.apply(Math, selectedImages);
+        var label = store.getState().selectedCollection.collectionName !== null && store.getState().selectedCollection.collectionName !== '' ? store.getState().selectedCollection.collectionName : _config.SortyConfiguration.getManifestLabel(manifest, s, e).trim();
+        DOM.$manifestModalInput.val(label);
+      },
+      beforeClose: function beforeClose() {
+        DOM.$html.removeClass('mfp-modal');
+      }
+    },
+    items: {
+      src: '#manifestmodal',
+      type: 'inline'
+    },
+    modal: true
+  }
+};
+
+var setSavingState = function setSavingState(saving) {
+  if (saving) {
+    $('html').addClass('saving-manifest');
+    $('.manifest-modal__input').attr('readonly');
+  } else {
+    $('html').removeClass('saving-manifest');
+  }
+};
+
+var Events = {
+  domReady: function domReady() {
+    DOM.init();
+    DOM.$modalCancel.click(Events.modalCancel);
+    DOM.$modalMakeManifest.click(Events.modalMakeManifest);
+    DOM.$makeManifestButton.magnificPopup(Config.makeManifestModalOptions);
+  },
+  modalCancel: function modalCancel() {
+    $.magnificPopup.close();
+  },
+  modalMakeManifest: function modalMakeManifest() {
+    var state = store.getState();
+    var manifestState = manifestStore.getState();
+    var selectedImages = state.selectedCollection.selectedImages;
+    var manifest = manifestState.manifest;
+    var canvases = manifestState.canvases;
+    var s = Math.min.apply(Math, selectedImages);
+    var e = Math.max.apply(Math, selectedImages);
+
+    setSavingState(true);
+
+    var newManifest = $.extend(true, {}, Config.manifestTemplate);
+    _iiif.IIIF.wrap(newManifest);
+
+    store.dispatch((0, _selectedCollection.setCollectionName)(DOM.$manifestModalInput.val()));
+
+    newManifest.id = _config.SortyConfiguration.getManifestUrl(manifest, s, e);
+    newManifest.label = DOM.$manifestModalInput.val();
+    newManifest.sequences[0].id = _config.SortyConfiguration.getSequenceUrl(manifest, s, e);
+
+    // TODO: mintCanvasIds should be more flexible than a global config.
+    if (_config.SortyConfiguration.mintCanvasIds) {
+      var canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
+      _iiif.IIIF.wrap(canvasMapService);
+      canvasMapService.id = newManifest.id + '/canvasmap';
+      newManifest.service = canvasMapService;
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = selectedImages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var cvsIdx = _step.value;
+
+          var sourceCanvas = canvases[cvsIdx];
+          var newCanvas = $.extend(true, {}, sourceCanvas);
+          _iiif.IIIF.wrap(newCanvas);
+          newCanvas.id = _config.SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
+          canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
+          newManifest.sequences[0].canvases.push(newCanvas);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    } else {
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = selectedImages[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var _cvsIdx = _step2.value;
+
+          var _sourceCanvas = canvases[_cvsIdx];
+          newManifest.sequences[0].canvases.push(_sourceCanvas);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+    }
+
+    // Store new manifest
+    store.dispatch((0, _selectedCollection.setCollectionManifest)(newManifest));
+
+    // PUTs the manifest
+    _iiifActions.IIIFActions.putManifest(newManifest, Events.putSuccess, Events.putError);
+  },
+  postManifest: function postManifest(newManifest) {
+    _iiifActions.IIIFActions.postManifest(newManifest, _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest), Events.postComplete, Events.postError);
+  },
+  postError: function postError(xhr, textStatus, error) {
+    alert(error);
+  },
+  postSuccess: function postSuccess() {
+    // Remove loader
+    setSavingState(false);
+
+    // Grab active thumbs
+    var $activeThumbs = $('.thumb--active');
+    var collectionName = store.getState().selectedCollection.collectionName;
+
+    // Update preview title
+    var savedFeedbackHtml = '\n    <p class="saved__feedback">\n      <i class="material-icons">done</i> Your new set "' + collectionName + '" is saved.\n      <span><a class="saved__make-set" href="">Start another set</a>, or\n      <a class="saved__view-sets" href="">view all the sets</a> ?</span>\n    </p>';
+    DOM.$savedFeedback.html(savedFeedbackHtml);
+    DOM.$savedFeedback.find('.saved__make-set').click(Events.savedMakeSetClick);
+    DOM.$savedFeedback.find('.saved__view-sets').click(Events.savedViewSetsClick);
+
+    // Clone thumbs for preview
+    var $activeThumbsClone = $activeThumbs.parent().clone();
+    $activeThumbsClone.find('.thumb--active').removeClass('thumb--active');
+
+    // Display them as a preview
+    DOM.$savedCollection.empty().append($activeThumbsClone);
+    (0, _workspace.switchView)('saved');
+
+    // Close the modal
+    $.magnificPopup.close();
+
+    // Update the progress bar's initial value
+    var manifestState = manifestStore.getState();
+    var classifiedTotal = manifestState.classifiedCanvases.size;
+    var total = manifestState.allImages.length;
+    var progressVal = total > 0 ? Math.round(classifiedTotal / total * 100) : 0;
+    DOM.$savedProgress.val(progressVal);
+
+    // Give them the --classified class
+    $activeThumbs.parent().addClass('tc--classified');
+    $activeThumbs.removeClass('thumb--active');
+
+    // Clear selection
+    store.dispatch((0, _selectedCollection.clearSelection)());
+    store.dispatch((0, _selectedCollection.setCollectionName)(''));
+
+    // Push into derived manifests / derived manifests complete
+    manifestStore.dispatch((0, _loadedManifest.resetDerivedManifests)());
+    (0, _derivedManifests.getCreatedManifests)();
+  },
+  putError: function putError(xhr, textStatus, error) {
+    alert(error);
+  },
+  putSuccess: function putSuccess() {
+    var manifest = store.getState().selectedCollection.collectionManifest;
+    var newManifestInstance = Object.assign({}, manifest);
+    newManifestInstance.sequences = null;
+    newManifestInstance.service = null;
+    _iiifActions.IIIFActions.postManifest(manifest, _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest), Events.postSuccess, Events.postError);
+  },
+  savedMakeSetClick: function savedMakeSetClick(e) {
+    e.preventDefault();
+    (0, _workspace.switchView)('add');
+  },
+  savedViewSetsClick: function savedViewSetsClick(e) {
+    e.preventDefault();
+    (0, _workspace.switchView)('done');
+  }
+};
+
+var makeManifestInit = exports.makeManifestInit = function makeManifestInit(globalStore, globalManifestStore) {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+};
+
+$(document).ready(Events.domReady);
+
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../components/derived-manifests.js":30,"../components/workspace.js":40,"../config/config.js":41,"../helpers/iiif.js":43,"./iiif-actions.js":32,"jquery":1}],36:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectionInit = exports.attachSelectionBehaviour = undefined;
+
+var _helpers = require('../helpers/helpers.js');
+
+var _selectedCollection = require('../actions/selected-collection.js');
+
+var _lightbox = require('./lightbox');
+
+var $ = require('jquery');
+
+
+var store = null;
+var manifestStore = null;
+
+var lastLocalSelectedCollectionState = null;
+var lastLocalLoadedManifestState = null;
+
+var clearSelectionButton = '.classify-tools__clear';
+
+var Events = {
   contextMenu: function contextMenu(e) {
     var $target = $(e.target);
     // console.log(e, $target);
@@ -27368,40 +27944,22 @@ var Events = {
     $(document).on('contextmenu', Events.contextMenu);
   },
   manifestStoreSubscribe: function manifestStoreSubscribe() {
-    // console.log(store.getState());
-    // console.log('SEL - subscribe', store.getState(), lastLocalState);
     var loadedManifestState = manifestStore.getState();
-    // console.log('manifestStoreSubscribe', loadedManifestState);
-    if ((0, _helpers.hasPropertyChanged)('allImages', loadedManifestState, lastLocalLoadedManifestState)) {
-      (0, _thumbs.drawThumbs)();
+    if ((0, _helpers.hasPropertyChanged)('manifestTitle', loadedManifestState, lastLocalLoadedManifestState)) {
+      // console.log(loadedManifestState.manifestTitle);
     }
-    /* console.log('SEL - subscribe, before lastLocalState assignment',
-    staticState, lastLocalState);*/
     lastLocalLoadedManifestState = loadedManifestState;
   },
   storeSubscribe: function storeSubscribe() {
     var selectedCollectionState = store.getState().selectedCollection;
-    var lightboxState = store.getState().ui.lightbox;
-    if ((0, _helpers.hasPropertyChanged)('currentImage', lightboxState, lastLocalLightboxState)) {
-      if (isIndexInSelection(lightboxState.currentImage.idx)) {
-        $('.zoom-toolbar').addClass('zoom-toolbar--selected');
-      } else {
-        $('.zoom-toolbar').removeClass('zoom-toolbar--selected');
-      }
-      // console.log('current image changed', state.currentImage);
-    }
     if ((0, _helpers.hasPropertyChanged)('selectedImages', selectedCollectionState, lastLocalSelectedCollectionState)) {
       // console.log('SEL - changed');
       var $thumbActive = $('.thumb--active');
-      var $toolbarButtons = $('.toolbar__clear, .toolbar__make');
-      var $infoBar = $('.info-bar');
       var selectedImages = selectedCollectionState.selectedImages;
 
       $thumbActive.removeClass('thumb--active');
 
       if (selectedImages.length) {
-        $toolbarButtons.removeAttr('disabled');
-        $infoBar.addClass('info-bar--active');
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -27426,12 +27984,8 @@ var Events = {
             }
           }
         }
-      } else {
-        $toolbarButtons.attr('disabled', 'disabled');
-        $infoBar.removeClass('info-bar--active');
       }
     }
-    lastLocalLightboxState = lightboxState;
     lastLocalSelectedCollectionState = selectedCollectionState;
   },
   thumbClick: function thumbClick(e) {
@@ -27442,26 +27996,13 @@ var Events = {
       store.dispatch((0, _selectedCollection.selectImage)(idx));
     }
     e.stopPropagation();
-  },
-  thumbZoomClick: function thumbZoomClick() {
-    var $thisContainer = $(this).closest('.tc');
-    // const $thisThumb = $thisContainer.find('.thumb');
-    var posInThumbs = $('.tc:visible').index($thisContainer);
-    // console.log(posInThumbs);
-    $(thumbsContainer).magnificPopup('open', posInThumbs);
   }
-};
-
-var attachMagnific = exports.attachMagnific = function attachMagnific() {
-  $(thumbsContainer).removeData('magnificPopup');
-  $(thumbsContainer).magnificPopup(Config.magnificOptions);
 };
 
 var attachSelectionBehaviour = exports.attachSelectionBehaviour = function attachSelectionBehaviour() {
   var $thumb = $('img.thumb');
   $thumb.click(Events.thumbClick);
-  $('.thumb__zoom').click(Events.thumbZoomClick);
-  attachMagnific();
+  (0, _lightbox.attachLightboxBehaviour)();
   $thumb.unveil(300);
 };
 
@@ -27473,7 +28014,7 @@ var selectionInit = exports.selectionInit = function selectionInit(globalStore, 
   manifestStore.subscribe(Events.manifestStoreSubscribe);
 };
 
-},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":37,"./thumbs.js":34,"jquery":1,"leaflet":2}],32:[function(require,module,exports){
+},{"../actions/selected-collection.js":26,"../helpers/helpers.js":42,"./lightbox":34,"jquery":1}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27486,61 +28027,104 @@ var _sourceList = require('../actions/source-list.js');
 
 var _config = require('../config/config.js');
 
-var _ui = require('../actions/ui.js');
+require('./input.js');
 
-var _input = require('./input.js');
+require('../actions/loaded-manifest.js');
 
 var $ = require('jquery');
 
 
 var store = null;
+// let manifestStore = null;
 
 var lastLocalSourceListState = null;
-var lastLocalUiState = null;
 
 var Init = function Init(globalStore) {
   store = globalStore;
+  // manifestStore = globalManifestStore;
 };
 exports.default = Init;
 
 
 var DOM = {
-  $expandCollectionButton: null,
+  // $expandCollectionButton: null,
   $expandedCollection: null,
-  $manifestInputList: null,
 
   init: function init() {
-    DOM.$expandCollectionButton = $('.manifest-input__expand-button');
-    DOM.$expandedCollection = $('.manifest-input__list');
-    DOM.$manifestInputList = $('.manifest-input__list');
+    // DOM.$expandCollectionButton = $('.manifest-input__expand-button');
+    DOM.$expandedCollection = $('.source-list');
   }
 };
 
-// Template for manifest links
-var urlTemplate = location.href.replace(location.search, '') + '?manifest=';
-
-function manifestLink(id, text) {
-  if (id && text) {
-    return '<a href="' + urlTemplate + id + '">' + text + '</a>';
-  }
-  return '';
-}
-
 var storeCollectionData = function storeCollectionData(data) {
+  // Try and add to localStorage with a timestamp
+  try {
+    localStorage.setItem('collectionData', JSON.stringify({
+      raw: data,
+      timestamp: new Date()
+    }));
+  } catch (e) {
+    console.log(e, 'localStorage not supported for setItem');
+  }
   store.dispatch((0, _sourceList.setSourceManifests)(data));
 };
 
 var getCollectionData = function getCollectionData() {
-  $.getJSON(_config.SortyConfiguration.sourceCollection, storeCollectionData);
+  // Look in local storage first
+  var collectionData = null;
+  try {
+    collectionData = JSON.parse(localStorage.getItem('collectionData'));
+    if (typeof collectionData.raw === 'undefined' || typeof collectionData.timestamp === 'undefined') {
+      localStorage.collectionData = null;
+    }
+  } catch (e) {
+    console.log(e, 'localStorage not supported for getItem');
+  }
+
+  // If collection is found display it
+  if (collectionData !== null) {
+    // console.log('there is data', collectionData);
+    store.dispatch((0, _sourceList.setSourceManifests)(collectionData.raw));
+    var timestamp = new Date(collectionData.timestamp);
+    var now = new Date();
+    var offset = now.setMinutes(now.getMinutes() - 30);
+    if (timestamp < offset) {
+      // console.log('data is old', timestamp, offset);
+      $.getJSON(_config.SortyConfiguration.sourceCollection, storeCollectionData);
+    }
+  } else {
+    // console.log('collection data is null');
+    // If the data we're showing is old, get a fresh copy
+    $.getJSON(_config.SortyConfiguration.sourceCollection, storeCollectionData);
+  }
 };
 
+function renderCollectionNew(collection) {
+  var listItems = '';
+  var img = '\n  <div class="source-list__image-container">\n    <img class="source-list__image" src="//placehold.it/40x50" alt="" />\n  </div>';
+  var collectionToRender = collection;
+  if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
+  if (collectionToRender.members) {
+    collectionToRender.members.forEach(function (m) {
+      if (m !== null && m.service && m.service.values) {
+        listItems += '\n        <li class="source-list__item">\n          ' + img + '\n          <div class="source-list__description">\n            <h2>\n              <a href="classify.html?manifest=' + m['@id'] + '"\n              data-short-name="' + m.service.values[0] + '"\n              data-title="' + m.service.values[1] + '">\n                ' + m.service.values[1] + '\n              </a>\n            </h2>\n            <p>' + m.service.values[2] + ': ' + m.service.values[4] + '</p>\n          </div>\n          <div class="source-list__roll-data">\n            <h3>' + m.service.values[0] + '</h3>\n            <p>X images, <a href="sets.html?manifest=' + m['@id'] + '"\n            data-short-name="' + m.service.values[0] + '"\n            data-title="' + m.service.values[1] + '">Y sets</a></p>\n          </div>\n          <div class="source-list__progress">\n            <progress value="0" max="100" class="source-list__progress-bar"></progress>\n          </div>\n        </li>\n        ';
+      }
+    });
+  }
+
+  var listTemplate = '\n  <ul class="source-list__list">\n    ' + listItems + '\n  </ul>';
+
+  DOM.$expandedCollection.html(listTemplate);
+}
+
+/*
 function renderCollection(collection) {
   // console.log('render collection');
-  var collectionToRender = collection;
-  var table = '<table class="table table-condensed"><thead><tr>';
+  const collectionToRender = collection;
+  let table = '<table class="table table-condensed"><thead><tr>';
   if (collectionToRender.service && collectionToRender.service.headers) {
-    collectionToRender.service.headers.forEach(function (h) {
-      table += '<th>' + h + '</th>';
+    collectionToRender.service.headers.forEach(h => {
+      table += `<th>${h}</th>`;
     });
   } else {
     table += '<th>@id</th><th>label</th>';
@@ -27548,29 +28132,30 @@ function renderCollection(collection) {
   table += '</tr></thead><tbody>';
   if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
   if (collectionToRender.members) {
-    collectionToRender.members.forEach(function (m) {
+    collectionToRender.members.forEach(m => {
       if (m.service && m.service.values) {
-        table += '<tr class="' + m.service.highlight + '">';
-        table += '<td style="white-space:nowrap;">        ' + manifestLink(m['@id'], m.service.values[0]) + '</td>';
-        var j = void 0;
+        table += `<tr class="${m.service.highlight}">`;
+        table += `<td style="white-space:nowrap;">\
+        ${manifestLink(m['@id'], m.service.values[0])}</td>`;
+        let j;
         for (j = 1; j < m.service.values.length; j++) {
-          table += '<td>' + m.service.values[j] + '</td>';
+          table += `<td>${m.service.values[j]}</td>`;
         }
         table += '</tr>';
       } else {
         table += '<tr>';
-        table += '<td>' + manifestLink(m['@id'], m['@id']) + '</td>';
-        table += '<td>' + m.label + '</td>';
+        table += `<td>${manifestLink(m['@id'], m['@id'])}</td>`;
+        table += `<td>${m.label}</td>`;
         table += '</tr>';
       }
     });
   }
   table += '</tbody></table>';
-  DOM.$expandedCollection.html(table);
+  // DOM.$expandedCollection.html(table);
   // $expandedCollection.addClass(`${expandedCollection}--active`);
 
-  DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
-}
+  // DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
+}*/
 
 var Events = {
   domReady: function domReady() {
@@ -27581,44 +28166,35 @@ var Events = {
     // Get list of manifests
     getCollectionData();
     // Hook up manifest list toggle
-    DOM.$expandCollectionButton.click(function () {
-      return store.dispatch((0, _ui.toggleList)());
-    });
+    // DOM.$expandCollectionButton.click(() => store.dispatch(toggleList()));
     // Hook up manifest list links to auto-load manifests
-    DOM.$manifestInputList.on('click', 'a', Events.loadManifestLinkClick);
+    // DOM.$expandedCollection.on('click', 'a', Events.loadManifestLinkClick);
   },
-  loadManifestLinkClick: function loadManifestLinkClick(e) {
-    e.preventDefault();
-    (0, _input.processQueryStringFromInput)('?' + this.href.split('?')[1]);
-    document.body.scrollTop = document.documentElement.scrollTop = 0;
-    store.dispatch((0, _ui.toggleList)());
-    (0, _input.ajaxLoadManifest)();
-  },
-  storeSubscribe: function storeSubscribe() {
-    var uiState = store.getState().ui;
-    var sourceListState = store.getState().sourceList;
 
+  /*
+  loadManifestLinkClick() {
+    // e.preventDefault();
+    processQueryStringFromInput(`?${this.href.split('?')[1]}`);
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    const $link = $(this);
+    // const title = $link.attr('data-title');
+    const shortName = $link.attr('data-short-name');
+    manifestStore.dispatch(setManifestMetaData(title, shortName));
+    // store.dispatch(toggleList());
+    // ajaxLoadManifest();
+  },*/
+  storeSubscribe: function storeSubscribe() {
+    var sourceListState = store.getState().sourceList;
     if ((0, _helpers.hasPropertyChanged)('sourceManifests', sourceListState, lastLocalSourceListState)) {
-      renderCollection(sourceListState.sourceManifests);
+      renderCollectionNew(sourceListState.sourceManifests);
     }
-    if ((0, _helpers.hasPropertyChanged)('listVisible', uiState, lastLocalUiState)) {
-      var expandedCollectionActiveClass = 'manifest-input__list--active';
-      if (uiState.listVisible) {
-        DOM.$expandCollectionButton.html('<i class="material-icons">arrow_drop_up</i>Hide microfilm list');
-        DOM.$expandedCollection.addClass(expandedCollectionActiveClass);
-      } else {
-        DOM.$expandCollectionButton.html('<i class="material-icons">arrow_drop_down</i>Show microfilm list');
-        DOM.$expandedCollection.removeClass(expandedCollectionActiveClass);
-      }
-    }
-    lastLocalUiState = uiState;
     lastLocalSourceListState = sourceListState;
   }
 };
 
 $(document).ready(Events.domReady);
 
-},{"../actions/source-list.js":27,"../actions/ui.js":28,"../config/config.js":36,"../helpers/helpers.js":37,"./input.js":30,"jquery":1}],33:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/source-list.js":27,"../config/config.js":41,"../helpers/helpers.js":42,"./input.js":33,"jquery":1}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27626,69 +28202,96 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeThumbSizeSelector = undefined;
 
+var _helpers = require('../helpers/helpers.js');
+
 var _ui = require('../actions/ui.js');
 
+var _thumbs = require('./thumbs.js');
+
 var $ = require('jquery');
+
 
 var store = null;
 var manifestStore = null;
 
+var lastState = null;
+
 var Init = function Init(globalStore, globalManifestStore) {
   store = globalStore;
   manifestStore = globalManifestStore;
+  var thumbSize = window.localStorage ? localStorage.getItem('thumbSize') : null;
+  if (typeof thumbSize !== 'undefined' && thumbSize !== null) {
+    store.dispatch((0, _ui.setThumbSize)(thumbSize));
+  } else {
+    store.dispatch((0, _ui.setThumbSize)(100));
+  }
 };
 exports.default = Init;
 
 
 var DOM = {
-  $thumbSizeSelector: null,
+  $thumbSizeButtons: null,
+  $thumbSizeSmall: null,
+  $thumbSizeMedium: null,
+  $thumbSizeLarge: null,
 
   init: function init() {
-    DOM.$thumbSizeSelector = $('.toolbar__thumb-size');
+    DOM.$thumbSizeButtons = $('.thumb-size__button');
+    DOM.$thumbSizeSmall = $('.thumb-size__button--small');
+    DOM.$thumbSizeMedium = $('.thumb-size__button--medium');
+    DOM.$thumbSizeLarge = $('.thumb-size__button--large');
   }
 };
 
+var updateThumbSelectorState = function updateThumbSelectorState() {
+  var state = store.getState().ui;
+  DOM.$thumbSizeButtons.removeClass('thumb-size__button--active');
+  DOM.$thumbSizeButtons.filter('button[data-thumb-size=' + state.thumbSize + ']').addClass('thumb-size__button--active');
+};
+
 var makeThumbSizeSelector = exports.makeThumbSizeSelector = function makeThumbSizeSelector() {
-  DOM.$thumbSizeSelector.empty();
   var choices = manifestStore.getState().thumbSizes;
-  var html = '<select id="thumbSize">';
-  for (var i = 0; i < choices.length; i++) {
-    var box = choices[i];
-    var label = box;
-    html += '<option value="' + box + '">' + label + 'pixels</option>';
-  }
-  html += '</select>';
-  DOM.$thumbSizeSelector.append(html);
-  var thumbSize = localStorage.getItem('thumbSize');
-  if (!thumbSize) {
-    thumbSize = choices[0];
-    localStorage.setItem('thumbSize', thumbSize);
-  }
-  if (thumbSize !== choices[0]) {
-    $('#thumbSize option[value="' + thumbSize + '"]').prop('selected', true);
-  }
-  $('#thumbSize').change(function updateThumbSize() {
-    var ts = $(this).val();
-    localStorage.setItem('thumbSize', ts);
-    store.dispatch((0, _ui.setThumbSize)(ts));
-  });
+  DOM.$thumbSizeSmall.attr('data-thumb-size', choices[0]);
+  DOM.$thumbSizeMedium.attr('data-thumb-size', choices[1]);
+  DOM.$thumbSizeLarge.attr('data-thumb-size', choices[2]);
+  updateThumbSelectorState();
 };
 
 var Events = {
   domReady: function domReady() {
     DOM.init();
+    DOM.$thumbSizeButtons.click(Events.sizeClick);
+    store.subscribe(Events.storeSubscribe);
+  },
+  sizeClick: function sizeClick() {
+    var thumbSizeToSet = $(this).attr('data-thumb-size');
+    $(this).blur();
+    localStorage.setItem('thumbSize', thumbSizeToSet);
+    store.dispatch((0, _ui.setThumbSize)(thumbSizeToSet));
+    (0, _thumbs.drawThumbs)();
+  },
+  storeSubscribe: function storeSubscribe() {
+    var state = store.getState().ui;
+    if ((0, _helpers.hasPropertyChanged)('thumbSize', state, lastState)) {
+      updateThumbSelectorState();
+    }
+    lastState = state;
   }
 };
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":28,"jquery":1}],34:[function(require,module,exports){
+},{"../actions/ui.js":28,"../helpers/helpers.js":42,"./thumbs.js":39,"jquery":1}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.thumbsUpdate = exports.storeThumbSizes = exports.drawThumbs = exports.storeThumbs = exports.updateThumbsWithStatus = exports.thumbsInit = undefined;
+exports.thumbsInit = exports.thumbsUpdate = exports.storeThumbSizes = exports.drawThumbs = exports.storeThumbs = exports.updateThumbsWithStatus = undefined;
+
+var _config = require('../config/config.js');
+
+var _helpers = require('../helpers/helpers.js');
 
 var _selection = require('./selection.js');
 
@@ -27698,20 +28301,19 @@ var _thumbSizeSelector2 = _interopRequireDefault(_thumbSizeSelector);
 
 var _loadedManifest = require('../actions/loaded-manifest.js');
 
+var _ui = require('../actions/ui.js');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var $ = require('jquery');
-// import { SortyConfiguration } from '../../config/config.js';
 
 
 var store = null;
 var manifestStore = null;
 
-var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore, globalManifestStore) {
-  store = globalStore;
-  manifestStore = globalManifestStore;
-  (0, _thumbSizeSelector2.default)(store, manifestStore);
-};
+// Keep track of previous state for state diffing
+// let lastState = null;
+var lastManifestState = null;
 
 var isActive = function isActive() {
   return store.getState().selectedCollection.selectedImages.indexOf(this.index) > -1;
@@ -27751,6 +28353,8 @@ var updateThumbsWithStatus = exports.updateThumbsWithStatus = function updateThu
       }
     }
   }
+
+  $(window).trigger('lookup');
 };
 
 var getThumbsFromCanvas = function getThumbsFromCanvas(canvas, thumbSizes) {
@@ -27787,6 +28391,7 @@ var getThumbsFromCanvas = function getThumbsFromCanvas(canvas, thumbSizes) {
 };
 
 var storeThumbs = exports.storeThumbs = function storeThumbs(canvases) {
+  // console.log('storeThumbs');
   var allImages = [];
   var thumbSizes = manifestStore.getState().thumbSizes;
   var i = 0;
@@ -27805,7 +28410,7 @@ var storeThumbs = exports.storeThumbs = function storeThumbs(canvases) {
         canvasId: canvas.id,
         fullSrc: canvas.getThumbnail(1000, 800, 2000),
         index: i,
-        info: thumbs[100].info,
+        info: canvas.getDefaultImageService().id + '/info.json',
         isActive: isActive,
         isClassified: isClassified,
         thumbs: thumbs
@@ -27831,118 +28436,221 @@ var storeThumbs = exports.storeThumbs = function storeThumbs(canvases) {
   manifestStore.dispatch((0, _loadedManifest.setAllImages)(allImages));
 };
 
-var drawThumbs = exports.drawThumbs = function drawThumbs() {
-  var $titleAll = $('.viewer__title--all');
-  $titleAll.text('Showing all ' + manifestStore.getState().allImages.length + '\n  images');
-  var $thumbs = $('.thumbs-container');
-  $thumbs.empty();
-  var preferredSize = '' + store.getState().ui.thumbSize;
-  // console.log(preferredSize);
-  var _iteratorNormalCompletion4 = true;
-  var _didIteratorError4 = false;
-  var _iteratorError4 = undefined;
-
-  try {
-    for (var _iterator4 = manifestStore.getState().allImages[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-      var image = _step4.value;
-
-      // console.log(image, store.getState().loadedManifest.allImages);
-      var preferredThumb = image.thumbs[preferredSize];
-      var dimensions = preferredThumb.width && preferredThumb.height ? 'width="' + preferredThumb.width + '" height="' + preferredThumb.height + '"' : '';
-      var activeClass = image.isActive() ? ' thumb--active' : '';
-      var classifiedClass = image.isClassified() ? ' tc--classified' : '';
-      var thumbnail = '\n    <div class="tc' + classifiedClass + '">\n      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB      CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" class="thumb' + activeClass + '"\n      data-uri="' + image.canvasId + '"\n      data-src="' + preferredThumb.url + '"\n      data-mfp-src="' + image.fullSrc.url + '"\n      data-idx="' + image.index + '"\n      data-info="' + image.info + '"\n      ' + dimensions + ' />\n      <button class="thumb__zoom"><i class="material-icons">zoom_in</i></button>\n    </div>\n    ';
-      // console.log(thumbnail);
-      $thumbs.append(thumbnail);
-    }
-  } catch (err) {
-    _didIteratorError4 = true;
-    _iteratorError4 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion4 && _iterator4.return) {
-        _iterator4.return();
-      }
-    } finally {
-      if (_didIteratorError4) {
-        throw _iteratorError4;
-      }
-    }
+// Get preferred size ensuring that the preference is valid
+var getPreferredSize = function getPreferredSize() {
+  var preferredSize = parseInt(store.getState().ui.thumbSize, 10);
+  var availableThumbSizes = manifestStore.getState().thumbSizes;
+  // console.log(availableThumbSizes.indexOf(preferredSize));
+  if (availableThumbSizes.indexOf(preferredSize) > -1) {
+    return '' + preferredSize;
   }
-
-  (0, _selection.attachSelectionBehaviour)();
+  store.dispatch((0, _ui.setThumbSize)(availableThumbSizes[0]));
+  return '' + availableThumbSizes[0];
 };
 
-var storeThumbSizes = exports.storeThumbSizes = function storeThumbSizes(canvases) {
-  var choices = [100, 200, 400];
+var drawThumbs = exports.drawThumbs = function drawThumbs() {
+  // const $title = $('.viewer__title');
+  // const $subtitle = $('.viewer__sub-title');
+  // $title.text(`${manifestStore.getState().allImages.length}`);
+  // console.log('drawThumbs');
+  var manifestState = manifestStore.getState();
+  if (manifestState.allImages !== null && manifestState.allImages.length && manifestState.thumbSizes !== null) {
+    var $thumbs = $('.thumbs-container');
+    $thumbs.empty();
+    var preferredSize = getPreferredSize();
+    // console.log(preferredSize);
+    // console.log(preferredSize);
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+      for (var _iterator4 = manifestStore.getState().allImages[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+        var image = _step4.value;
+
+        // console.log(image, store.getState().loadedManifest.allImages);
+        var preferredThumb = image.thumbs[preferredSize];
+        var dimensions = preferredThumb.width && preferredThumb.height ? 'width="' + preferredThumb.width + '" height="' + preferredThumb.height + '"' : '';
+        var activeClass = image.isActive() ? ' thumb--active' : '';
+        var classifiedClass = image.isClassified() ? ' tc--classified' : '';
+        var decorations = _config.SortyConfiguration.getCanvasDecorations(image);
+        var thumbnail = '\n      <div class="tc' + classifiedClass + '">\n        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB        CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" class="thumb' + activeClass + '"\n        data-uri="' + image.canvasId + '"\n        data-src="' + preferredThumb.url + '"\n        data-mfp-src="' + image.fullSrc.url + '"\n        data-idx="' + image.index + '"\n        data-info="' + image.info + '"\n        ' + dimensions + ' />\n        <button class="thumb__zoom"><i class="material-icons">zoom_in</i></button>\n        ' + decorations.canvasInfo + '\n      </div>\n      ';
+        // console.log(thumbnail);
+        $thumbs.append(thumbnail);
+      }
+    } catch (err) {
+      _didIteratorError4 = true;
+      _iteratorError4 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion4 && _iterator4.return) {
+          _iterator4.return();
+        }
+      } finally {
+        if (_didIteratorError4) {
+          throw _iteratorError4;
+        }
+      }
+    }
+
+    (0, _selection.attachSelectionBehaviour)();
+  }
+};
+
+var getThumbSizesFromCanvases = function getThumbSizesFromCanvases(canvases) {
+  var maxSize = 600;
   var foundSizes = [];
   for (var i = 0; i < Math.min(canvases.length, 10); i++) {
     var canvas = canvases[i];
     if (canvas.thumbnail && canvas.thumbnail.service && canvas.thumbnail.service.sizes) {
       var sizes = canvas.thumbnail.service.sizes;
-      var j = void 0;
-      for (j = 0; j < sizes.length; j++) {
+      for (var j = 0; j < sizes.length; j++) {
         var testSize = Math.max(sizes[j].width, sizes[j].height);
-        foundSizes.push(testSize);
-        if (choices.indexOf(testSize) === -1 && testSize <= 600) {
-          choices.push(testSize);
+        if (foundSizes.indexOf(testSize) === -1 && testSize <= maxSize) {
+          foundSizes.push(testSize);
         }
       }
     }
   }
-  choices.sort(function (a, b) {
+  return foundSizes;
+};
+
+var getSmallMediumLargeSizes = function getSmallMediumLargeSizes(foundSizes, defaultChoices) {
+  var smallMediumLarge = [];
+  if (foundSizes.length === 3) {
+    return foundSizes;
+  } else if (foundSizes.length === 0) {
+    return defaultChoices;
+  } else if (foundSizes.length > 3) {
+    // Take the lowest, highest and (smallest) middle value
+    smallMediumLarge.push(foundSizes[0]);
+    smallMediumLarge.push(foundSizes[Math.floor(foundSizes.length / 2)]);
+    smallMediumLarge.push(foundSizes[foundSizes.length - 1]);
+    return smallMediumLarge;
+  }
+  // Add some options favouring foundSizes
+  smallMediumLarge = foundSizes.splice(0);
+  var _iteratorNormalCompletion5 = true;
+  var _didIteratorError5 = false;
+  var _iteratorError5 = undefined;
+
+  try {
+    for (var _iterator5 = defaultChoices[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+      var defaultSize = _step5.value;
+
+      if (smallMediumLarge.length === 3) break;
+      if (smallMediumLarge.indexOf(defaultSize) === -1) {
+        smallMediumLarge.push(defaultSize);
+      }
+    }
+  } catch (err) {
+    _didIteratorError5 = true;
+    _iteratorError5 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion5 && _iterator5.return) {
+        _iterator5.return();
+      }
+    } finally {
+      if (_didIteratorError5) {
+        throw _iteratorError5;
+      }
+    }
+  }
+
+  smallMediumLarge.sort(function (a, b) {
     return a - b;
   });
+  return smallMediumLarge;
+};
+
+var storeThumbSizes = exports.storeThumbSizes = function storeThumbSizes(canvases) {
+  // console.log('storeThumbSizes');
+  var defaultChoices = [100, 200, 400];
+  var foundSizes = getThumbSizesFromCanvases(canvases);
+  defaultChoices.sort(function (a, b) {
+    return a - b;
+  });
+  foundSizes.sort(function (a, b) {
+    return a - b;
+  });
+  var choices = getSmallMediumLargeSizes(foundSizes, defaultChoices);
   manifestStore.dispatch((0, _loadedManifest.setThumbSizes)(choices));
 };
 
 var thumbsUpdate = exports.thumbsUpdate = function thumbsUpdate() {
+  // console.log('thumbsUpdate');
   var canvases = manifestStore.getState().canvases;
   storeThumbSizes(canvases);
   storeThumbs(canvases);
   (0, _thumbSizeSelector.makeThumbSizeSelector)();
+  drawThumbs();
 };
 
-},{"../actions/loaded-manifest.js":25,"./selection.js":31,"./thumb-size-selector.js":33,"jquery":1}],35:[function(require,module,exports){
+var Events = {
+  domReady: function domReady() {
+    manifestStore.subscribe(Events.manifestStoreSubscribe);
+  },
+  manifestStoreSubscribe: function manifestStoreSubscribe() {
+    var state = manifestStore.getState();
+    if ((0, _helpers.hasPropertyChanged)('canvases', state, lastManifestState)) {
+      // console.log('canvases changed');
+      // thumbsUpdate();
+    }
+    if ((0, _helpers.hasPropertyChanged)('manifestData', state, lastManifestState)) {
+      // console.log('manifestData changed');
+      // drawThumbs();
+    }
+    lastManifestState = state;
+  }
+};
+
+var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore, globalManifestStore) {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  (0, _thumbSizeSelector2.default)(store, manifestStore);
+};
+
+$(document).ready(Events.domReady);
+
+},{"../actions/loaded-manifest.js":25,"../actions/ui.js":28,"../config/config.js":41,"../helpers/helpers.js":42,"./selection.js":36,"./thumb-size-selector.js":38,"jquery":1}],40:[function(require,module,exports){
 'use strict';
 
-var _selection = require('./selection.js');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.switchView = undefined;
+
+var _lightbox = require('./lightbox.js');
 
 var $ = require('jquery');
 
 
 var DOM = {
-  $tabs: null,
   $workspace: null,
 
   init: function init() {
-    DOM.$tabs = $('.workspace-tabs__link');
     DOM.$workspace = $('.viewer');
   }
+};
+
+var switchView = exports.switchView = function switchView(modifier) {
+  // Wipe out modifiers and set the new one
+  var viewerClass = 'viewer';
+  DOM.$workspace.attr('class', viewerClass).addClass(viewerClass + '--' + modifier);
+  (0, _lightbox.attachMagnific)();
+  $(window).trigger('lookup');
 };
 
 var Events = {
   domReady: function domReady() {
     DOM.init();
-    Events.init();
-  },
-  init: function init() {
-    DOM.$tabs.click(Events.tabClick);
-  },
-  tabClick: function tabClick(e) {
-    e.preventDefault();
-    var $thisTab = $(this);
-    DOM.$tabs.removeClass('workspace-tabs__link--active');
-    $thisTab.addClass('workspace-tabs__link--active');
-    DOM.$workspace.attr('class', 'viewer viewer--' + $thisTab.attr('data-modifier'));
-    (0, _selection.attachMagnific)();
-    $(window).trigger('lookup');
   }
 };
 
 $(document).ready(Events.domReady);
 
-},{"./selection.js":31,"jquery":1}],36:[function(require,module,exports){
+},{"./lightbox.js":34,"jquery":1}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27952,8 +28660,11 @@ Object.defineProperty(exports, "__esModule", {
 var SortyConfiguration = exports.SortyConfiguration = {};
 /* logic for naming IIIF resources in your CRUD server */
 
-var presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
+// const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
+var presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+
 SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
+SortyConfiguration.mintCanvasIds = true;
 
 function getPath(url) {
   var reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
@@ -28025,7 +28736,7 @@ SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) 
   };
 };
 
-},{}],37:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28046,7 +28757,7 @@ var hasPropertyChangedNonZero = exports.hasPropertyChangedNonZero = function has
   return false;
 };
 
-},{}],38:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28081,13 +28792,25 @@ function fits(size, min, max) {
   return null;
 }
 
-function getCanonicalUriInfo(imageService) {
-  return imageService.id + '/info.json';
+function getDistance(size, preferred) {
+  var box = Math.max(size.width, size.height);
+  return Math.abs(preferred - box);
 }
 
 function getCanonicalUri(imageService, width, height) {
   // TODO - this is not correct, it's a placeholder...
   return imageService.id + '/full/' + width + ',' + height + '/0/default.jpg';
+}
+
+function makeThumb(preferred, size, url) {
+  var scale = getScale(preferred, size.width, size.height);
+  return {
+    url: url,
+    width: Math.round(scale * size.width),
+    height: Math.round(scale * size.height),
+    actualWidth: size.width,
+    actualHeight: size.height
+  };
 }
 
 function getThumbnailFromServiceSizes(service, preferred, min, max) {
@@ -28097,82 +28820,148 @@ function getThumbnailFromServiceSizes(service, preferred, min, max) {
     return a.width - b.width;
   });
   var best = null;
+  var distance = Number.MAX_SAFE_INTEGER;
   for (var i = sizes.length - 1; i >= 0; i--) {
     // start with the biggest; see if each one matches criteria.
-    if (fits(sizes[i], min, max)) {
-      best = sizes[i];
+    var size = sizes[i];
+    if (fits(size, min, max)) {
+      var sizeDist = getDistance(size, preferred);
+      if (sizeDist < distance) {
+        best = size;
+      }
+      distance = sizeDist;
     } else {
       if (best) break;
     }
   }
   if (best) {
-    var scale = getScale(preferred, best.width, best.height);
-    return {
-      info: getCanonicalUriInfo(service).replace('thumbs', 'iiif-img'),
-      url: getCanonicalUri(service, best.width, best.height),
-      width: Math.round(scale * best.width),
-      height: Math.round(scale * best.height),
-      actualWidth: best.width,
-      actualHeight: best.height
-    };
+    var url = getCanonicalUri(service, best.width, best.height);
+    return makeThumb(preferred, best, url);
   }
   return null;
 }
 
-function hasSizes(service) {
-  // console.log('hasSizes', service, service && service.sizes && service.sizes.length);
-  return service && service.sizes && service.sizes.length;
+function isImageService(service) {
+  if ((typeof service === 'undefined' ? 'undefined' : _typeof(service)) === 'object' && service && service.profile) {
+    if (service.profile.asArray()[0].indexOf('http://iiif.io/api/image') !== -1) {
+      return true;
+    }
+  }
+  return false;
 }
 
-function getThumbnailFromImageResource(image, preferred, min, max) {
+function hasSizes(service) {
+  return service && isImageService(service) && service.sizes && service.sizes.length;
+}
+
+function getThumbnailFromTileOnlyLevel0ImageService(imgService, preferred) {
+  // , min, max, follow
+  // check for level 0 with tiles only - ask for a small tile
+  // unless there's enough info inline, will need to dereference info.json to determine tile sizes
+  // we have already checked for sizes
+  // TODO - this is not a complete implementation yet, assumes we have the width and height
+  // (we would if derefed),
+  // TODO - assumes only one set of tiles
+  if (imgService.tiles) {
+    var size = Math.max(imgService.width, imgService.height);
+    // now we need to find a tile that the whole image fits on
+    var tileWidth = imgService.tiles[0].width; // assume square for now
+    imgService.tiles[0].scaleFactors.sort(function (a, b) {
+      return a - b;
+    });
+    for (var i = 0; i < imgService.tiles[0].scaleFactors.length; i++) {
+      var scaleFactor = imgService.tiles[0].scaleFactors[i];
+      var s = size / scaleFactor;
+      if (s <= tileWidth) {
+        // this is not right...
+        var width = Math.round(imgService.width / scaleFactor);
+        var url = imgService.id + '/full/' + width + ',/0/default.jpg';
+        var thumbSize = {
+          width: Math.round(imgService.width / scaleFactor),
+          height: Math.round(imgService.height / scaleFactor)
+        };
+        return makeThumb(preferred, thumbSize, url);
+      }
+    }
+  }
+
+  // TODO: follow is not implemented - but if it was, the full info.json would be dereferenced here.
+  // if the dereferenced info.json has 'sizes' use those, otherwise use tiles as above
+
+  return null;
+}
+
+function getThumbnailFromImageResource(image, preferred, min, max, canvas) {
+  var pref = preferred;
   var thumbnail = null;
-  // console.log('getThumbnailFromImageResource - image service any', image.service.any(hasSizes));
   if (typeof image === 'string') {
     // A thumbnail has been supplied but we have no idea how big it is
-    if (preferred <= 0) {
+    if (pref <= 0) {
       thumbnail = { url: image }; // caller didn't care
     }
-  } else if (image.service.any(hasSizes)) {
-    var service = image.service.where(hasSizes)[0];
-    // prefer sizes
-    thumbnail = getThumbnailFromServiceSizes(service, preferred, min, max);
-
-    // but if no sizes, make up request
-    // check for level 0 with tiles only - ask for a small tile
-    // getThumbnailFromTileOnlyLevel0ImageService(..)
+  } else if (image.service) {
+    var imgService = image.service.first(hasSizes);
+    if (imgService) {
+      thumbnail = getThumbnailFromServiceSizes(imgService, pref, min, max);
+    } else {
+      imgService = image.service.first(isImageService);
+      if (imgService) {
+        if (imgService.profile.asArray()[0].indexOf('level0.json') !== -1) {
+          thumbnail = getThumbnailFromTileOnlyLevel0ImageService(imgService, pref, min, max);
+        } else {
+          // attempt to determine the aspect ratio
+          var size = {
+            width: imgService.width || image.width || canvas.width,
+            height: imgService.height || image.height || canvas.height
+          };
+          if (pref <= 0) {
+            // we can't supply 0!
+            pref = 200;
+          }
+          thumbnail = makeThumb(pref, size);
+          thumbnail.url = getCanonicalUri(imgService, thumbnail.width, thumbnail.height);
+          thumbnail.actualWidth = thumbnail.width;
+          thumbnail.actualHeight = thumbnail.height;
+        }
+      }
+    }
   } else {
-    var thumbResource = {
-      url: image.id,
+    var imageResourceSize = {
       width: image.width,
       height: image.height
     };
-    // console.log(thumbResource, fits(thumbResource, min, max));
-    if (preferred <= 0 || fits(thumbResource, min, max)) {
-      thumbnail = thumbResource;
+    if (pref <= 0 || fits(imageResourceSize, min, max)) {
+      thumbnail = makeThumb(pref, imageResourceSize, image.id);
     }
   }
-  // console.log(typeof image === 'string', image.service.any(hasSizes), thumbnail);
   return thumbnail;
 }
 
 function getThumbnail(preferred, minimum, maximum) {
+  // , follow
   var max = maximum;
   var min = minimum;
   if (!maximum) max = 3 * (min || 100);
   var thumbnail = void 0;
   if (this.hasOwnProperty('thumbnail')) {
     thumbnail = getThumbnailFromImageResource(this.thumbnail, preferred, min, max);
-    if (thumbnail) return thumbnail;
+    if (thumbnail) {
+      return thumbnail;
+    }
   }
   // no explicit thumbnail. Now we need to take a look at what this actually is
   if (this.type === 'dctypes:Image') {
     thumbnail = getThumbnailFromImageResource(this, preferred, min, max);
-    if (thumbnail) return thumbnail;
+    if (thumbnail) {
+      return thumbnail;
+    }
   }
   if (this.type === 'sc:Canvas' && this.images && this.images.length && this.images[0].resource) {
     // console.log(this.images[0].resource);
-    thumbnail = getThumbnailFromImageResource(this.images[0].resource, preferred, min, max);
-    if (thumbnail) return thumbnail;
+    thumbnail = getThumbnailFromImageResource(this.images[0].resource, preferred, min, max, this);
+    if (thumbnail) {
+      return thumbnail;
+    }
   }
   return null;
 }
@@ -28184,12 +28973,7 @@ function getDefaultImageService() {
   if (this.images) {
     this.images.forEach(function (img) {
       if (img.resource && img.resource.service) {
-        imgService = img.resource.service.first(function (svc) {
-          if ((typeof svc === 'undefined' ? 'undefined' : _typeof(svc)) === 'object' && svc && svc.profile && svc.profile.indexOf('http://iiif.io/api/image') !== -1) {
-            return true;
-          }
-          return false;
-        });
+        imgService = img.resource.service.first(isImageService);
         if (imgService) return imgService;
       }
       return false;
@@ -28209,6 +28993,11 @@ function findIndexById(id) {
 }
 
 var IIIF = exports.IIIF = {};
+
+/* eslint no-extend-native: ["error", { "exceptions": ["String"] }]*/
+String.prototype.asArray = function () {
+  return [this];
+};
 
 IIIF.wrap = function wrap(rawObj, key) {
   var newObj = void 0;
@@ -28279,11 +29068,66 @@ IIIF.wrap = function wrap(rawObj, key) {
         Object.defineProperty(rawObj, 'first', { enumerable: false });
         Object.defineProperty(rawObj, 'any', { enumerable: false });
       }
+    } else if (key === 'profile' || key === 'service' && typeof newObj === 'string') {
+      // required for services, profiles etc as strings
+      // console.log(`$string... ${newObj}`);
+      // newObj.asArray = function asArray() { return [this]; };
     }
   }
 };
 
-},{}],39:[function(require,module,exports){
+IIIF.getAuthServices = function getAuthServices(info) {
+  var svcInfo = {};
+  var services = [];
+  if (info.hasOwnProperty('service')) {
+    if (info.service.constructor === Array) {
+      services = info.service;
+    } else {
+      services = [info.service];
+    }
+
+    var prefix = 'http://iiif.io/api/auth/0/';
+    var clickThrough = 'http://iiif.io/api/auth/0/login/clickthrough';
+
+    for (var i = 0; i < services.length; i++) {
+      var service = services[i];
+      var serviceName = null;
+
+      if (service.profile === clickThrough) {
+        serviceName = 'clickthrough';
+        // console.log('Found click through service');
+        svcInfo[serviceName] = {
+          id: service['@id'],
+          label: service.label,
+          description: service.description,
+          confirmLabel: 'Accept terms and Open' };
+      } else if (service.profile.indexOf(prefix) === 0) {
+        serviceName = service.profile.slice(prefix.length);
+        // console.log('Found ' + serviceName + ' auth service');
+        svcInfo[serviceName] = { id: service['@id'], label: service.label };
+      }
+      if (service.service && serviceName) {
+        var nestedServices = [];
+        if (service.service.constructor === Array) {
+          nestedServices = service.service;
+        } else {
+          nestedServices = [service.service];
+        }
+
+        for (var j = 0; j < nestedServices.length; j++) {
+          var nestedServiceName = nestedServices[j].profile.slice(prefix.length);
+          // console.log('Found nested ' + nestedServiceName + ' auth service');
+          svcInfo[serviceName][nestedServiceName] = {
+            id: nestedServices[j]['@id'],
+            label: nestedServices[j].label };
+        }
+      }
+    }
+  }
+  return svcInfo;
+};
+
+},{}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28306,7 +29150,7 @@ exports.default = (0, _redux.combineReducers)({
 });
 // import { loadedManifest } from './loaded-manifest.js';
 
-},{"./selected-collection.js":41,"./source-list.js":42,"./ui.js":43,"redux":20}],40:[function(require,module,exports){
+},{"./selected-collection.js":46,"./source-list.js":47,"./ui.js":48,"redux":20}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28318,6 +29162,7 @@ var _loadedManifest = require('../actions/loaded-manifest.js');
 
 var initialState = {
   manifest: null,
+  manifestData: null,
   // All images with additional data
   allImages: [],
   // Canvases with limited data
@@ -28336,6 +29181,10 @@ var loadedManifest = exports.loadedManifest = function loadedManifest() {
     case _loadedManifest.SET_MANIFEST:
       {
         return Object.assign({}, state, { manifest: action.manifest });
+      }
+    case _loadedManifest.SET_MANIFEST_DATA:
+      {
+        return Object.assign({}, state, { manifestData: action.manifestData });
       }
     case _loadedManifest.SET_ALL_IMAGES:
       {
@@ -28380,7 +29229,7 @@ var loadedManifest = exports.loadedManifest = function loadedManifest() {
   }
 };
 
-},{"../actions/loaded-manifest.js":25}],41:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25}],46:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28394,7 +29243,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var initialState = {
   collectionName: null,
-  selectedImages: []
+  selectedImages: [],
+  collectionManifest: null
 };
 
 // Given a state, return array of index values based on start and end values
@@ -28412,6 +29262,10 @@ var selectedCollection = exports.selectedCollection = function selectedCollectio
   var action = arguments[1];
 
   switch (action.type) {
+    case _selectedCollection.SET_COLLECTION_MANIFEST:
+      {
+        return Object.assign({}, state, { collectionManifest: action.collectionManifest });
+      }
     case _selectedCollection.SELECT:
       {
         var selectedImagesArray = state.selectedImages;
@@ -28467,7 +29321,7 @@ var selectedCollection = exports.selectedCollection = function selectedCollectio
   }
 };
 
-},{"../actions/selected-collection.js":26}],42:[function(require,module,exports){
+},{"../actions/selected-collection.js":26}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28495,7 +29349,7 @@ var sourceList = exports.sourceList = function sourceList() {
   }
 };
 
-},{"../actions/source-list.js":27}],43:[function(require,module,exports){
+},{"../actions/source-list.js":27}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28507,12 +29361,12 @@ var _ui = require('../actions/ui.js');
 
 var initialState = {
   activeTab: null,
+  helpVisible: false,
   lightbox: {
     currentImage: null,
     index: null,
     visible: false
   },
-  listVisible: false,
   loadingManifest: false,
   thumbSize: null
 };
@@ -28541,10 +29395,6 @@ var ui = exports.ui = function ui() {
         var _lightbox2 = Object.assign({}, state.lightbox, { index: null, visible: false });
         return Object.assign({}, state, { lightbox: _lightbox2 });
       }
-    case _ui.TOGGLE_LIST:
-      {
-        return Object.assign({}, state, { listVisible: !state.listVisible });
-      }
     case _ui.SET_LOADING_MANIFEST:
       {
         return Object.assign({}, state, { loadingManifest: action.loading });
@@ -28553,12 +29403,16 @@ var ui = exports.ui = function ui() {
       {
         return Object.assign({}, state, { thumbSize: action.thumbSize });
       }
+    case _ui.TOGGLE_HELP_VISIBLE:
+      {
+        return Object.assign({}, state, { helpVisible: !state.helpVisible });
+      }
     default:
       return state;
   }
 };
 
-},{"../actions/ui.js":28}],44:[function(require,module,exports){
+},{"../actions/ui.js":28}],49:[function(require,module,exports){
 'use strict';
 
 var _redux = require('redux');
@@ -28569,25 +29423,29 @@ var _index2 = _interopRequireDefault(_index);
 
 var _loadedManifest = require('./reducers/loaded-manifest.js');
 
-var _config = require('./config/config.js');
-
-var _iiif = require('./helpers/iiif.js');
-
-var _helpers = require('./helpers/helpers.js');
-
 var _selection = require('./components/selection.js');
 
-var _selectedCollection = require('./actions/selected-collection.js');
+var _classifyTools = require('./components/classify-tools.js');
+
+var _classifyTools2 = _interopRequireDefault(_classifyTools);
 
 var _derivedManifests = require('./components/derived-manifests.js');
-
-var _loadedManifest2 = require('./actions/loaded-manifest.js');
 
 var _input = require('./components/input.js');
 
 var _thumbs = require('./components/thumbs.js');
 
 require('./components/workspace.js');
+
+var _makeManifestModal = require('./components/make-manifest-modal.js');
+
+var _lightbox = require('./components/lightbox.js');
+
+var _help = require('./components/help.js');
+
+var _sourceList = require('./components/source-list.js');
+
+var _sourceList2 = _interopRequireDefault(_sourceList);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28604,203 +29462,27 @@ require('magnific-popup');
 // Reducers
 
 
-// Sorty config
+// Imports
 
 
-// IIIF helpers
-
-
-// Create the store for application
+// Create the store for the application - hook up redux devtools
 /* eslint-disable no-underscore-dangle */
 var store = (0, _redux.createStore)(_index2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 /* eslint-enable */
 
 // Pass the store to component initialisers
+(0, _sourceList2.default)(store, manifestStore);
+(0, _help.helpInit)(store);
 (0, _thumbs.thumbsInit)(store, manifestStore);
 (0, _derivedManifests.derivedManifestsInit)(store, manifestStore);
+(0, _classifyTools2.default)(store, manifestStore);
 (0, _selection.selectionInit)(store, manifestStore);
 (0, _input.inputInit)(store, manifestStore);
+(0, _makeManifestModal.makeManifestInit)(store, manifestStore);
+(0, _lightbox.lightboxInit)(store, manifestStore);
 
-// Keep track of previous state for state diffing
-var lastState = null;
-
-var Config = {
-  manifestTemplate: {
-    '@context': 'http://iiif.io/api/presentation/2/context.json',
-    '@id': 'to be replaced',
-    '@type': 'sc:Manifest',
-    label: 'to be replaced',
-    service: 'canvas map here',
-    sequences: [{
-      '@id': 'to be replaced',
-      '@type': 'sc:Sequence',
-      label: 'Default sequence',
-      canvases: []
-    }]
-  },
-  canvasMapTemplate: {
-    '@id': 'to be replaced',
-    '@context': 'https://dlcs.info/context/presley',
-    profile: 'https://dlcs.info/profiles/canvasmap',
-    canvasMap: {}
-  }
-};
-
-var DOM = {
-  $makeManifestButton: null,
-  $manifestModalInput: null,
-  $modalCancel: null,
-  $modalMakeManifest: null,
-  init: function init() {
-    DOM.$makeManifestButton = $('.toolbar__make');
-    DOM.$manifestModalInput = $('.manifest-modal__input');
-    DOM.$modalCancel = $('.manifest-modal__dismiss');
-    DOM.$modalMakeManifest = $('.manifest-modal__make');
-  }
-};
-
-var Events = {
-  domReady: function domReady() {
-    DOM.init();
-    // DOM.$makeManifestButton.click(Events.makeManifestClick);
-    DOM.$modalCancel.click(Events.modalCancel);
-    DOM.$modalMakeManifest.click(Events.modalMakeManifest);
-    DOM.$makeManifestButton.magnificPopup({
-      callbacks: {
-        beforeOpen: function beforeOpen() {
-          $('html').addClass('mfp-modal');
-          var state = store.getState();
-          var manifestState = manifestStore.getState();
-          var manifest = manifestState.manifest;
-          var selectedImages = state.selectedCollection.selectedImages;
-          var s = Math.min.apply(Math, selectedImages);
-          var e = Math.max.apply(Math, selectedImages);
-          var label = store.getState().selectedCollection.collectionName !== null ? store.getState().selectedCollection.collectionName : _config.SortyConfiguration.getManifestLabel(manifest, s, e).trim();
-          DOM.$manifestModalInput.val(label);
-        },
-        beforeClose: function beforeClose() {
-          $('html').removeClass('mfp-modal');
-        }
-      },
-      items: {
-        src: '#manifestmodal',
-        type: 'inline'
-      },
-      modal: true
-    });
-  },
-  modalCancel: function modalCancel() {
-    $.magnificPopup.close();
-  },
-  modalMakeManifest: function modalMakeManifest() {
-    var state = store.getState();
-    var manifestState = manifestStore.getState();
-    var selectedImages = state.selectedCollection.selectedImages;
-    var manifest = manifestState.manifest;
-    var canvases = manifestState.canvases;
-    var s = Math.min.apply(Math, selectedImages);
-    var e = Math.max.apply(Math, selectedImages);
-
-    var newManifest = $.extend(true, {}, Config.manifestTemplate);
-    _iiif.IIIF.wrap(newManifest);
-
-    newManifest.id = _config.SortyConfiguration.getManifestUrl(manifest, s, e);
-    newManifest.label = DOM.$manifestModalInput.val();
-    newManifest.sequences[0].id = _config.SortyConfiguration.getSequenceUrl(manifest, s, e);
-    var canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
-    _iiif.IIIF.wrap(canvasMapService);
-    canvasMapService.id = newManifest.id + '/canvasmap';
-    newManifest.service = canvasMapService;
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = selectedImages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var cvsIdx = _step.value;
-
-        var sourceCanvas = canvases[cvsIdx];
-        var newCanvas = $.extend(true, {}, sourceCanvas);
-        _iiif.IIIF.wrap(newCanvas);
-        newCanvas.id = _config.SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-        canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-        newManifest.sequences[0].canvases.push(newCanvas);
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
-    $.ajax({
-      url: newManifest.id,
-      type: 'PUT',
-      contentType: 'application/json',
-      data: JSON.stringify(newManifest),
-      dataType: 'json'
-    }).done(function () {
-      newManifest.sequences = null;
-      newManifest.service = null;
-      $.ajax({
-        url: _config.SortyConfiguration.getCollectionUrl(manifest),
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(newManifest),
-        dataType: 'json'
-      }).done(function () {
-        $.magnificPopup.close();
-        // Collapse the selection away
-        // Give them the --classified class
-        var $activeThumbs = $('.thumb--active');
-        $activeThumbs.parent().addClass('tc--classified');
-        $activeThumbs.removeClass('thumb--active');
-
-        // Clear selection
-        store.dispatch((0, _selectedCollection.clearSelection)());
-        store.dispatch((0, _selectedCollection.setCollectionName)(''));
-
-        // Push into derived manifests / derived manifests complete
-        manifestStore.dispatch((0, _loadedManifest2.resetDerivedManifests)());
-        (0, _derivedManifests.getCreatedManifests)();
-
-        // Switch to classified view to reflect new derived manifest
-        $('workspace-tabs__link[data-modifier="done"]').click();
-        // loadManifestPage(newManifest.id);
-      }).fail(function (xhr, textStatus, error) {
-        alert(error);
-      });
-    }).fail(function (xhr, textStatus, error) {
-      alert(error);
-    });
-  },
-  storeSubscribe: function storeSubscribe() {
-    // console.log('scripts.js', store.getState());
-    var state = store.getState().ui;
-
-    if ((0, _helpers.hasPropertyChanged)('thumbSize', state, lastState)) {
-      (0, _thumbs.drawThumbs)();
-    }
-
-    lastState = state;
-  }
-};
-
-$(document).ready(Events.domReady);
-
-store.subscribe(Events.storeSubscribe);
-
-},{"./actions/loaded-manifest.js":25,"./actions/selected-collection.js":26,"./components/derived-manifests.js":29,"./components/input.js":30,"./components/selection.js":31,"./components/thumbs.js":34,"./components/workspace.js":35,"./config/config.js":36,"./helpers/helpers.js":37,"./helpers/iiif.js":38,"./reducers/index.js":39,"./reducers/loaded-manifest.js":40,"./vendor/jquery.unveil.js":45,"./vendor/leaflet-iiif.js":46,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],45:[function(require,module,exports){
+},{"./components/classify-tools.js":29,"./components/derived-manifests.js":30,"./components/help.js":31,"./components/input.js":33,"./components/lightbox.js":34,"./components/make-manifest-modal.js":35,"./components/selection.js":36,"./components/source-list.js":37,"./components/thumbs.js":39,"./components/workspace.js":40,"./reducers/index.js":44,"./reducers/loaded-manifest.js":45,"./vendor/jquery.unveil.js":50,"./vendor/leaflet-iiif.js":51,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],50:[function(require,module,exports){
 "use strict";
 
 /**
@@ -28858,7 +29540,7 @@ store.subscribe(Events.storeSubscribe);
   };
 })(window.jQuery || window.Zepto);
 
-},{}],46:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -29101,4 +29783,4 @@ L.tileLayer.iiif = function (url, options) {
   return new L.TileLayer.Iiif(url, options);
 };
 
-},{}]},{},[44]);
+},{}]},{},[49]);
