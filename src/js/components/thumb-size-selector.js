@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import {
   hasPropertyChanged,
 } from '../helpers/helpers.js';
@@ -8,6 +7,8 @@ import {
 import {
   drawThumbs,
 } from './thumbs.js';
+
+const $ = require('jquery');
 
 let store = null;
 let manifestStore = null;

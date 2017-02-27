@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import {
   addOrRemoveFromSelection,
@@ -9,6 +8,8 @@ import {
 import {
   attachLightboxBehaviour,
 } from './lightbox';
+
+const $ = require('jquery');
 
 let store = null;
 let manifestStore = null;

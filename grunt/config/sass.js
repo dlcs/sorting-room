@@ -1,25 +1,23 @@
 // grunt/config/sass.js
 
 module.exports = {
-  
   dev: {
     options: {
       outputStyle: 'expanded',
-      sourceMap: true
+      sourceMap: true,
     },
     files: {
-      'build/assets/css/styles.css': 'src/scss/styles.scss'
-    }
+      'build/assets/css/styles.css': 'src/scss/styles.scss',
+    },
   },
 
   dist: {
     options: {
       outputStyle: 'compressed',
-      sourceMap: false
+      sourceMap: false,
     },
     files: {
-      'dist/assets/css/styles.css': 'src/scss/styles.scss'
-    }
-  }
-
+      'dist/assets/css/styles.css': 'src/scss/styles.scss',
+    },
+  },
 };

@@ -1,6 +1,8 @@
-const $ = require('jquery');
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import { switchView } from './workspace.js';
+
+const $ = require('jquery');
+
 let store = null;
 let manifestStore = null;
 let lastSelectionState = null;

@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import {
     setCurrentImage,
@@ -8,6 +7,8 @@ import {
   addOrRemoveFromSelection,
   setCollectionName,
 } from '../actions/selected-collection.js';
+
+const $ = require('jquery');
 
 let store = null;
 

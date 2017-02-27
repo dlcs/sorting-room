@@ -1,4 +1,3 @@
-const $ = require('jquery');
 // Sorty config
 import {
   SortyConfiguration,
@@ -28,6 +27,8 @@ import {
 } from '../components/workspace.js';
 
 import { resetDerivedManifests } from '../actions/loaded-manifest.js';
+
+const $ = require('jquery');
 
 let store = null;
 let manifestStore = null;

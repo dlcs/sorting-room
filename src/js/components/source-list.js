@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import {
   setSourceManifests,
@@ -11,6 +10,8 @@ import {
 import {
   // setManifestMetaData,
 } from '../actions/loaded-manifest.js';
+
+const $ = require('jquery');
 
 let store = null;
 // let manifestStore = null;

@@ -1,5 +1,6 @@
-const $ = require('jquery');
 import { attachMagnific } from './lightbox.js';
+
+const $ = require('jquery');
 
 const DOM = {
   $workspace: null,

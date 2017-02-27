@@ -3,49 +3,49 @@
 module.exports = {
   dev: {
     bsFiles: {
-      src : ['build/assets/css/*.css', 'build/assets/js/*.js', 'build/*.html']
+      src: ['build/assets/css/*.css', 'build/assets/js/*.js', 'build/*.html'],
     },
     options: {
       directory: true,
       watchTask: true,
-      server: './build'
-    }
+      server: './build',
+    },
   },
 
   dist: {
     bsFiles: {
-      src : ['dist/assets/css/*.css', 'dist/assets/js/*.js', 'dist/*.html']
+      src: ['dist/assets/css/*.css', 'dist/assets/js/*.js', 'dist/*.html'],
     },
     options: {
       directory: true,
       watchTask: false,
-      server: './dist'
-    }
+      server: './dist',
+    },
   },
 
   styleguide: {
     bsFiles: {
-      src : ['build/styleguide/**/*.*']
+      src: ['build/styleguide/**/*.*'],
     },
     options: {
       watchTask: false,
-      server: './src/styleguide'
-    }
+      server: './src/styleguide',
+    },
   },
 
   test: {
     bsFiles: {
-      src : ['dist/assets/css/*.css', 'dist/assets/js/*.js', 'dist/*.html']
+      src: ['dist/assets/css/*.css', 'dist/assets/js/*.js', 'dist/*.html'],
     },
     watchOptions: {
-      ignoreInitial: true
+      ignoreInitial: true,
     },
     options: {
       background: true,
       open: false,
       notify: false,
       watchTask: false,
-      server: './dist'
-    }
-  }
-}
+      server: './dist',
+    },
+  },
+};

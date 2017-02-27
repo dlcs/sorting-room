@@ -1,8 +1,8 @@
 module.exports = {
   options: {
-    accessibilityLevel: 'WCAG2A'
+    accessibilityLevel: 'WCAG2A',
   },
   test: {
-    src: ['dist/**/*.html']
-  }
-}
+    src: ['dist/**/*.html'],
+  },
+};

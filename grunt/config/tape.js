@@ -3,7 +3,7 @@
 module.exports = {
   options: {
     pretty: true,
-    output: 'console'
+    output: 'console',
   },
-  files: ['build-test/**/*.js']
-}
+  files: ['build-test/**/*.js'],
+};

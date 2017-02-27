@@ -1,9 +1,9 @@
 // grunt/config/scsslint.js
 
 module.exports = {
-    options: {
-      colorizeOutput: true
-    },
+  options: {
+    colorizeOutput: true,
+  },
 
-    allFiles: [ 'src/scss/**/*.scss', '!src/scss/vendor/**/*.scss' ]
+  allFiles: ['src/scss/**/*.scss', '!src/scss/vendor/**/*.scss'],
 };

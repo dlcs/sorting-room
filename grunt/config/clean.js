@@ -2,10 +2,10 @@
 
 module.exports = {
   dev: {
-    src: ['build']
+    src: ['build'],
   },
 
   dist: {
-    src: ['dist']
+    src: ['dist'],
   },
 };

@@ -1,10 +1,3 @@
-const $ = require('jquery');
-window.$ = window.jQuery = $;
-require('./vendor/jquery.unveil.js');
-require('leaflet');
-require('./vendor/leaflet-iiif.js');
-require('magnific-popup');
-
 // Redux
 import { createStore } from 'redux';
 
@@ -40,6 +33,13 @@ import {
 } from './components/help.js';
 
 import sourceListInit from './components/source-list.js';
+
+const $ = require('jquery');
+window.$ = window.jQuery = $;
+require('./vendor/jquery.unveil.js');
+require('leaflet');
+require('./vendor/leaflet-iiif.js');
+require('magnific-popup');
 
 // Create the store for the application - hook up redux devtools
 /* eslint-disable no-underscore-dangle */

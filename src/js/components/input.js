@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import {
   resetDerivedManifests,
@@ -16,6 +15,8 @@ import { thumbsUpdate } from './thumbs.js';
 import { getCreatedManifests } from './derived-manifests.js';
 import { IIIF } from '../helpers/iiif.js';
 import { IIIFActions } from './iiif-actions.js';
+
+const $ = require('jquery');
 
 let store = null;
 let manifestStore = null;

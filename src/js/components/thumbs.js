@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import { SortyConfiguration } from '../config/config.js';
 import {
   hasPropertyChanged,
@@ -12,6 +11,8 @@ import {
 import {
   setThumbSize,
 } from '../actions/ui.js';
+
+const $ = require('jquery');
 
 let store = null;
 let manifestStore = null;

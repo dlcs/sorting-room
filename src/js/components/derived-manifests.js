@@ -1,4 +1,3 @@
-const $ = require('jquery');
 import {
   hasPropertyChanged,
   hasPropertyChangedNonZero,
@@ -14,6 +13,8 @@ import {
 // import { replaceSelection } from '../selection/selectionActions.js';
 import { updateThumbsWithStatus } from './thumbs.js';
 import { IIIFActions } from './iiif-actions.js';
+
+const $ = require('jquery');
 
 const manifestSelector = '.manifest-select__dropdown';
 const viewManifest = '.manifest-select__view-uv';

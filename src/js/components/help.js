@@ -1,6 +1,8 @@
-const $ = require('jquery');
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import { toggleHelpVisible } from '../actions/ui.js';
+
+const $ = require('jquery');
+
 let store = null;
 let lastState = null;
 

@@ -1,4 +1,5 @@
 const $ = require('jquery');
+
 export const IIIFActions = {};
 
 IIIFActions.postManifest = (manifest, url, success, error) => {
