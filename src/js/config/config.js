@@ -6,7 +6,7 @@ export const SortyConfiguration = {};
 const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
 
 SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
-SortyConfiguration.mintCanvasIds = true;
+SortyConfiguration.mintCanvasIds = false;
 
 function getPath(url) {
   const reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;

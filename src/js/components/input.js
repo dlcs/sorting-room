@@ -64,10 +64,10 @@ Actions = {
   },
   ajaxLoadManifest() {
     DOM.$html.removeClass('dm-loaded');
+    DOM.$html.removeClass('manifest-loaded');
     $('.workspace-tabs__link[data-modifier="all"]').click();
     store.dispatch(clearSelection());
     store.dispatch(resetDerivedManifests());
-    DOM.$html.removeClass('manifest-loaded');
     const inputState = manifestStore.getState();
 
     if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
@@ -144,8 +144,10 @@ Events = {
       && hasPropertyChanged('loadingManifest', state, lastLocalState)) {
       if (state.loadingManifest) {
         DOM.$manifestInputContainer.addClass('manifest-input--loading');
+        DOM.$html.addClass('loading-manifest');
       } else {
         DOM.$manifestInputContainer.removeClass('manifest-input--loading');
+        DOM.$html.removeClass('loading-manifest');
       }
     }
     lastLocalState = state;

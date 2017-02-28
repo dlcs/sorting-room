@@ -58,7 +58,6 @@ const Config = {
     '@id': 'to be replaced',
     '@type': 'sc:Manifest',
     label: 'to be replaced',
-    service: 'canvas map here',
     sequences: [
       {
         '@id': 'to be replaced',

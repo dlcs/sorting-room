@@ -79,7 +79,7 @@ const createPopupToolbar = () => {
   ' zoom-toolbar--selected' : '';
   const $toolbar = $(`
     <ul class="zoom-toolbar${isSelected}">
-      <li class="zoom-toolbar__item zoom-toolbar__collection-name">
+      <li class="zoom-toolbar__item zoom-toolbar__collection-name" style="display:none">
         <input id="collection-name" type="text"
         value="${collectionName}" placeholder="Name your collection" />
       </li>

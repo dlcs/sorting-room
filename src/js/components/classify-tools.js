@@ -1,5 +1,6 @@
 import { hasPropertyChanged } from '../helpers/helpers.js';
 import { switchView } from './workspace.js';
+import { getTerm } from '../config/terms.js';
 
 const $ = require('jquery');
 
@@ -47,12 +48,14 @@ const Events = {
     const manifestState = manifestStore.getState();
     // console.log(manifestState);
     if (hasPropertyChanged('allImages', manifestState, lastManifestState)) {
-      DOM.$classifyNumImages.html(`${manifestState.allImages.length} images`);
+      DOM.$classifyNumImages.html(`${manifestState.allImages.length}
+        ${getTerm('image', manifestState.allImages.length)}`);
     }
     if (hasPropertyChanged('derivedManifestsComplete', manifestState, lastManifestState)) {
       if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
         DOM.$classifyNumSets.show();
-        DOM.$classifyNumSets.html(`${manifestState.derivedManifestsComplete.length} complete sets`);
+        DOM.$classifyNumSets.html(`${manifestState.derivedManifestsComplete.length} complete
+          ${getTerm('derivedManifest', manifestState.allImages.length)}`);
       } else {
         DOM.$classifyNumSets.hide();
       }

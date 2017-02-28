@@ -79,7 +79,7 @@ const getCollectionData = () => {
   }
 };
 
-function renderCollectionNew(collection) {
+function renderCollection(collection) {
   let listItems = '';
   const img = `
   <div class="source-list__image-container">
@@ -126,46 +126,6 @@ function renderCollectionNew(collection) {
   DOM.$expandedCollection.html(listTemplate);
 }
 
-/*
-function renderCollection(collection) {
-  // console.log('render collection');
-  const collectionToRender = collection;
-  let table = '<table class="table table-condensed"><thead><tr>';
-  if (collectionToRender.service && collectionToRender.service.headers) {
-    collectionToRender.service.headers.forEach(h => {
-      table += `<th>${h}</th>`;
-    });
-  } else {
-    table += '<th>@id</th><th>label</th>';
-  }
-  table += '</tr></thead><tbody>';
-  if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
-  if (collectionToRender.members) {
-    collectionToRender.members.forEach(m => {
-      if (m.service && m.service.values) {
-        table += `<tr class="${m.service.highlight}">`;
-        table += `<td style="white-space:nowrap;">\
-        ${manifestLink(m['@id'], m.service.values[0])}</td>`;
-        let j;
-        for (j = 1; j < m.service.values.length; j++) {
-          table += `<td>${m.service.values[j]}</td>`;
-        }
-        table += '</tr>';
-      } else {
-        table += '<tr>';
-        table += `<td>${manifestLink(m['@id'], m['@id'])}</td>`;
-        table += `<td>${m.label}</td>`;
-        table += '</tr>';
-      }
-    });
-  }
-  table += '</tbody></table>';
-  // DOM.$expandedCollection.html(table);
-  // $expandedCollection.addClass(`${expandedCollection}--active`);
-
-  // DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
-}*/
-
 const Events = {
   domReady() {
     // Get DOM elements
@@ -179,22 +139,10 @@ const Events = {
     // Hook up manifest list links to auto-load manifests
     // DOM.$expandedCollection.on('click', 'a', Events.loadManifestLinkClick);
   },
-  /*
-  loadManifestLinkClick() {
-    // e.preventDefault();
-    processQueryStringFromInput(`?${this.href.split('?')[1]}`);
-    document.body.scrollTop = document.documentElement.scrollTop = 0;
-    const $link = $(this);
-    // const title = $link.attr('data-title');
-    const shortName = $link.attr('data-short-name');
-    manifestStore.dispatch(setManifestMetaData(title, shortName));
-    // store.dispatch(toggleList());
-    // ajaxLoadManifest();
-  },*/
   storeSubscribe() {
     const sourceListState = store.getState().sourceList;
     if (hasPropertyChanged('sourceManifests', sourceListState, lastLocalSourceListState)) {
-      renderCollectionNew(sourceListState.sourceManifests);
+      renderCollection(sourceListState.sourceManifests);
     }
     lastLocalSourceListState = sourceListState;
   },

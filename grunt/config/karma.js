@@ -10,11 +10,13 @@ module.exports = {
 
       logLevel: 'LOG_DEBUG',
 
-      plugins: ['karma-coverage',
-      'karma-browserify',
-      'karma-chrome-launcher',
-      'karma-phantomjs-launcher',
-      'karma-tap'],
+      plugins: [
+        'karma-coverage',
+        'karma-browserify',
+        'karma-chrome-launcher',
+        'karma-phantomjs-launcher',
+        'karma-tap',
+      ],
 
       reporters: ['dots', 'coverage'],
 

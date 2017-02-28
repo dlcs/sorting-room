@@ -5,6 +5,9 @@ import {
 import { SortyConfiguration } from '../config/config.js';
 // import { IIIF } from '../helpers/iiif.js';
 import {
+  setCollectionManifest,
+} from '../actions/selected-collection.js';
+import {
 //  selectDerivedManifest,
   setDerivedManifests,
   setDerivedManifestsComplete,
@@ -13,12 +16,14 @@ import {
 // import { replaceSelection } from '../selection/selectionActions.js';
 import { updateThumbsWithStatus } from './thumbs.js';
 import { IIIFActions } from './iiif-actions.js';
+import { getTerm } from '../config/terms.js';
 
 const $ = require('jquery');
 
 const manifestSelector = '.manifest-select__dropdown';
 const viewManifest = '.manifest-select__view-uv';
 
+let store = null;
 let manifestStore = null;
 let lastLocalState = null;
 let lastTitleText = null;
@@ -26,10 +31,12 @@ let lastTitleText = null;
 const DOM = {
   $manifestSelector: null,
   $classifiedMaterial: null,
+  $classifiedTitle: null,
 
   init() {
     DOM.$manifestSelector = $(manifestSelector);
     DOM.$classifiedMaterial = $('.classified-material');
+    DOM.$classifiedTitle = $('.viewer__classified-title');
   },
 };
 
@@ -57,7 +64,7 @@ const buildClassified = (derivedManifestList) => {
                 <i class="material-icons">save</i>
               </button>
             </h2>
-            <p class="classified-manifest__num">{x} images in this collection</p>
+            <p class="classified-manifest__num">{x} images</p>
             <div class="classified-manifest__front">
               <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
@@ -91,27 +98,30 @@ const updateArchivalUnits = function () {
     // console.log('need to build first');
     buildClassified(state.derivedManifests);
   }
-  $('.viewer__classified-title').text(`${state.derivedManifestsComplete.length} sets`);
+  DOM.$classifiedTitle.text(`${state.derivedManifestsComplete.length}
+    ${getTerm('derivedManifest', state.derivedManifestsComplete.length)}`);
 
   for (const dm of state.derivedManifestsComplete) {
     const id = dm['@id'];
     const canvases = dm.sequences[0].canvases;
     const $cmContainer = $(`.classified-manifest[data-id='${id}']`);
     $cmContainer.find('.classified-manifest__num')
-    .text(`${canvases.length} images in this collection`);
+    .text(`${canvases.length} images`);
     const $cmImgFront = $cmContainer.find('.classified-manifest__front img');
     const $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
     const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
 
-    const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
-    $cmImgFront.attr('src', imgSrcFront);
-    if (canvases.length > 1) {
+    if (canvases.length > 0 && canvases[0].images.length) {
+      const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
+      $cmImgFront.attr('src', imgSrcFront);
+    }
+    if (canvases.length > 1 && canvases[1].images.length) {
       const imgSrcSecond = $(`.thumb[data-uri='${canvases[1].images[0].on}']`).attr('data-src');
       $cmImgSecond.attr('src', imgSrcSecond);
     } else {
       $cmImgSecond.hide();
     }
-    if (canvases.length > 2) {
+    if (canvases.length > 2 && canvases[2].images.length) {
       const imgSrcThird = $(`.thumb[data-uri='${canvases[2].images[0].on}']`).attr('data-src');
       $cmImgThird.attr('src', imgSrcThird);
     } else {
@@ -172,7 +182,8 @@ const Events = {
   putError(xhr, textStatus, error) {
     alert(error);
   },
-  putSuccess(manifest) {
+  putSuccess() {
+    const manifest = store.getState().selectedCollection.collectionManifest;
     const newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
@@ -208,8 +219,10 @@ const Events = {
       for (const manifest of values) {
         // const classifiedManifest = new Set();
         for (const canvas of manifest.sequences[0].canvases) {
-          console.log(canvas.images[0].on);
-          classifiedCanvases.add(canvas.images[0].on);
+          if (canvas.images.length) {
+            console.log(canvas.images[0].on);
+            classifiedCanvases.add(canvas.images[0].on);
+          }
           // classifiedManifest.add(canvas.images[0].on);
         }/*
         classifiedManifests.push({
@@ -221,7 +234,9 @@ const Events = {
       }
       manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
       manifestStore.dispatch(setDerivedManifestsComplete(classifiedManifests));
+      console.log($('html'));
       $('html').addClass('dm-loaded manifest-loaded');
+      console.log($('html'));
       updateThumbsWithStatus();
     }, reason => {
       console.log('Promise fail', reason);
@@ -247,6 +262,8 @@ const Events = {
       manifestToUpdate.label = titleText;
       // Set saving state
       $container.addClass('classified-manifest--saving-label');
+      // Store new manifest
+      store.dispatch(setCollectionManifest(manifestToUpdate));
       // RE-PUT
       IIIFActions.putManifest(manifestToUpdate, Events.putSuccess, Events.putError);
     } else {
@@ -291,7 +308,7 @@ export const getCreatedManifests = function getCreatedManifests() {
 $(document).ready(Events.domReady);
 
 export const derivedManifestsInit = (globalStore, globalManifestStore) => {
-  // store = globalStore;
+  store = globalStore;
   manifestStore = globalManifestStore;
   manifestStore.subscribe(Events.subscribeActions);
 };
