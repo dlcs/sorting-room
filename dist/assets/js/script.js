@@ -26685,6 +26685,8 @@ var _helpers = require('../helpers/helpers.js');
 
 var _workspace = require('./workspace.js');
 
+var _terms = require('../config/terms.js');
+
 var $ = require('jquery');
 
 var store = null;
@@ -26731,12 +26733,12 @@ var Events = {
     var manifestState = manifestStore.getState();
     // console.log(manifestState);
     if ((0, _helpers.hasPropertyChanged)('allImages', manifestState, lastManifestState)) {
-      DOM.$classifyNumImages.html(manifestState.allImages.length + ' images');
+      DOM.$classifyNumImages.html(manifestState.allImages.length + '\n        ' + (0, _terms.getTerm)('image', manifestState.allImages.length));
     }
     if ((0, _helpers.hasPropertyChanged)('derivedManifestsComplete', manifestState, lastManifestState)) {
       if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
         DOM.$classifyNumSets.show();
-        DOM.$classifyNumSets.html(manifestState.derivedManifestsComplete.length + ' complete sets');
+        DOM.$classifyNumSets.html(manifestState.derivedManifestsComplete.length + ' complete\n          ' + (0, _terms.getTerm)('derivedManifest', manifestState.allImages.length));
       } else {
         DOM.$classifyNumSets.hide();
       }
@@ -26788,7 +26790,7 @@ exports.default = Init;
 
 $(document).ready(Events.domReady);
 
-},{"../helpers/helpers.js":42,"./workspace.js":40,"jquery":1}],30:[function(require,module,exports){
+},{"../config/terms.js":42,"../helpers/helpers.js":43,"./workspace.js":40,"jquery":1}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26800,21 +26802,26 @@ var _helpers = require('../helpers/helpers.js');
 
 var _config = require('../config/config.js');
 
+var _selectedCollection = require('../actions/selected-collection.js');
+
 var _loadedManifest = require('../actions/loaded-manifest.js');
 
 var _thumbs = require('./thumbs.js');
 
 var _iiifActions = require('./iiif-actions.js');
 
-var $ = require('jquery');
-// import { IIIF } from '../helpers/iiif.js';
+var _terms = require('../config/terms.js');
 
+var $ = require('jquery');
 // import { replaceSelection } from '../selection/selectionActions.js';
+
+// import { IIIF } from '../helpers/iiif.js';
 
 
 var manifestSelector = '.manifest-select__dropdown';
 var viewManifest = '.manifest-select__view-uv';
 
+var store = null;
 var manifestStore = null;
 var lastLocalState = null;
 var lastTitleText = null;
@@ -26822,10 +26829,12 @@ var lastTitleText = null;
 var DOM = {
   $manifestSelector: null,
   $classifiedMaterial: null,
+  $classifiedTitle: null,
 
   init: function init() {
     DOM.$manifestSelector = $(manifestSelector);
     DOM.$classifiedMaterial = $('.classified-material');
+    DOM.$classifiedTitle = $('.viewer__classified-title');
   }
 };
 
@@ -26841,7 +26850,7 @@ var buildClassified = function buildClassified(derivedManifestList) {
       for (var i = 0; i < derivedManifestList.members.length; i++) {
         var manifest = derivedManifestList.members[i];
         var label = manifest.label || manifest['@id'];
-        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images in this collection</p>\n            <div class="classified-manifest__front">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest['@id'] + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
+        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__front">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest['@id'] + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
       }
     }
   }
@@ -26858,7 +26867,7 @@ var updateArchivalUnits = function updateArchivalUnits() {
     // console.log('need to build first');
     buildClassified(state.derivedManifests);
   }
-  $('.viewer__classified-title').text(state.derivedManifestsComplete.length + ' sets');
+  DOM.$classifiedTitle.text(state.derivedManifestsComplete.length + '\n    ' + (0, _terms.getTerm)('derivedManifest', state.derivedManifestsComplete.length));
 
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
@@ -26871,20 +26880,22 @@ var updateArchivalUnits = function updateArchivalUnits() {
       var id = dm['@id'];
       var canvases = dm.sequences[0].canvases;
       var $cmContainer = $('.classified-manifest[data-id=\'' + id + '\']');
-      $cmContainer.find('.classified-manifest__num').text(canvases.length + ' images in this collection');
+      $cmContainer.find('.classified-manifest__num').text(canvases.length + ' images');
       var $cmImgFront = $cmContainer.find('.classified-manifest__front img');
       var $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
       var $cmImgThird = $cmContainer.find('.classified-manifest__third img');
 
-      var imgSrcFront = $('.thumb[data-uri=\'' + canvases[0].images[0].on + '\']').attr('data-src');
-      $cmImgFront.attr('src', imgSrcFront);
-      if (canvases.length > 1) {
+      if (canvases.length > 0 && canvases[0].images.length) {
+        var imgSrcFront = $('.thumb[data-uri=\'' + canvases[0].images[0].on + '\']').attr('data-src');
+        $cmImgFront.attr('src', imgSrcFront);
+      }
+      if (canvases.length > 1 && canvases[1].images.length) {
         var imgSrcSecond = $('.thumb[data-uri=\'' + canvases[1].images[0].on + '\']').attr('data-src');
         $cmImgSecond.attr('src', imgSrcSecond);
       } else {
         $cmImgSecond.hide();
       }
-      if (canvases.length > 2) {
+      if (canvases.length > 2 && canvases[2].images.length) {
         var imgSrcThird = $('.thumb[data-uri=\'' + canvases[2].images[0].on + '\']').attr('data-src');
         $cmImgThird.attr('src', imgSrcThird);
       } else {
@@ -26957,7 +26968,8 @@ var Events = {
   putError: function putError(xhr, textStatus, error) {
     alert(error);
   },
-  putSuccess: function putSuccess(manifest) {
+  putSuccess: function putSuccess() {
+    var manifest = store.getState().selectedCollection.collectionManifest;
     var newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
@@ -27026,8 +27038,10 @@ var Events = {
             for (var _iterator4 = manifest.sequences[0].canvases[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
               var canvas = _step4.value;
 
-              console.log(canvas.images[0].on);
-              classifiedCanvases.add(canvas.images[0].on);
+              if (canvas.images.length) {
+                console.log(canvas.images[0].on);
+                classifiedCanvases.add(canvas.images[0].on);
+              }
               // classifiedManifest.add(canvas.images[0].on);
             } /*
               classifiedManifests.push({
@@ -27069,7 +27083,9 @@ var Events = {
 
       manifestStore.dispatch((0, _loadedManifest.setClassifiedCanvases)(classifiedCanvases));
       manifestStore.dispatch((0, _loadedManifest.setDerivedManifestsComplete)(classifiedManifests));
+      console.log($('html'));
       $('html').addClass('dm-loaded manifest-loaded');
+      console.log($('html'));
       (0, _thumbs.updateThumbsWithStatus)();
     }, function (reason) {
       console.log('Promise fail', reason);
@@ -27117,6 +27133,8 @@ var Events = {
       manifestToUpdate.label = titleText;
       // Set saving state
       $container.addClass('classified-manifest--saving-label');
+      // Store new manifest
+      store.dispatch((0, _selectedCollection.setCollectionManifest)(manifestToUpdate));
       // RE-PUT
       _iiifActions.IIIFActions.putManifest(manifestToUpdate, Events.putSuccess, Events.putError);
     } else {
@@ -27158,12 +27176,12 @@ var getCreatedManifests = exports.getCreatedManifests = function getCreatedManif
 $(document).ready(Events.domReady);
 
 var derivedManifestsInit = exports.derivedManifestsInit = function derivedManifestsInit(globalStore, globalManifestStore) {
-  // store = globalStore;
+  store = globalStore;
   manifestStore = globalManifestStore;
   manifestStore.subscribe(Events.subscribeActions);
 };
 
-},{"../actions/loaded-manifest.js":25,"../config/config.js":41,"../helpers/helpers.js":42,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],31:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../config/config.js":41,"../config/terms.js":42,"../helpers/helpers.js":43,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27221,13 +27239,14 @@ var helpInit = exports.helpInit = function helpInit(globalStore) {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":28,"../helpers/helpers.js":42,"jquery":1}],32:[function(require,module,exports){
+},{"../actions/ui.js":28,"../helpers/helpers.js":43,"jquery":1}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var $ = require('jquery');
+
 var IIIFActions = exports.IIIFActions = {};
 
 IIIFActions.postManifest = function (manifest, url, success, error) {
@@ -27294,7 +27313,6 @@ var _iiifActions = require('./iiif-actions.js');
 
 var $ = require('jquery');
 
-
 var store = null;
 var manifestStore = null;
 
@@ -27341,10 +27359,10 @@ Actions = {
   },
   ajaxLoadManifest: function ajaxLoadManifest() {
     DOM.$html.removeClass('dm-loaded');
+    DOM.$html.removeClass('manifest-loaded');
     $('.workspace-tabs__link[data-modifier="all"]').click();
     store.dispatch((0, _selectedCollection.clearSelection)());
     store.dispatch((0, _loadedManifest.resetDerivedManifests)());
-    DOM.$html.removeClass('manifest-loaded');
     var inputState = manifestStore.getState();
 
     if (typeof inputState.manifest !== 'undefined' && inputState.manifest !== null) {
@@ -27416,8 +27434,10 @@ Events = {
     if (DOM.$manifestInputContainer !== null && (0, _helpers.hasPropertyChanged)('loadingManifest', state, lastLocalState)) {
       if (state.loadingManifest) {
         DOM.$manifestInputContainer.addClass('manifest-input--loading');
+        DOM.$html.addClass('loading-manifest');
       } else {
         DOM.$manifestInputContainer.removeClass('manifest-input--loading');
+        DOM.$html.removeClass('loading-manifest');
       }
     }
     lastLocalState = state;
@@ -27433,7 +27453,7 @@ var inputInit = exports.inputInit = function inputInit(globalStore, globalManife
   $(document).ready(Events.domReady);
 };
 
-},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":42,"../helpers/iiif.js":43,"./derived-manifests.js":30,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],34:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":43,"../helpers/iiif.js":44,"./derived-manifests.js":30,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27454,7 +27474,6 @@ var _selectedCollection = require('../actions/selected-collection.js');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var $ = require('jquery');
-
 
 var store = null;
 
@@ -27522,7 +27541,7 @@ var collectionNameChange = function collectionNameChange(e) {
 var createPopupToolbar = function createPopupToolbar() {
   var collectionName = store.getState().selectedCollection.collectionName !== null ? store.getState().selectedCollection.collectionName : '';
   var isSelected = isIndexInSelection(store.getState().ui.lightbox.currentImage.idx) ? ' zoom-toolbar--selected' : '';
-  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
+  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name" style="display:none">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
 
   $('.mfp-with-zoom').addClass('mfp-toolbar').append($toolbar);
   $('.zoom-toolbar__collection-name input').keyup(collectionNameChange);
@@ -27619,7 +27638,7 @@ var attachLightboxBehaviour = exports.attachLightboxBehaviour = function attachL
   attachMagnific();
 };
 
-},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":42,"jquery":1,"leaflet":2}],35:[function(require,module,exports){
+},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":43,"jquery":1,"leaflet":2}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27641,11 +27660,8 @@ var _workspace = require('../components/workspace.js');
 
 var _loadedManifest = require('../actions/loaded-manifest.js');
 
-var $ = require('jquery');
-// Sorty config
-
-
 // IIIF helpers
+var $ = require('jquery'); // Sorty config
 
 
 var store = null;
@@ -27676,7 +27692,6 @@ var Config = {
     '@id': 'to be replaced',
     '@type': 'sc:Manifest',
     label: 'to be replaced',
-    service: 'canvas map here',
     sequences: [{
       '@id': 'to be replaced',
       '@type': 'sc:Sequence',
@@ -27900,7 +27915,7 @@ var makeManifestInit = exports.makeManifestInit = function makeManifestInit(glob
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../components/derived-manifests.js":30,"../components/workspace.js":40,"../config/config.js":41,"../helpers/iiif.js":43,"./iiif-actions.js":32,"jquery":1}],36:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../components/derived-manifests.js":30,"../components/workspace.js":40,"../config/config.js":41,"../helpers/iiif.js":44,"./iiif-actions.js":32,"jquery":1}],36:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27915,7 +27930,6 @@ var _selectedCollection = require('../actions/selected-collection.js');
 var _lightbox = require('./lightbox');
 
 var $ = require('jquery');
-
 
 var store = null;
 var manifestStore = null;
@@ -28014,7 +28028,7 @@ var selectionInit = exports.selectionInit = function selectionInit(globalStore, 
   manifestStore.subscribe(Events.manifestStoreSubscribe);
 };
 
-},{"../actions/selected-collection.js":26,"../helpers/helpers.js":42,"./lightbox":34,"jquery":1}],37:[function(require,module,exports){
+},{"../actions/selected-collection.js":26,"../helpers/helpers.js":43,"./lightbox":34,"jquery":1}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28032,7 +28046,6 @@ require('./input.js');
 require('../actions/loaded-manifest.js');
 
 var $ = require('jquery');
-
 
 var store = null;
 // let manifestStore = null;
@@ -28099,7 +28112,7 @@ var getCollectionData = function getCollectionData() {
   }
 };
 
-function renderCollectionNew(collection) {
+function renderCollection(collection) {
   var listItems = '';
   var img = '\n  <div class="source-list__image-container">\n    <img class="source-list__image" src="//placehold.it/40x50" alt="" />\n  </div>';
   var collectionToRender = collection;
@@ -28117,46 +28130,6 @@ function renderCollectionNew(collection) {
   DOM.$expandedCollection.html(listTemplate);
 }
 
-/*
-function renderCollection(collection) {
-  // console.log('render collection');
-  const collectionToRender = collection;
-  let table = '<table class="table table-condensed"><thead><tr>';
-  if (collectionToRender.service && collectionToRender.service.headers) {
-    collectionToRender.service.headers.forEach(h => {
-      table += `<th>${h}</th>`;
-    });
-  } else {
-    table += '<th>@id</th><th>label</th>';
-  }
-  table += '</tr></thead><tbody>';
-  if (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
-  if (collectionToRender.members) {
-    collectionToRender.members.forEach(m => {
-      if (m.service && m.service.values) {
-        table += `<tr class="${m.service.highlight}">`;
-        table += `<td style="white-space:nowrap;">\
-        ${manifestLink(m['@id'], m.service.values[0])}</td>`;
-        let j;
-        for (j = 1; j < m.service.values.length; j++) {
-          table += `<td>${m.service.values[j]}</td>`;
-        }
-        table += '</tr>';
-      } else {
-        table += '<tr>';
-        table += `<td>${manifestLink(m['@id'], m['@id'])}</td>`;
-        table += `<td>${m.label}</td>`;
-        table += '</tr>';
-      }
-    });
-  }
-  table += '</tbody></table>';
-  // DOM.$expandedCollection.html(table);
-  // $expandedCollection.addClass(`${expandedCollection}--active`);
-
-  // DOM.$expandCollectionButton.addClass('manifest-input__expand-button--active');
-}*/
-
 var Events = {
   domReady: function domReady() {
     // Get DOM elements
@@ -28170,23 +28143,10 @@ var Events = {
     // Hook up manifest list links to auto-load manifests
     // DOM.$expandedCollection.on('click', 'a', Events.loadManifestLinkClick);
   },
-
-  /*
-  loadManifestLinkClick() {
-    // e.preventDefault();
-    processQueryStringFromInput(`?${this.href.split('?')[1]}`);
-    document.body.scrollTop = document.documentElement.scrollTop = 0;
-    const $link = $(this);
-    // const title = $link.attr('data-title');
-    const shortName = $link.attr('data-short-name');
-    manifestStore.dispatch(setManifestMetaData(title, shortName));
-    // store.dispatch(toggleList());
-    // ajaxLoadManifest();
-  },*/
   storeSubscribe: function storeSubscribe() {
     var sourceListState = store.getState().sourceList;
     if ((0, _helpers.hasPropertyChanged)('sourceManifests', sourceListState, lastLocalSourceListState)) {
-      renderCollectionNew(sourceListState.sourceManifests);
+      renderCollection(sourceListState.sourceManifests);
     }
     lastLocalSourceListState = sourceListState;
   }
@@ -28194,7 +28154,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":25,"../actions/source-list.js":27,"../config/config.js":41,"../helpers/helpers.js":42,"./input.js":33,"jquery":1}],38:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/source-list.js":27,"../config/config.js":41,"../helpers/helpers.js":43,"./input.js":33,"jquery":1}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28209,7 +28169,6 @@ var _ui = require('../actions/ui.js');
 var _thumbs = require('./thumbs.js');
 
 var $ = require('jquery');
-
 
 var store = null;
 var manifestStore = null;
@@ -28281,7 +28240,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":28,"../helpers/helpers.js":42,"./thumbs.js":39,"jquery":1}],39:[function(require,module,exports){
+},{"../actions/ui.js":28,"../helpers/helpers.js":43,"./thumbs.js":39,"jquery":1}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28306,7 +28265,6 @@ var _ui = require('../actions/ui.js');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var $ = require('jquery');
-
 
 var store = null;
 var manifestStore = null;
@@ -28613,7 +28571,7 @@ var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore, globalMan
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":25,"../actions/ui.js":28,"../config/config.js":41,"../helpers/helpers.js":42,"./selection.js":36,"./thumb-size-selector.js":38,"jquery":1}],40:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/ui.js":28,"../config/config.js":41,"../helpers/helpers.js":43,"./selection.js":36,"./thumb-size-selector.js":38,"jquery":1}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28624,7 +28582,6 @@ exports.switchView = undefined;
 var _lightbox = require('./lightbox.js');
 
 var $ = require('jquery');
-
 
 var DOM = {
   $workspace: null,
@@ -28664,7 +28621,7 @@ var SortyConfiguration = exports.SortyConfiguration = {};
 var presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
 
 SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
-SortyConfiguration.mintCanvasIds = true;
+SortyConfiguration.mintCanvasIds = false;
 
 function getPath(url) {
   var reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
@@ -28737,6 +28694,18 @@ SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) 
 };
 
 },{}],42:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var terms = exports.terms = new Map([['derivedManifestSingular', 'item'], ['derivedManifestPlural', 'items'], ['imageSingular', 'image'], ['imagePlural', 'images']]);
+
+var getTerm = exports.getTerm = function getTerm(name, count) {
+  return count > 1 ? terms.get(name + 'Plural') : terms.get(name + 'Singular');
+};
+
+},{}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28757,7 +28726,7 @@ var hasPropertyChangedNonZero = exports.hasPropertyChangedNonZero = function has
   return false;
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29127,7 +29096,7 @@ IIIF.getAuthServices = function getAuthServices(info) {
   return svcInfo;
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29150,7 +29119,7 @@ exports.default = (0, _redux.combineReducers)({
 });
 // import { loadedManifest } from './loaded-manifest.js';
 
-},{"./selected-collection.js":46,"./source-list.js":47,"./ui.js":48,"redux":20}],45:[function(require,module,exports){
+},{"./selected-collection.js":47,"./source-list.js":48,"./ui.js":49,"redux":20}],46:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29229,7 +29198,7 @@ var loadedManifest = exports.loadedManifest = function loadedManifest() {
   }
 };
 
-},{"../actions/loaded-manifest.js":25}],46:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29321,7 +29290,7 @@ var selectedCollection = exports.selectedCollection = function selectedCollectio
   }
 };
 
-},{"../actions/selected-collection.js":26}],47:[function(require,module,exports){
+},{"../actions/selected-collection.js":26}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29349,7 +29318,7 @@ var sourceList = exports.sourceList = function sourceList() {
   }
 };
 
-},{"../actions/source-list.js":27}],48:[function(require,module,exports){
+},{"../actions/source-list.js":27}],49:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29412,7 +29381,7 @@ var ui = exports.ui = function ui() {
   }
 };
 
-},{"../actions/ui.js":28}],49:[function(require,module,exports){
+},{"../actions/ui.js":28}],50:[function(require,module,exports){
 'use strict';
 
 var _redux = require('redux');
@@ -29449,21 +29418,17 @@ var _sourceList2 = _interopRequireDefault(_sourceList);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var $ = require('jquery');
+// Imports
+
+
+// Reducers
+var $ = require('jquery'); // Redux
+
 window.$ = window.jQuery = $;
 require('./vendor/jquery.unveil.js');
 require('leaflet');
 require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
-
-// Redux
-
-
-// Reducers
-
-
-// Imports
-
 
 // Create the store for the application - hook up redux devtools
 /* eslint-disable no-underscore-dangle */
@@ -29482,7 +29447,7 @@ var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, wind
 (0, _makeManifestModal.makeManifestInit)(store, manifestStore);
 (0, _lightbox.lightboxInit)(store, manifestStore);
 
-},{"./components/classify-tools.js":29,"./components/derived-manifests.js":30,"./components/help.js":31,"./components/input.js":33,"./components/lightbox.js":34,"./components/make-manifest-modal.js":35,"./components/selection.js":36,"./components/source-list.js":37,"./components/thumbs.js":39,"./components/workspace.js":40,"./reducers/index.js":44,"./reducers/loaded-manifest.js":45,"./vendor/jquery.unveil.js":50,"./vendor/leaflet-iiif.js":51,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],50:[function(require,module,exports){
+},{"./components/classify-tools.js":29,"./components/derived-manifests.js":30,"./components/help.js":31,"./components/input.js":33,"./components/lightbox.js":34,"./components/make-manifest-modal.js":35,"./components/selection.js":36,"./components/source-list.js":37,"./components/thumbs.js":39,"./components/workspace.js":40,"./reducers/index.js":45,"./reducers/loaded-manifest.js":46,"./vendor/jquery.unveil.js":51,"./vendor/leaflet-iiif.js":52,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],51:[function(require,module,exports){
 "use strict";
 
 /**
@@ -29540,7 +29505,7 @@ var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, wind
   };
 })(window.jQuery || window.Zepto);
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -29783,4 +29748,4 @@ L.tileLayer.iiif = function (url, options) {
   return new L.TileLayer.Iiif(url, options);
 };
 
-},{}]},{},[49]);
+},{}]},{},[50]);
