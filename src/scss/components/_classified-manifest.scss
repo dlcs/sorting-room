@@ -20,8 +20,17 @@
   &__title {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0;
+    margin: 5px 0 0;
     white-space: nowrap;
+
+    /*
+    &:hover {
+      span {
+        border: 2px dotted lighten($black, 90%);
+        margin: 0 0 0 -10px;
+        outline: 0;
+      }
+    }*/
   }
 
   &__title-text {
@@ -67,6 +76,8 @@
   }
 
   &__num {
+    font-size: .9rem;
+    margin-bottom: 0;
     margin-top: 0;
   }
 

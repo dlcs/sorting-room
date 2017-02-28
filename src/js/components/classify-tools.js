@@ -28,6 +28,7 @@ const DOM = {
     DOM.$classifyProgress = $(`.${classNamespace}__progress-bar`);
     DOM.$classifyNumSets = $(`.${classNamespace}__num-sets`);
     DOM.$classifyTitle = $('.classify-tools__title');
+    DOM.$classifySubtitle = $('.classify-tools__sub-title');
     DOM.$savedProgress = $('.saved__progress-bar');
     DOM.$viewer = $('.viewer');
   },
@@ -43,6 +44,7 @@ const Events = {
   init() {
     DOM.$classifyNumSets.click(Events.numSetsClick);
     DOM.$classifyTitle.on('click', 'a', Events.titleClick);
+    DOM.$classifySubtitle.on('click', 'a', Events.titleClick);
   },
   manifestStoreSubscribe() {
     const manifestState = manifestStore.getState();
@@ -54,8 +56,8 @@ const Events = {
     if (hasPropertyChanged('derivedManifestsComplete', manifestState, lastManifestState)) {
       if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
         DOM.$classifyNumSets.show();
-        DOM.$classifyNumSets.html(`${manifestState.derivedManifestsComplete.length} complete
-          ${getTerm('derivedManifest', manifestState.allImages.length)}`);
+        DOM.$classifyNumSets.html(`${manifestState.derivedManifestsComplete.length}
+          ${getTerm('derivedManifest', manifestState.derivedManifestsComplete.length)}`);
       } else {
         DOM.$classifyNumSets.hide();
       }
@@ -63,6 +65,8 @@ const Events = {
     if (hasPropertyChanged('manifestData', manifestState, lastManifestState)) {
       DOM.$classifyTitle.html(`<a class="classify-tools__link" href="#">
       ${manifestState.manifestData.metadata[0].value}</a>`);
+      DOM.$classifySubtitle.html(`<a href="#"
+      class="classify-tools__back">< Back to select items</a>`);
     }
     if (hasPropertyChanged('classifiedCanvases', manifestState, lastManifestState)) {
       // console.log('classifiedCanvases changed', derivedState, lastLocalState);

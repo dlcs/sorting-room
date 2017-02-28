@@ -13,6 +13,10 @@ $highlight: #FFFED5;
 $highlighted: #FFFE75;
 $help: #424242;
 $cancel: #c73535;
+$cancel-hover: darken($cancel, 10%);
+
+$link: darken($selected, 20%);
+$link-hover: darken($selected, 10%);
 
 $primary: #104E8B;
 $black90: rgba(0, 0, 0, .9);

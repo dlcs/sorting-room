@@ -1,9 +1,9 @@
 .thumb-size {
   box-sizing: border-box;
   display: none;
-  height: 60px;
+  height: 58px;
   margin-right: 20px;
-  padding-top: 10px;
+  padding-top: 9px;
   vertical-align: top;
 
   .manifest-loaded & {
@@ -13,7 +13,9 @@
   &__label {
     color: $white;
     display: inline-block;
-    font-size: 1rem;
+    font-size: .9rem;
+    margin-right: 5px;
+    margin-top: 1px;
     vertical-align: middle;
   }
 
@@ -39,8 +41,10 @@
       width: 22px;
     }
 
+    &:focus,
     &:hover {
       background-color: $highlight;
+      outline: 0;
     }
 
     &--active,

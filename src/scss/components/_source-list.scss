@@ -23,8 +23,8 @@
 
   &__image-container {
     float: left;
-    margin-right: 20px;
-    width: 50px;
+    margin-right: 0;
+    width: 44px;
 
     img {
       width: 100%;
@@ -51,7 +51,8 @@
     }
 
     p {
-      margin: .5rem 0;
+      font-size: .9rem;
+      margin: .3rem 0 .8rem;
     }
   }
 
@@ -59,19 +60,21 @@
     padding: 0 20px;
 
     h3 {
+      font-weight: normal;
       margin: 0;
     }
 
     p {
-      margin: .5rem 0;
+      font-size: .9rem;
+      margin: .3rem 0 .8rem;
     }
   }
 
   &__progress {
-    padding: 0 20px;
+    padding: 10px 20px;
   }
 
   &__progress-bar {
-    height: 20px;
+    height: 16px;
   }
 }

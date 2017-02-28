@@ -26713,6 +26713,7 @@ var DOM = {
     DOM.$classifyProgress = $('.' + classNamespace + '__progress-bar');
     DOM.$classifyNumSets = $('.' + classNamespace + '__num-sets');
     DOM.$classifyTitle = $('.classify-tools__title');
+    DOM.$classifySubtitle = $('.classify-tools__sub-title');
     DOM.$savedProgress = $('.saved__progress-bar');
     DOM.$viewer = $('.viewer');
   }
@@ -26728,6 +26729,7 @@ var Events = {
   init: function init() {
     DOM.$classifyNumSets.click(Events.numSetsClick);
     DOM.$classifyTitle.on('click', 'a', Events.titleClick);
+    DOM.$classifySubtitle.on('click', 'a', Events.titleClick);
   },
   manifestStoreSubscribe: function manifestStoreSubscribe() {
     var manifestState = manifestStore.getState();
@@ -26738,13 +26740,14 @@ var Events = {
     if ((0, _helpers.hasPropertyChanged)('derivedManifestsComplete', manifestState, lastManifestState)) {
       if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
         DOM.$classifyNumSets.show();
-        DOM.$classifyNumSets.html(manifestState.derivedManifestsComplete.length + ' complete\n          ' + (0, _terms.getTerm)('derivedManifest', manifestState.allImages.length));
+        DOM.$classifyNumSets.html(manifestState.derivedManifestsComplete.length + '\n          ' + (0, _terms.getTerm)('derivedManifest', manifestState.derivedManifestsComplete.length));
       } else {
         DOM.$classifyNumSets.hide();
       }
     }
     if ((0, _helpers.hasPropertyChanged)('manifestData', manifestState, lastManifestState)) {
       DOM.$classifyTitle.html('<a class="classify-tools__link" href="#">\n      ' + manifestState.manifestData.metadata[0].value + '</a>');
+      DOM.$classifySubtitle.html('<a href="#"\n      class="classify-tools__back">< Back to select items</a>');
     }
     if ((0, _helpers.hasPropertyChanged)('classifiedCanvases', manifestState, lastManifestState)) {
       // console.log('classifiedCanvases changed', derivedState, lastLocalState);
@@ -26850,7 +26853,7 @@ var buildClassified = function buildClassified(derivedManifestList) {
       for (var i = 0; i < derivedManifestList.members.length; i++) {
         var manifest = derivedManifestList.members[i];
         var label = manifest.label || manifest['@id'];
-        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__front">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest['@id'] + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
+        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <div class="classified-manifest__front">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest['@id'] + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
       }
     }
   }
@@ -26929,6 +26932,12 @@ var cancelEdits = function cancelEdits() {
 };
 
 var Events = {
+  bodyClick: function bodyClick(e) {
+    if (e.target.className !== 'classified-manifest__title-edit' && e.target.className !== 'classified-manifest__title-save' && e.target.className !== 'material-icons') {
+      cancelEdits(true);
+      $('body').off('click', Events.bodyClick);
+    }
+  },
   domReady: function domReady() {
     DOM.init();
     Events.init();
@@ -26946,6 +26955,7 @@ var Events = {
     lastTitleText = $editableText.text();
     $editableText.attr('contenteditable', 'true');
     $editableText.focus();
+    $('body').click(Events.bodyClick);
   },
   editTitleKeypress: function editTitleKeypress(e) {
     if (e.key === 'Enter') {
@@ -26954,9 +26964,12 @@ var Events = {
     }
   },
   init: function init() {
-    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-edit', Events.editTitleClick);
+    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-edit, .classified-manifest__title-text', Events.editTitleClick);
     DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
     DOM.$classifiedMaterial.on('keypress', '.classified-manifest__title--edit .classified-manifest__title-text', Events.editTitleKeypress);
+    DOM.$classifiedMaterial.on('click', '.classified-manifest', function (e) {
+      return e.stopPropagation();
+    });
   },
   postError: function postError(xhr, textStatus, error) {
     alert(error);
@@ -26982,7 +26995,7 @@ var Events = {
   },
   requestDerivedManifestsSuccess: function requestDerivedManifestsSuccess(collection) {
     // IIIF.wrap(collection);
-    console.log('Request derived manifests success', collection);
+    // console.log('Request derived manifests success', collection);
     manifestStore.dispatch((0, _loadedManifest.setDerivedManifests)(collection));
     // console.log('RDMS', collection);
     var promises = [];
@@ -26994,7 +27007,7 @@ var Events = {
       var _loop = function _loop() {
         var dm = _step2.value;
 
-        console.log('dm', dm);
+        // console.log('dm', dm);
         promises.push(new Promise(function (resolve, reject) {
           $.getJSON(dm['@id']).done(resolve).fail(reject);
         }));
@@ -27039,7 +27052,7 @@ var Events = {
               var canvas = _step4.value;
 
               if (canvas.images.length) {
-                console.log(canvas.images[0].on);
+                // console.log(canvas.images[0].on);
                 classifiedCanvases.add(canvas.images[0].on);
               }
               // classifiedManifest.add(canvas.images[0].on);
@@ -27048,6 +27061,7 @@ var Events = {
                id: manifest['@id'],
                imageSet: classifiedManifest,
               });*/
+            // console.log(manifest);
           } catch (err) {
             _didIteratorError4 = true;
             _iteratorError4 = err;
@@ -27063,7 +27077,6 @@ var Events = {
             }
           }
 
-          console.log(manifest);
           classifiedManifests.push(manifest);
         }
       } catch (err) {
@@ -27083,9 +27096,9 @@ var Events = {
 
       manifestStore.dispatch((0, _loadedManifest.setClassifiedCanvases)(classifiedCanvases));
       manifestStore.dispatch((0, _loadedManifest.setDerivedManifestsComplete)(classifiedManifests));
-      console.log($('html'));
+      // console.log($('html'));
       $('html').addClass('dm-loaded manifest-loaded');
-      console.log($('html'));
+      // console.log($('html'));
       (0, _thumbs.updateThumbsWithStatus)();
     }, function (reason) {
       console.log('Promise fail', reason);
@@ -27141,12 +27154,13 @@ var Events = {
       // Cancel edit
       cancelEdits(true);
     }
+    $('body').off('click', Events.bodyClick);
   },
   subscribeActions: function subscribeActions() {
     var derivedState = manifestStore.getState();
     // console.log('DM - subscribe', lastLocalState, derivedState);
     if ((0, _helpers.hasPropertyChanged)('derivedManifests', derivedState, lastLocalState)) {
-      console.log('DM - changed', derivedState);
+      // console.log('DM - changed', derivedState);
       if (derivedState.derivedManifests.length) {
         var derivedManifestList = derivedState.derivedManifests;
         buildClassified(derivedManifestList);
@@ -27224,8 +27238,10 @@ var Events = {
     var state = store.getState().ui;
     if ((0, _helpers.hasPropertyChanged)('helpVisible', state, lastState)) {
       if (state.helpVisible) {
+        DOM.$helpButton.addClass('help-button--active');
         DOM.$helpText.addClass('help--active');
       } else {
+        DOM.$helpButton.removeClass('help-button--active');
         DOM.$helpText.removeClass('help--active');
       }
     }
@@ -27490,9 +27506,11 @@ var createDeepZoomViewer = function createDeepZoomViewer() {
   map = _leaflet2.default.map('map', {
     center: [0, 0],
     crs: _leaflet2.default.CRS.Simple,
-    zoom: 2
+    zoom: 3
   }).on('layeradd', function (e) {
-    e.target.setZoom(3);
+    setTimeout(function () {
+      e.target.setZoom(3);
+    }, 1000);
     // e.target.panTo(center);
   });
 
@@ -27507,10 +27525,15 @@ var destroyDeepZoomViewer = function destroyDeepZoomViewer() {
   }
 };
 
+var zoomInButtonText = '<i class="material-icons">zoom_in</i> Zoom in';
+var zoomOutButtonText = '<i class="material-icons">zoom_out</i> Zoom out';
+
 var deepZoomToggle = function deepZoomToggle() {
   if ($('#map').length) {
+    $(this).removeClass('zoom-toolbar__zoom-button--active').html(zoomInButtonText);
     destroyDeepZoomViewer();
   } else {
+    $(this).addClass('zoom-toolbar__zoom-button--active').html(zoomOutButtonText);
     createDeepZoomViewer();
   }
 };
@@ -27541,9 +27564,9 @@ var collectionNameChange = function collectionNameChange(e) {
 var createPopupToolbar = function createPopupToolbar() {
   var collectionName = store.getState().selectedCollection.collectionName !== null ? store.getState().selectedCollection.collectionName : '';
   var isSelected = isIndexInSelection(store.getState().ui.lightbox.currentImage.idx) ? ' zoom-toolbar--selected' : '';
-  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name" style="display:none">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Zoom</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
+  var $toolbar = $('\n    <ul class="zoom-toolbar' + isSelected + '">\n      <li class="zoom-toolbar__item zoom-toolbar__collection-name" style="display:none">\n        <input id="collection-name" type="text"\n        value="' + collectionName + '" placeholder="Name your collection" />\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__zoom-button">\n        <i class="material-icons">zoom_in</i> Zoom in</button>\n      </li>\n      <li class="zoom-toolbar__item">\n        <button class="btn zoom-toolbar__select-button">\n          <span class="zoom-toolbar__zoom-button-add">\n          <i class="material-icons">add_circle</i> Add to selection</span>\n          <span class="zoom-toolbar__zoom-button-remove">\n          <i class="material-icons">remove_circle</i> Remove from selection</span>\n        </button>\n      </li>\n    </ul>\n  ');
 
-  $('.mfp-with-zoom').addClass('mfp-toolbar').append($toolbar);
+  $('.mfp-gallery').addClass('mfp-toolbar').append($toolbar);
   $('.zoom-toolbar__collection-name input').keyup(collectionNameChange);
   // console.log($('#collection-name'));
   $('.zoom-toolbar').click(function (e) {
@@ -28638,7 +28661,7 @@ function getIdentifier(loadedResource, start, end) {
 }
 
 SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, start, end) {
-  return getPath(loadedResource).replace(/\//g, ' ') + 'canvases' + start + '-' + end;
+  return getPath(loadedResource).replace(/\//g, ' ') + ' canvases ' + start + '-' + end;
 };
 
 SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {

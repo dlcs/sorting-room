@@ -32,8 +32,10 @@ const Events = {
     const state = store.getState().ui;
     if (hasPropertyChanged('helpVisible', state, lastState)) {
       if (state.helpVisible) {
+        DOM.$helpButton.addClass('help-button--active');
         DOM.$helpText.addClass('help--active');
       } else {
+        DOM.$helpButton.removeClass('help-button--active');
         DOM.$helpText.removeClass('help--active');
       }
     }

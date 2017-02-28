@@ -55,16 +55,6 @@ const buildClassified = (derivedManifestList) => {
         const label = manifest.label || manifest['@id'];
         DOM.$classifiedMaterial.append(`
           <div class="classified-manifest" data-id="${manifest['@id']}">
-            <h2 class="classified-manifest__title">
-              <span class="classified-manifest__title-text">${label}</span>
-              <button class="classified-manifest__title-edit" title="Edit label">
-                <i class="material-icons">mode_edit</i>
-              </button>
-              <button class="classified-manifest__title-save" title="Save label">
-                <i class="material-icons">save</i>
-              </button>
-            </h2>
-            <p class="classified-manifest__num">{x} images</p>
             <div class="classified-manifest__front">
               <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
@@ -77,6 +67,16 @@ const buildClassified = (derivedManifestList) => {
               <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
+            <h2 class="classified-manifest__title">
+              <span class="classified-manifest__title-text">${label}</span>
+              <button class="classified-manifest__title-edit" title="Edit label">
+                <i class="material-icons">mode_edit</i>
+              </button>
+              <button class="classified-manifest__title-save" title="Save label">
+                <i class="material-icons">save</i>
+              </button>
+            </h2>
+            <p class="classified-manifest__num">{x} images</p>
             <div class="classified-manifest__actions">
               <a class="btn" href="http://universalviewer.io/?manifest=${manifest['@id']}" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>
             </div>
@@ -139,6 +139,16 @@ const cancelEdits = (resetText = false) => {
 };
 
 const Events = {
+  bodyClick(e) {
+    if (
+      e.target.className !== 'classified-manifest__title-edit' &&
+      e.target.className !== 'classified-manifest__title-save' &&
+      e.target.className !== 'material-icons'
+    ) {
+      cancelEdits(true);
+      $('body').off('click', Events.bodyClick);
+    }
+  },
   domReady() {
     DOM.init();
     Events.init();
@@ -156,6 +166,7 @@ const Events = {
     lastTitleText = $editableText.text();
     $editableText.attr('contenteditable', 'true');
     $editableText.focus();
+    $('body').click(Events.bodyClick);
   },
   editTitleKeypress(e) {
     if (e.key === 'Enter') {
@@ -165,12 +176,15 @@ const Events = {
     }
   },
   init() {
-    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-edit', Events.editTitleClick);
+    DOM.$classifiedMaterial.on('click',
+    '.classified-manifest__title-edit, .classified-manifest__title-text',
+    Events.editTitleClick);
     DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
     DOM.$classifiedMaterial.on('keypress',
     '.classified-manifest__title--edit .classified-manifest__title-text',
     Events.editTitleKeypress
     );
+    DOM.$classifiedMaterial.on('click', '.classified-manifest', (e) => e.stopPropagation());
   },
   postError(xhr, textStatus, error) {
     alert(error);
@@ -201,12 +215,12 @@ const Events = {
   },
   requestDerivedManifestsSuccess(collection) {
     // IIIF.wrap(collection);
-    console.log('Request derived manifests success', collection);
+    // console.log('Request derived manifests success', collection);
     manifestStore.dispatch(setDerivedManifests(collection));
     // console.log('RDMS', collection);
     const promises = [];
     for (const dm of collection.members) {
-      console.log('dm', dm);
+      // console.log('dm', dm);
       promises.push(new Promise((resolve, reject) => {
         $.getJSON(dm['@id'])
         .done(resolve)
@@ -220,7 +234,7 @@ const Events = {
         // const classifiedManifest = new Set();
         for (const canvas of manifest.sequences[0].canvases) {
           if (canvas.images.length) {
-            console.log(canvas.images[0].on);
+            // console.log(canvas.images[0].on);
             classifiedCanvases.add(canvas.images[0].on);
           }
           // classifiedManifest.add(canvas.images[0].on);
@@ -229,14 +243,14 @@ const Events = {
           id: manifest['@id'],
           imageSet: classifiedManifest,
         });*/
-        console.log(manifest);
+        // console.log(manifest);
         classifiedManifests.push(manifest);
       }
       manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
       manifestStore.dispatch(setDerivedManifestsComplete(classifiedManifests));
-      console.log($('html'));
+      // console.log($('html'));
       $('html').addClass('dm-loaded manifest-loaded');
-      console.log($('html'));
+      // console.log($('html'));
       updateThumbsWithStatus();
     }, reason => {
       console.log('Promise fail', reason);
@@ -270,12 +284,13 @@ const Events = {
       // Cancel edit
       cancelEdits(true);
     }
+    $('body').off('click', Events.bodyClick);
   },
   subscribeActions() {
     const derivedState = manifestStore.getState();
     // console.log('DM - subscribe', lastLocalState, derivedState);
     if (hasPropertyChanged('derivedManifests', derivedState, lastLocalState)) {
-      console.log('DM - changed', derivedState);
+      // console.log('DM - changed', derivedState);
       if (derivedState.derivedManifests.length) {
         const derivedManifestList = derivedState.derivedManifests;
         buildClassified(derivedManifestList);

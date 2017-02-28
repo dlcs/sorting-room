@@ -23,9 +23,11 @@ const createDeepZoomViewer = () => {
   map = L.map('map', {
     center: [0, 0],
     crs: L.CRS.Simple,
-    zoom: 2,
+    zoom: 3,
   }).on('layeradd', (e) => {
-    e.target.setZoom(3);
+    setTimeout(() => {
+      e.target.setZoom(3);
+    }, 1000);
     // e.target.panTo(center);
   });
 
@@ -40,10 +42,15 @@ const destroyDeepZoomViewer = () => {
   }
 };
 
-const deepZoomToggle = () => {
+const zoomInButtonText = '<i class="material-icons">zoom_in</i> Zoom in';
+const zoomOutButtonText = '<i class="material-icons">zoom_out</i> Zoom out';
+
+const deepZoomToggle = function () {
   if ($('#map').length) {
+    $(this).removeClass('zoom-toolbar__zoom-button--active').html(zoomInButtonText);
     destroyDeepZoomViewer();
   } else {
+    $(this).addClass('zoom-toolbar__zoom-button--active').html(zoomOutButtonText);
     createDeepZoomViewer();
   }
 };
@@ -85,7 +92,7 @@ const createPopupToolbar = () => {
       </li>
       <li class="zoom-toolbar__item">
         <button class="btn zoom-toolbar__zoom-button">
-        <i class="material-icons">zoom_in</i> Zoom</button>
+        <i class="material-icons">zoom_in</i> Zoom in</button>
       </li>
       <li class="zoom-toolbar__item">
         <button class="btn zoom-toolbar__select-button">
@@ -98,7 +105,7 @@ const createPopupToolbar = () => {
     </ul>
   `);
 
-  $('.mfp-with-zoom').addClass('mfp-toolbar').append($toolbar);
+  $('.mfp-gallery').addClass('mfp-toolbar').append($toolbar);
   $('.zoom-toolbar__collection-name input').keyup(collectionNameChange);
   // console.log($('#collection-name'));
   $('.zoom-toolbar').click((e) => { e.stopPropagation(); });

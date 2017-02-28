@@ -23,7 +23,7 @@ function getIdentifier(loadedResource, start, end) {
 }
 
 SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, start, end) {
-  return `${getPath(loadedResource).replace(/\//g, ' ')}canvases${start}-${end}`;
+  return `${getPath(loadedResource).replace(/\//g, ' ')} canvases ${start}-${end}`;
 };
 
 SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {
