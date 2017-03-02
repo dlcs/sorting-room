@@ -1,6 +1,6 @@
 .loading-manifest {
-  overflow: hidden;
   max-height: 100vh;
+  overflow: hidden;
 }
 
 .workspace {
@@ -89,26 +89,5 @@
 
   &--saved &__saved {
     display: block;
-  }
-}
-
-
-.reel {
-  background: rgba(0, 0, 0, .8);
-  //border-bottom: 3px dashed $white;
-  //border-top: 3px dashed $white;
-  height: 90px;
-  list-style: none;
-  outline: 5px solid rgba(0, 0, 0, .8);
-  padding: 10px;
-  width: 100%;
-
-  &__item {
-    background: rgba(255, 255, 255, .8);
-    border-radius: 5px;
-    display: inline-block;
-    height: 100%;
-    margin: 0 5px;
-    width: 100px;
   }
 }

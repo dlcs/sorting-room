@@ -28643,7 +28643,7 @@ var SortyConfiguration = exports.SortyConfiguration = {};
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
 var presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
 
-SortyConfiguration.sourceCollection = 'http://sorty.dlcs-ida.org/rollcollection';
+SortyConfiguration.sourceCollection = 'https://sorty.dlcs-ida.org/rollcollection';
 SortyConfiguration.mintCanvasIds = false;
 
 function getPath(url) {

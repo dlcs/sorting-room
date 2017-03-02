@@ -91,8 +91,8 @@
               <div class="viewer viewer--add">
                 <div class="classify-tools classify-tools--no-selection">
                   <div class="classify-tools__title-block">
-                    <h3 class="classify-tools__title"></h3>
-                    <h4 class="classify-tools__sub-title"></h4>
+                    <h3 class="classify-tools__title">Unit title</h3>
+                    <h4 class="classify-tools__sub-title">Unit subtitle</h4>
                   </div>
                   <div class="classify-tools__progress">
                     <div class="classify-tools__no-selection">
@@ -100,7 +100,7 @@
                     </div>
                     <div class="classify-tools__selection">
                       <span class="classify-tools__feedback">{x} selected</span> 
-                      <a class="classify-tools__clear" href="#clear">Clear</a> 
+                      <a class="classify-tools__clear" href="#">Clear</a> 
                     </div>
                     <span class="classify-tools__num-images">{x} images</span> 
                     <progress class="classify-tools__progress-bar" value="0" max="100"></progress>
@@ -148,7 +148,8 @@
     </div>
     <div id="manifestmodal" class="manifest-modal mfp-hide">
       <h1>Give your set a label?</h1>
-      <input class="manifest-modal__input" type="text" placeholder="Set label" value="" />
+      <label class="vh" for="manifestLabel">Set label</label>
+      <input class="manifest-modal__input" id="manifestLabel" name="manifestLabel" type="text" placeholder="Set label" value="" />
       <p class="manifest-modal__saving">Saving your set
         <i class="loading"><span></span> </i>
       </p>

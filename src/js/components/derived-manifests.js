@@ -55,15 +55,15 @@ const buildClassified = (derivedManifestList) => {
         const label = manifest.label || manifest['@id'];
         DOM.$classifiedMaterial.append(`
           <div class="classified-manifest" data-id="${manifest['@id']}">
-            <div class="classified-manifest__front">
+            <div class="classified-manifest__front classified-manifest__front--placeholder">
               <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
-            <div class="classified-manifest__second">
+            <div class="classified-manifest__second classified-manifest__second--placeholder">
               <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
-            <div class="classified-manifest__third">
+            <div class="classified-manifest__third classified-manifest__third--placeholder">
               <img src="${placeholder}" \
               height="${preferredHeight}" width="${preferredWidth}" />
             </div>
@@ -113,17 +113,17 @@ const updateArchivalUnits = function () {
 
     if (canvases.length > 0 && canvases[0].images.length) {
       const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
-      $cmImgFront.attr('src', imgSrcFront);
+      $cmImgFront.attr('src', imgSrcFront).removeClass('classified-manifest__front--placeholder');
     }
     if (canvases.length > 1 && canvases[1].images.length) {
       const imgSrcSecond = $(`.thumb[data-uri='${canvases[1].images[0].on}']`).attr('data-src');
-      $cmImgSecond.attr('src', imgSrcSecond);
+      $cmImgSecond.attr('src', imgSrcSecond).removeClass('classified-manifest__front--placeholder');
     } else {
       $cmImgSecond.hide();
     }
     if (canvases.length > 2 && canvases[2].images.length) {
       const imgSrcThird = $(`.thumb[data-uri='${canvases[2].images[0].on}']`).attr('data-src');
-      $cmImgThird.attr('src', imgSrcThird);
+      $cmImgThird.attr('src', imgSrcThird).removeClass('classified-manifest__front--placeholder');
     } else {
       $cmImgThird.hide();
     }
