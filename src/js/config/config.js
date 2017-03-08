@@ -5,6 +5,13 @@ export const SortyConfiguration = {};
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
 const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
 
+// Omeka configuration options for derived manifests
+SortyConfiguration.enableOmekaImport = true;
+SortyConfiguration.omekaImportEndpoint = 'http://localhost:8888/api/iiif-import';
+
+// Delete configuration options for derived manifests
+SortyConfiguration.enableDelete = true;
+
 SortyConfiguration.sourceCollection = 'https://sorty.dlcs-ida.org/rollcollection';
 SortyConfiguration.mintCanvasIds = false;
 

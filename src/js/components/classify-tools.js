@@ -54,11 +54,17 @@ const Events = {
         ${getTerm('image', manifestState.allImages.length)}`);
     }
     if (hasPropertyChanged('derivedManifestsComplete', manifestState, lastManifestState)) {
-      if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
+      // If there are derived manifests update the count
+      if (typeof manifestState.derivedManifestsComplete.length !== 'undefined'
+      && manifestState.derivedManifestsComplete.length) {
         DOM.$classifyNumSets.show();
         DOM.$classifyNumSets.html(`${manifestState.derivedManifestsComplete.length}
           ${getTerm('derivedManifest', manifestState.derivedManifestsComplete.length)}`);
       } else {
+        // Reset the number of sets
+        DOM.$classifyNumSets.html(`0 ${getTerm('derivedManifest', 0)}`);
+
+        // Hide the number of sets
         DOM.$classifyNumSets.hide();
       }
     }

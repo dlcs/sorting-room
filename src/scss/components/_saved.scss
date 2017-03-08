@@ -17,12 +17,18 @@
 
   &__feedback {
     font-size: 1.2rem;
+    max-width: none !important;
+    min-height: 64px;
+    padding-left: 80px;
+    padding-top: 14px;
+    position: relative;
 
     i {
       font-size: 4rem;
       font-weight: bold;
+      left: 0;
       margin-right: .5rem;
-      position: relative;
+      position: absolute;
       top: -.2rem;
       vertical-align: middle;
     }

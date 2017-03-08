@@ -34,6 +34,11 @@ export const updateThumbsWithStatus = function () {
   // console.log('updateThumbsWithStatus');
   const classifiedThumbs = manifestStore.getState().classifiedCanvases;
   const $thumbs = $('.thumb');
+
+  // Wipe out any existing classified classes (may have been a delete)
+  $('.tc--classified').removeClass('tc--classified');
+
+  // Add the classified modifier to any that have been classified
   for (const thumbUri of classifiedThumbs.values()) {
     // console.log(thumbUri);
     $thumbs.filter(`.thumb[data-uri="${thumbUri}"]`).parent().addClass('tc--classified');

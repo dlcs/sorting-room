@@ -81,10 +81,6 @@
     margin-top: 0;
   }
 
-  &__actions {
-    padding-top: 40px;
-  }
-
   &__front,
   &__second,
   &__third {
@@ -152,4 +148,59 @@
       display: none;
     }
   }
+
+  &__actions {
+    padding-top: 18px;
+  }
+
+  &__actions-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__actions-item {
+    margin-bottom: 3px;
+
+    .material-icons {
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    a {
+      background-color: darken($white, 50%);
+      box-sizing: border-box;
+      color: $white;
+      display: block;
+      padding: 5px;
+      text-decoration: none;
+    }
+
+    .action__publish {
+      background-color: $publish;
+
+      &:hover {
+        background-color: darken($publish, 5%);
+      }
+    }
+
+    .action__view {
+      background-color: $link;
+
+      &:hover {
+        background-color: darken($link, 5%);
+      }
+    }
+
+    .action__delete {
+      background-color: $cancel;
+
+      &:hover {
+        background-color: darken($cancel, 5%);
+      }
+    }
+  }
+
+
+
 }

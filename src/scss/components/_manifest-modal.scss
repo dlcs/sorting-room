@@ -6,6 +6,13 @@
   position: relative;
   width: auto;
 
+  &__heading {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+    margin-top: 0;
+    max-width: 80%;
+  }
+
   &__input {
     width: 100%;
 
@@ -15,16 +22,19 @@
   }
 
   &__actions {
+    margin-bottom: 0;
     margin-top: 30px;
     overflow: hidden;
     padding: 5px 0;
     text-align: right;
 
+    .deleting-manifest &,
     .saving-manifest & {
       display: none;
     }
   }
 
+  &__delete,
   &__make {
     border: 2px solid $selected;
     float: right;
@@ -32,6 +42,17 @@
     min-width: 80px;
   }
 
+  &__delete {
+    background-color: $cancel;
+    border-color: $cancel;
+
+    &:hover {
+      background-color: darken($cancel, 10%);
+      border-color: darken($cancel, 10%);
+    }
+  }
+
+  &__deleting,
   &__saving {
     display: none;
     font-size: 1.1rem;
@@ -41,6 +62,7 @@
     padding: 5px 0;
     text-align: center;
 
+    .deleting-manifest &,
     .saving-manifest & {
       display: block;
     }
@@ -59,6 +81,7 @@
   }
 }
 
+.deleting,
 .loading {
   display: inline-block;
   margin-left: 10px;

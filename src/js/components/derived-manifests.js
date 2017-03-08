@@ -17,6 +17,7 @@ import {
 import { updateThumbsWithStatus } from './thumbs.js';
 import { IIIFActions } from './iiif-actions.js';
 import { getTerm } from '../config/terms.js';
+import { OmekaActions } from './omeka-actions.js';
 
 const $ = require('jquery');
 
@@ -28,15 +29,24 @@ let manifestStore = null;
 let lastLocalState = null;
 let lastTitleText = null;
 
-const DOM = {
-  $manifestSelector: null,
-  $classifiedMaterial: null,
-  $classifiedTitle: null,
+const Config = {
+  deleteManifestModalOptions: {
+    delegate: '.action__delete',
+    items: {
+      src: '#deleteManifestmodal',
+      type: 'inline',
+    },
+    modal: true,
+  },
+};
 
+const DOM = {
   init() {
-    DOM.$manifestSelector = $(manifestSelector);
     DOM.$classifiedMaterial = $('.classified-material');
     DOM.$classifiedTitle = $('.viewer__classified-title');
+    DOM.$deleteModalHeading = $('.manifest-modal--delete .manifest-modal__heading');
+    DOM.$deleteModalStatus = $('.manifest-modal--delete .manifest-modal__deleting-text');
+    DOM.$manifestSelector = $(manifestSelector);
   },
 };
 
@@ -53,6 +63,22 @@ const buildClassified = (derivedManifestList) => {
       for (let i = 0; i < derivedManifestList.members.length; i++) {
         const manifest = derivedManifestList.members[i];
         const label = manifest.label || manifest['@id'];
+
+        const publishToOmekaButton = SortyConfiguration.enableOmekaImport ?
+        `<li class="classified-manifest__actions-item">
+          <a href="#" class="action__publish">
+          <i class="material-icons">publish</i>Publish to Omeka
+          </a>
+        </li>` : '';
+
+        const deleteButton = SortyConfiguration.enableDelete ?
+        `<li class="classified-manifest__actions-item">
+          <a href="#" class="action__delete">
+          <i class="material-icons">delete_forever</i>Delete this
+          ${getTerm('derivedManifest', 1)}
+          </a>
+        </li>` : '';
+
         DOM.$classifiedMaterial.append(`
           <div class="classified-manifest" data-id="${manifest['@id']}">
             <div class="classified-manifest__front classified-manifest__front--placeholder">
@@ -78,7 +104,16 @@ const buildClassified = (derivedManifestList) => {
             </h2>
             <p class="classified-manifest__num">{x} images</p>
             <div class="classified-manifest__actions">
-              <a class="btn" href="http://universalviewer.io/?manifest=${manifest['@id']}" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>
+              <ul class="classified-manifest__actions-list">
+                ${publishToOmekaButton}
+                ${deleteButton}
+                <li class="classified-manifest__actions-item">
+                  <a href="http://universalviewer.io/?manifest=${manifest['@id']}"
+                  class="action__view" target="_blank">
+                  <i class="material-icons">open_in_new</i>View in the Universal Viewer
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>`);
       }
@@ -93,39 +128,45 @@ export const loadManifestPage = function loadManifestPage(manifestUrl) {
 const updateArchivalUnits = function () {
   const state = manifestStore.getState();
   // Make sure the list exists first
-  if (DOM.$classifiedMaterial.find('.classified-manifest').length <
-  state.derivedManifests.members.length) {
-    // console.log('need to build first');
-    buildClassified(state.derivedManifests);
-  }
-  DOM.$classifiedTitle.text(`${state.derivedManifestsComplete.length}
-    ${getTerm('derivedManifest', state.derivedManifestsComplete.length)}`);
-
-  for (const dm of state.derivedManifestsComplete) {
-    const id = dm['@id'];
-    const canvases = dm.sequences[0].canvases;
-    const $cmContainer = $(`.classified-manifest[data-id='${id}']`);
-    $cmContainer.find('.classified-manifest__num')
-    .text(`${canvases.length} images`);
-    const $cmImgFront = $cmContainer.find('.classified-manifest__front img');
-    const $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
-    const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
-
-    if (canvases.length > 0 && canvases[0].images.length) {
-      const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
-      $cmImgFront.attr('src', imgSrcFront).removeClass('classified-manifest__front--placeholder');
+  if (state.derivedManifestsComplete.length) {
+    if (DOM.$classifiedMaterial.find('.classified-manifest').length <
+    state.derivedManifests.members.length) {
+      // console.log('need to build first');
+      buildClassified(state.derivedManifests);
     }
-    if (canvases.length > 1 && canvases[1].images.length) {
-      const imgSrcSecond = $(`.thumb[data-uri='${canvases[1].images[0].on}']`).attr('data-src');
-      $cmImgSecond.attr('src', imgSrcSecond).removeClass('classified-manifest__front--placeholder');
-    } else {
-      $cmImgSecond.hide();
-    }
-    if (canvases.length > 2 && canvases[2].images.length) {
-      const imgSrcThird = $(`.thumb[data-uri='${canvases[2].images[0].on}']`).attr('data-src');
-      $cmImgThird.attr('src', imgSrcThird).removeClass('classified-manifest__front--placeholder');
-    } else {
-      $cmImgThird.hide();
+
+    DOM.$classifiedTitle.text(`${state.derivedManifestsComplete.length}
+      ${getTerm('derivedManifest', state.derivedManifestsComplete.length)}`);
+
+    for (const dm of state.derivedManifestsComplete) {
+      const id = dm['@id'];
+      const canvases = dm.sequences[0].canvases;
+      const $cmContainer = $(`.classified-manifest[data-id='${id}']`);
+      $cmContainer.find('.classified-manifest__num')
+      .text(`${canvases.length} images`);
+      const $cmImgFront = $cmContainer.find('.classified-manifest__front img');
+      const $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
+      const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
+
+      if (canvases.length > 0 && canvases[0].images.length) {
+        const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
+        $cmImgFront.attr('src', imgSrcFront)
+        .removeClass('classified-manifest__front--placeholder');
+      }
+      if (canvases.length > 1 && canvases[1].images.length) {
+        const imgSrcSecond = $(`.thumb[data-uri='${canvases[1].images[0].on}']`).attr('data-src');
+        $cmImgSecond.attr('src', imgSrcSecond)
+        .removeClass('classified-manifest__front--placeholder');
+      } else {
+        $cmImgSecond.hide();
+      }
+      if (canvases.length > 2 && canvases[2].images.length) {
+        const imgSrcThird = $(`.thumb[data-uri='${canvases[2].images[0].on}']`).attr('data-src');
+        $cmImgThird.attr('src', imgSrcThird)
+        .removeClass('classified-manifest__front--placeholder');
+      } else {
+        $cmImgThird.hide();
+      }
     }
   }
 };
@@ -149,8 +190,51 @@ const Events = {
       $('body').off('click', Events.bodyClick);
     }
   },
+  delete(e) {
+    e.preventDefault();
+    // Use a modal here - Are you sure you want to delete?
+    $.magnificPopup.open(Config.deleteManifestModalOptions);
+
+    // Grab manifest URL
+    const $container = $(this).closest('.classified-manifest');
+    const manifestId = $container.attr('data-id');
+
+    // Hook up delete button behaviour (remove any existing click events)
+    const $deleteButton = $('.manifest-modal__delete').off('click');
+    $deleteButton.click(() => {
+      // Show delete indicator
+      $('html').addClass('deleting-manifest');
+
+      $container.addClass('classified-manifest--deleting');
+
+      // Delete the manifest
+      IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
+    });
+  },
+  deleteError(xhr, textStatus, error) {
+    console.log('ERROR DELETING', error);
+    $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
+  },
+  deleteSuccess() {
+    // Hide delete indicator
+    $('html').removeClass('deleting-manifest');
+
+    // Kill the item stack
+    $('.classified-manifest--deleting').remove();
+
+    // Close the modal
+    $.magnificPopup.close();
+
+    // Fetch updated derived manifest data
+    Events.getCreatedManifests();
+  },
   domReady() {
     DOM.init();
+    // Set terms
+    DOM.$deleteModalHeading.html(`Are you sure you want to delete
+      this ${getTerm('derivedManifest', 0)}?`);
+    DOM.$deleteModalStatus.html(`Deleting ${getTerm('derivedManifest', 0)}`);
+
     Events.init();
   },
   editTitleClick() {
@@ -175,6 +259,15 @@ const Events = {
       .click();
     }
   },
+  getCreatedManifests() {
+    // get the container in presley
+    const collectionId = SortyConfiguration
+    .getCollectionUrl(manifestStore.getState().manifest);
+
+    $.getJSON(collectionId)
+        .done(Events.requestDerivedManifestsSuccess)
+        .fail(Events.requestDerivedManifestsFailure);
+  },
   init() {
     DOM.$classifiedMaterial.on('click',
     '.classified-manifest__title-edit, .classified-manifest__title-text',
@@ -185,6 +278,9 @@ const Events = {
     Events.editTitleKeypress
     );
     DOM.$classifiedMaterial.on('click', '.classified-manifest', (e) => e.stopPropagation());
+    DOM.$classifiedMaterial.on('click', '.action__publish', Events.publish);
+    DOM.$classifiedMaterial.on('click', '.action__delete', Events.delete);
+    // DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);
   },
   postError(xhr, textStatus, error) {
     alert(error);
@@ -192,6 +288,20 @@ const Events = {
   postSuccess() {
     cancelEdits();
     $('.classified-manifest--saving-label').removeClass('classified-manifest--saving-label');
+  },
+  publish(e) {
+    e.preventDefault();
+    console.log('PUBLISHING', this);
+    const $container = $(this).closest('.classified-manifest');
+    const manifestId = $container.attr('data-id');
+    OmekaActions.pushToOmeka(manifestId, Events.publishSuccess, Events.publishError);
+    // console.log(manifestId);
+  },
+  publishError(xhr, textStatus, error) {
+    alert(error);
+  },
+  publishSuccess() {
+    console.log('PUBLISH - SUCCESS');
   },
   putError(xhr, textStatus, error) {
     alert(error);
@@ -224,7 +334,14 @@ const Events = {
       promises.push(new Promise((resolve, reject) => {
         $.getJSON(dm['@id'])
         .done(resolve)
-        .fail(reject);
+        .fail((jqxhr, textStatus, error) => {
+          console.log(jqxhr, textStatus, error);
+          if (jqxhr.status === 404) {
+            resolve();
+          } else {
+            reject();
+          }
+        });
       }));
     }
     const classifiedCanvases = new Set();
@@ -232,19 +349,22 @@ const Events = {
     Promise.all(promises).then(values => {
       for (const manifest of values) {
         // const classifiedManifest = new Set();
-        for (const canvas of manifest.sequences[0].canvases) {
-          if (canvas.images.length) {
-            // console.log(canvas.images[0].on);
-            classifiedCanvases.add(canvas.images[0].on);
+        if (typeof manifest !== 'undefined' && manifest !== null) {
+          for (const canvas of manifest.sequences[0].canvases) {
+            if (canvas.images.length) {
+              // console.log(canvas.images[0].on);
+              classifiedCanvases.add(canvas.images[0].on);
+            }
+            // classifiedManifest.add(canvas.images[0].on);
           }
-          // classifiedManifest.add(canvas.images[0].on);
-        }/*
-        classifiedManifests.push({
-          id: manifest['@id'],
-          imageSet: classifiedManifest,
-        });*/
-        // console.log(manifest);
-        classifiedManifests.push(manifest);
+          /*
+          classifiedManifests.push({
+            id: manifest['@id'],
+            imageSet: classifiedManifest,
+          });*/
+          // console.log(manifest);
+          classifiedManifests.push(manifest);
+        }
       }
       manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
       manifestStore.dispatch(setDerivedManifestsComplete(classifiedManifests));
@@ -310,15 +430,7 @@ const Events = {
   },
 };
 
-export const getCreatedManifests = function getCreatedManifests() {
-  // get the container in presley
-  const collectionId = SortyConfiguration
-  .getCollectionUrl(manifestStore.getState().manifest);
-
-  $.getJSON(collectionId)
-      .done(Events.requestDerivedManifestsSuccess)
-      .fail(Events.requestDerivedManifestsFailure);
-};
+export const getCreatedManifests = Events.getCreatedManifests;
 
 $(document).ready(Events.domReady);
 

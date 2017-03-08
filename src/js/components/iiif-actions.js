@@ -18,13 +18,21 @@ IIIFActions.postManifest = (manifest, url, success, error) => {
 };
 
 IIIFActions.putManifest = (manifest, success, error) => {
-  console.log(manifest);
   $.ajax({
     url: manifest['@id'],
     type: 'PUT',
     contentType: 'application/json; charset=utf-8',
     data: JSON.stringify(manifest),
     dataType: 'json',
+    error,
+    success,
+  });
+};
+
+IIIFActions.deleteManifest = (uri, success, error) => {
+  $.ajax({
+    url: uri,
+    type: 'DELETE',
     error,
     success,
   });

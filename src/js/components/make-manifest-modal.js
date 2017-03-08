@@ -2,6 +2,9 @@
 import {
   SortyConfiguration,
 } from '../config/config.js';
+import {
+  getTerm,
+} from '../config/terms.js';
 
 // IIIF helpers
 import {
@@ -26,7 +29,9 @@ import {
   switchView,
 } from '../components/workspace.js';
 
-import { resetDerivedManifests } from '../actions/loaded-manifest.js';
+import {
+  resetDerivedManifests,
+} from '../actions/loaded-manifest.js';
 
 const $ = require('jquery');
 
@@ -34,21 +39,18 @@ let store = null;
 let manifestStore = null;
 
 const DOM = {
-  $makeManifestButton: null,
-  $manifestModalInput: null,
-  $modalCancel: null,
-  $modalMakeManifest: null,
-  $html: null,
   init() {
+    DOM.$html = $('html');
     DOM.$makeManifestButton = $('.classify-tools__make');
+    DOM.$manifestModalHeading = $('.manifest-modal--make .manifest-modal__heading');
     DOM.$manifestModalInput = $('.manifest-modal__input');
+    DOM.$manifestModalSavingText = $('.manifest-modal__saving-text');
     DOM.$modalCancel = $('.manifest-modal__dismiss');
     DOM.$modalMakeManifest = $('.manifest-modal__make');
-    DOM.$viewer = $('.viewer');
-    DOM.$savedFeedback = $('.saved__feedback');
     DOM.$savedCollection = $('.saved__collection');
+    DOM.$savedFeedback = $('.saved__feedback');
     DOM.$savedProgress = $('.saved__progress-bar');
-    DOM.$html = $('html');
+    DOM.$viewer = $('.viewer');
   },
 };
 
@@ -116,6 +118,10 @@ const Events = {
     DOM.$modalCancel.click(Events.modalCancel);
     DOM.$modalMakeManifest.click(Events.modalMakeManifest);
     DOM.$makeManifestButton.magnificPopup(Config.makeManifestModalOptions);
+
+    // Set terms
+    DOM.$manifestModalHeading.html(`Give your ${getTerm('derivedManifest', 0)} a label?`);
+    DOM.$manifestModalSavingText.html(`Saving your ${getTerm('derivedManifest', 0)}`);
   },
   modalCancel() {
     $.magnificPopup.close();
@@ -186,11 +192,9 @@ const Events = {
 
     // Update preview title
     const savedFeedbackHtml = `
-    <p class="saved__feedback">
       <i class="material-icons">done</i> Your new set "${collectionName}" is saved.
-      <span><a class="saved__make-set" href="">Start another set</a>, or
-      <a class="saved__view-sets" href="">view all the sets</a> ?</span>
-    </p>`;
+      <span><a class="saved__make-set" href="#">Start another set</a>, or
+      <a class="saved__view-sets" href="#">view all the sets</a> ?</span>`;
     DOM.$savedFeedback.html(savedFeedbackHtml);
     DOM.$savedFeedback.find('.saved__make-set').click(Events.savedMakeSetClick);
     DOM.$savedFeedback.find('.saved__view-sets').click(Events.savedViewSetsClick);
