@@ -1,23 +1,19 @@
 import {
   hasPropertyChanged,
-  hasPropertyChangedNonZero,
 } from '../helpers/helpers.js';
 import { SortyConfiguration } from '../config/config.js';
-// import { IIIF } from '../helpers/iiif.js';
 import {
   setCollectionManifest,
 } from '../actions/selected-collection.js';
 import {
-//  selectDerivedManifest,
   setDerivedManifests,
   setDerivedManifestsComplete,
   setClassifiedCanvases,
   resetDerivedManifests } from '../actions/loaded-manifest.js';
-// import { replaceSelection } from '../selection/selectionActions.js';
 import { updateThumbsWithStatus } from './thumbs.js';
 import { IIIFActions } from './iiif-actions.js';
 import { getTerm } from '../config/terms.js';
-import { OmekaActions } from './omeka-actions.js';
+import { OmekaActions, omekaServiceProfile } from './omeka-actions.js';
 
 const $ = require('jquery');
 
@@ -131,7 +127,6 @@ const updateArchivalUnits = function () {
   if (state.derivedManifestsComplete.length) {
     if (DOM.$classifiedMaterial.find('.classified-manifest').length <
     state.derivedManifests.members.length) {
-      // console.log('need to build first');
       buildClassified(state.derivedManifests);
     }
 
@@ -141,13 +136,28 @@ const updateArchivalUnits = function () {
     for (const dm of state.derivedManifestsComplete) {
       const id = dm['@id'];
       const canvases = dm.sequences[0].canvases;
-      const $cmContainer = $(`.classified-manifest[data-id='${id}']`);
+      // Add marker to indicate a dm has been loaded
+      const $cmContainer = $(`.classified-manifest[data-id='${id}']`)
+      .addClass('classified-manifest--loaded');
       $cmContainer.find('.classified-manifest__num')
       .text(`${canvases.length} images`);
+
+      // Get publish to omeka status
+      if (typeof dm.service !== 'undefined') {
+        const services = typeof dm.service === 'object' ? [dm.service] : dm.service;
+        for (const service of services) {
+          if (service.profile === omekaServiceProfile) {
+            // Has been published
+            $cmContainer.find('.action__publish')
+            .replaceWith('<p class="classified-manifest__status">Published to Omeka</p>');
+          }
+        }
+      }
+
+      // TODO: DRY this out..
       const $cmImgFront = $cmContainer.find('.classified-manifest__front img');
       const $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
       const $cmImgThird = $cmContainer.find('.classified-manifest__third img');
-
       if (canvases.length > 0 && canvases[0].images.length) {
         const imgSrcFront = $(`.thumb[data-uri='${canvases[0].images[0].on}']`).attr('data-src');
         $cmImgFront.attr('src', imgSrcFront)
@@ -156,18 +166,22 @@ const updateArchivalUnits = function () {
       if (canvases.length > 1 && canvases[1].images.length) {
         const imgSrcSecond = $(`.thumb[data-uri='${canvases[1].images[0].on}']`).attr('data-src');
         $cmImgSecond.attr('src', imgSrcSecond)
-        .removeClass('classified-manifest__front--placeholder');
+        .removeClass('classified-manifest__second--placeholder');
       } else {
         $cmImgSecond.hide();
       }
       if (canvases.length > 2 && canvases[2].images.length) {
         const imgSrcThird = $(`.thumb[data-uri='${canvases[2].images[0].on}']`).attr('data-src');
         $cmImgThird.attr('src', imgSrcThird)
-        .removeClass('classified-manifest__front--placeholder');
+        .removeClass('classified-manifest__third--placeholder');
       } else {
         $cmImgThird.hide();
       }
     }
+
+    // Clean up - possible that derived manifests were listed but don't actually exist
+    // Edge case
+    $('.classified-manifest:not(.classified-manifest--loaded)').remove();
   }
 };
 
@@ -283,25 +297,31 @@ const Events = {
     // DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);
   },
   postError(xhr, textStatus, error) {
-    alert(error);
+    console.log(error);
   },
   postSuccess() {
     cancelEdits();
     $('.classified-manifest--saving-label').removeClass('classified-manifest--saving-label');
   },
+  postOmekaServiceError(xhr, textStatus, error) {
+    console.log(error);
+  },
   publish(e) {
     e.preventDefault();
-    console.log('PUBLISHING', this);
     const $container = $(this).closest('.classified-manifest');
     const manifestId = $container.attr('data-id');
-    OmekaActions.pushToOmeka(manifestId, Events.publishSuccess, Events.publishError);
+    OmekaActions.pushToOmeka(manifestId)
+    .then(() => {
+      // fulfilled
+      OmekaActions.addOmekaService(manifestId).then(() => {
+        Events.getCreatedManifests();
+      });
+    },
+    () => {
+      // rejected
+      console.log('failed to push to omeka');
+    });
     // console.log(manifestId);
-  },
-  publishError(xhr, textStatus, error) {
-    alert(error);
-  },
-  publishSuccess() {
-    console.log('PUBLISH - SUCCESS');
   },
   putError(xhr, textStatus, error) {
     alert(error);
@@ -348,29 +368,19 @@ const Events = {
     const classifiedManifests = [];
     Promise.all(promises).then(values => {
       for (const manifest of values) {
-        // const classifiedManifest = new Set();
         if (typeof manifest !== 'undefined' && manifest !== null) {
           for (const canvas of manifest.sequences[0].canvases) {
             if (canvas.images.length) {
-              // console.log(canvas.images[0].on);
               classifiedCanvases.add(canvas.images[0].on);
             }
-            // classifiedManifest.add(canvas.images[0].on);
           }
-          /*
-          classifiedManifests.push({
-            id: manifest['@id'],
-            imageSet: classifiedManifest,
-          });*/
-          // console.log(manifest);
           classifiedManifests.push(manifest);
         }
       }
       manifestStore.dispatch(setClassifiedCanvases(classifiedCanvases));
       manifestStore.dispatch(setDerivedManifestsComplete(classifiedManifests));
-      // console.log($('html'));
+
       $('html').addClass('dm-loaded manifest-loaded');
-      // console.log($('html'));
       updateThumbsWithStatus();
     }, reason => {
       console.log('Promise fail', reason);
@@ -419,7 +429,7 @@ const Events = {
     if (hasPropertyChanged('classifiedCanvases', derivedState, lastLocalState)) {
       // console.log('classifiedCanvases changed', derivedState, lastLocalState);
     }
-    if (hasPropertyChangedNonZero('derivedManifestsComplete', derivedState, lastLocalState)) {
+    if (hasPropertyChanged('derivedManifestsComplete', derivedState, lastLocalState)) {
       // console.log('derivedManifestsComplete - updateArchivalUnits');
       updateArchivalUnits();
     }

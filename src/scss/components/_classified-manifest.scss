@@ -149,6 +149,11 @@
     }
   }
 
+  &__status {
+    color: $publish;
+    font-size: .9rem;
+  }
+
   &__actions {
     padding-top: 18px;
   }
@@ -163,40 +168,39 @@
     margin-bottom: 3px;
 
     .material-icons {
-      margin-right: 6px;
+      margin-right: 8px;
       vertical-align: middle;
     }
 
     a {
-      background-color: darken($white, 50%);
+      background-color: transparent;
       box-sizing: border-box;
-      color: $white;
+      color: $black;
       display: block;
+      font-size: .9rem;
       padding: 5px;
       text-decoration: none;
+
+      &:hover {
+        color: $white;
+      }
     }
 
     .action__publish {
-      background-color: $publish;
-
       &:hover {
-        background-color: darken($publish, 5%);
+        background-color: $publish;
       }
     }
 
     .action__view {
-      background-color: $link;
-
       &:hover {
-        background-color: darken($link, 5%);
+        background-color: $link;
       }
     }
 
     .action__delete {
-      background-color: $cancel;
-
       &:hover {
-        background-color: darken($cancel, 5%);
+        background-color: $cancel;
       }
     }
   }

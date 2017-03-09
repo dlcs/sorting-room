@@ -3,7 +3,10 @@ const $ = require('jquery');
 
 export const OmekaActions = {};
 
-OmekaActions.pushToOmeka = (url, success, error) => {
+// Used by the omeka service block
+export const omekaServiceProfile = 'omekaProfile';
+
+OmekaActions.pushToOmeka = (url) => {
   // Auth data (dummy data for now)
   const authObj = {
     clientId: 'test',
@@ -20,12 +23,37 @@ OmekaActions.pushToOmeka = (url, success, error) => {
   }
   uriEncodedData = uriEncodedData.join('&');
 
-  $.ajax({
+  return $.ajax({
     url: SortyConfiguration.omekaImportEndpoint,
     type: 'POST',
     crossDomain: true,
     data: uriEncodedData,
-    error,
-    success,
+  });
+};
+
+OmekaActions.addOmekaService = (manifestUrl) => {
+  console.log('addOmekaService called', manifestUrl);
+
+  // Placeholder service values - to replace
+  const omekaServiceContext = 'omekaContext';
+  const omekaServiceId = 'omekaId';
+  const serviceUrl = `${manifestUrl}/iiif/services/`;
+  const envelope = `
+  {
+   "@id": "${manifestUrl}",
+   "@type": "sc:Manifest",
+   "service": {
+     "@context": "${omekaServiceContext}",
+     "@id": "${omekaServiceId}",
+     "profile": "${omekaServiceProfile}"
+   }
+  }`;
+  return $.ajax({
+    url: serviceUrl,
+    type: 'POST',
+    crossDomain: true,
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    data: envelope,
   });
 };
