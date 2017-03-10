@@ -4,7 +4,7 @@ const $ = require('jquery');
 export const OmekaActions = {};
 
 // Used by the omeka service block
-export const omekaServiceProfile = 'omekaProfile';
+export const omekaServiceProfile = 'https://dlcs.info/omeka/';
 
 OmekaActions.pushToOmeka = (url) => {
   // Auth data (dummy data for now)
@@ -35,7 +35,7 @@ OmekaActions.addOmekaService = (manifestUrl) => {
   console.log('addOmekaService called', manifestUrl);
 
   // Placeholder service values - to replace
-  const omekaServiceContext = 'omekaContext';
+  const omekaServiceContext = 'https://dlcs.info/omeka/context.json';
   const omekaServiceId = 'omekaId';
   const serviceUrl = `${manifestUrl}/iiif/services/`;
   const envelope = `

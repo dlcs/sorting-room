@@ -144,12 +144,13 @@ const updateArchivalUnits = function () {
 
       // Get publish to omeka status
       if (typeof dm.service !== 'undefined') {
-        const services = typeof dm.service === 'object' ? [dm.service] : dm.service;
+        const services = Array.isArray(dm.service) ? dm.service : [dm.service];
         for (const service of services) {
           if (service.profile === omekaServiceProfile) {
             // Has been published
             $cmContainer.find('.action__publish')
             .replaceWith('<p class="classified-manifest__status">Published to Omeka</p>');
+            break;
           }
         }
       }

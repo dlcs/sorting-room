@@ -26738,10 +26738,15 @@ var Events = {
       DOM.$classifyNumImages.html(manifestState.allImages.length + '\n        ' + (0, _terms.getTerm)('image', manifestState.allImages.length));
     }
     if ((0, _helpers.hasPropertyChanged)('derivedManifestsComplete', manifestState, lastManifestState)) {
-      if (typeof manifestState.derivedManifestsComplete.length !== 'undefined') {
+      // If there are derived manifests update the count
+      if (typeof manifestState.derivedManifestsComplete.length !== 'undefined' && manifestState.derivedManifestsComplete.length) {
         DOM.$classifyNumSets.show();
         DOM.$classifyNumSets.html(manifestState.derivedManifestsComplete.length + '\n          ' + (0, _terms.getTerm)('derivedManifest', manifestState.derivedManifestsComplete.length));
       } else {
+        // Reset the number of sets
+        DOM.$classifyNumSets.html('0 ' + (0, _terms.getTerm)('derivedManifest', 0));
+
+        // Hide the number of sets
         DOM.$classifyNumSets.hide();
       }
     }
@@ -26793,7 +26798,7 @@ exports.default = Init;
 
 $(document).ready(Events.domReady);
 
-},{"../config/terms.js":42,"../helpers/helpers.js":43,"./workspace.js":40,"jquery":1}],30:[function(require,module,exports){
+},{"../config/terms.js":43,"../helpers/helpers.js":44,"./workspace.js":41,"jquery":1}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26815,11 +26820,9 @@ var _iiifActions = require('./iiif-actions.js');
 
 var _terms = require('../config/terms.js');
 
+var _omekaActions = require('./omeka-actions.js');
+
 var $ = require('jquery');
-// import { replaceSelection } from '../selection/selectionActions.js';
-
-// import { IIIF } from '../helpers/iiif.js';
-
 
 var manifestSelector = '.manifest-select__dropdown';
 var viewManifest = '.manifest-select__view-uv';
@@ -26829,15 +26832,24 @@ var manifestStore = null;
 var lastLocalState = null;
 var lastTitleText = null;
 
-var DOM = {
-  $manifestSelector: null,
-  $classifiedMaterial: null,
-  $classifiedTitle: null,
+var Config = {
+  deleteManifestModalOptions: {
+    delegate: '.action__delete',
+    items: {
+      src: '#deleteManifestmodal',
+      type: 'inline'
+    },
+    modal: true
+  }
+};
 
+var DOM = {
   init: function init() {
-    DOM.$manifestSelector = $(manifestSelector);
     DOM.$classifiedMaterial = $('.classified-material');
     DOM.$classifiedTitle = $('.viewer__classified-title');
+    DOM.$deleteModalHeading = $('.manifest-modal--delete .manifest-modal__heading');
+    DOM.$deleteModalStatus = $('.manifest-modal--delete .manifest-modal__deleting-text');
+    DOM.$manifestSelector = $(manifestSelector);
   }
 };
 
@@ -26853,7 +26865,12 @@ var buildClassified = function buildClassified(derivedManifestList) {
       for (var i = 0; i < derivedManifestList.members.length; i++) {
         var manifest = derivedManifestList.members[i];
         var label = manifest.label || manifest['@id'];
-        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <div class="classified-manifest__front">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__actions">\n              <a class="btn" href="http://universalviewer.io/?manifest=' + manifest['@id'] + '" target="_blank"><i class="material-icons">open_in_new</i> View in UV</a>\n            </div>\n          </div>');
+
+        var publishToOmekaButton = _config.SortyConfiguration.enableOmekaImport ? '<li class="classified-manifest__actions-item">\n          <a href="#" class="action__publish">\n          <i class="material-icons">publish</i>Publish to Omeka\n          </a>\n        </li>' : '';
+
+        var deleteButton = _config.SortyConfiguration.enableDelete ? '<li class="classified-manifest__actions-item">\n          <a href="#" class="action__delete">\n          <i class="material-icons">delete_forever</i>Delete this\n          ' + (0, _terms.getTerm)('derivedManifest', 1) + '\n          </a>\n        </li>' : '';
+
+        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <div class="classified-manifest__front classified-manifest__front--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second classified-manifest__second--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third classified-manifest__third--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__actions">\n              <ul class="classified-manifest__actions-list">\n                ' + publishToOmekaButton + '\n                ' + deleteButton + '\n                <li class="classified-manifest__actions-item">\n                  <a href="http://universalviewer.io/?manifest=' + manifest['@id'] + '"\n                  class="action__view" target="_blank">\n                  <i class="material-icons">open_in_new</i>View in the Universal Viewer\n                  </a>\n                </li>\n              </ul>\n            </div>\n          </div>');
       }
     }
   }
@@ -26866,58 +26883,100 @@ var loadManifestPage = exports.loadManifestPage = function loadManifestPage(mani
 var updateArchivalUnits = function updateArchivalUnits() {
   var state = manifestStore.getState();
   // Make sure the list exists first
-  if (DOM.$classifiedMaterial.find('.classified-manifest').length < state.derivedManifests.members.length) {
-    // console.log('need to build first');
-    buildClassified(state.derivedManifests);
-  }
-  DOM.$classifiedTitle.text(state.derivedManifestsComplete.length + '\n    ' + (0, _terms.getTerm)('derivedManifest', state.derivedManifestsComplete.length));
-
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = state.derivedManifestsComplete[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var dm = _step.value;
-
-      var id = dm['@id'];
-      var canvases = dm.sequences[0].canvases;
-      var $cmContainer = $('.classified-manifest[data-id=\'' + id + '\']');
-      $cmContainer.find('.classified-manifest__num').text(canvases.length + ' images');
-      var $cmImgFront = $cmContainer.find('.classified-manifest__front img');
-      var $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
-      var $cmImgThird = $cmContainer.find('.classified-manifest__third img');
-
-      if (canvases.length > 0 && canvases[0].images.length) {
-        var imgSrcFront = $('.thumb[data-uri=\'' + canvases[0].images[0].on + '\']').attr('data-src');
-        $cmImgFront.attr('src', imgSrcFront);
-      }
-      if (canvases.length > 1 && canvases[1].images.length) {
-        var imgSrcSecond = $('.thumb[data-uri=\'' + canvases[1].images[0].on + '\']').attr('data-src');
-        $cmImgSecond.attr('src', imgSrcSecond);
-      } else {
-        $cmImgSecond.hide();
-      }
-      if (canvases.length > 2 && canvases[2].images.length) {
-        var imgSrcThird = $('.thumb[data-uri=\'' + canvases[2].images[0].on + '\']').attr('data-src');
-        $cmImgThird.attr('src', imgSrcThird);
-      } else {
-        $cmImgThird.hide();
-      }
+  if (state.derivedManifestsComplete.length) {
+    if (DOM.$classifiedMaterial.find('.classified-manifest').length < state.derivedManifests.members.length) {
+      buildClassified(state.derivedManifests);
     }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
+
+    DOM.$classifiedTitle.text(state.derivedManifestsComplete.length + '\n      ' + (0, _terms.getTerm)('derivedManifest', state.derivedManifestsComplete.length));
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
     try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
+      for (var _iterator = state.derivedManifestsComplete[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var dm = _step.value;
+
+        var id = dm['@id'];
+        var canvases = dm.sequences[0].canvases;
+        // Add marker to indicate a dm has been loaded
+        var $cmContainer = $('.classified-manifest[data-id=\'' + id + '\']').addClass('classified-manifest--loaded');
+        $cmContainer.find('.classified-manifest__num').text(canvases.length + ' images');
+
+        // Get publish to omeka status
+        if (typeof dm.service !== 'undefined') {
+          var services = Array.isArray(dm.service) ? dm.service : [dm.service];
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = services[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var service = _step2.value;
+
+              if (service.profile === _omekaActions.omekaServiceProfile) {
+                // Has been published
+                $cmContainer.find('.action__publish').replaceWith('<p class="classified-manifest__status">Published to Omeka</p>');
+                break;
+              }
+            }
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+        }
+
+        // TODO: DRY this out..
+        var $cmImgFront = $cmContainer.find('.classified-manifest__front img');
+        var $cmImgSecond = $cmContainer.find('.classified-manifest__second img');
+        var $cmImgThird = $cmContainer.find('.classified-manifest__third img');
+        if (canvases.length > 0 && canvases[0].images.length) {
+          var imgSrcFront = $('.thumb[data-uri=\'' + canvases[0].images[0].on + '\']').attr('data-src');
+          $cmImgFront.attr('src', imgSrcFront).removeClass('classified-manifest__front--placeholder');
+        }
+        if (canvases.length > 1 && canvases[1].images.length) {
+          var imgSrcSecond = $('.thumb[data-uri=\'' + canvases[1].images[0].on + '\']').attr('data-src');
+          $cmImgSecond.attr('src', imgSrcSecond).removeClass('classified-manifest__second--placeholder');
+        } else {
+          $cmImgSecond.hide();
+        }
+        if (canvases.length > 2 && canvases[2].images.length) {
+          var imgSrcThird = $('.thumb[data-uri=\'' + canvases[2].images[0].on + '\']').attr('data-src');
+          $cmImgThird.attr('src', imgSrcThird).removeClass('classified-manifest__third--placeholder');
+        } else {
+          $cmImgThird.hide();
+        }
       }
+
+      // Clean up - possible that derived manifests were listed but don't actually exist
+      // Edge case
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
     } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
       }
     }
+
+    $('.classified-manifest:not(.classified-manifest--loaded)').remove();
   }
 };
 
@@ -26938,8 +26997,50 @@ var Events = {
       $('body').off('click', Events.bodyClick);
     }
   },
+  delete: function _delete(e) {
+    e.preventDefault();
+    // Use a modal here - Are you sure you want to delete?
+    $.magnificPopup.open(Config.deleteManifestModalOptions);
+
+    // Grab manifest URL
+    var $container = $(this).closest('.classified-manifest');
+    var manifestId = $container.attr('data-id');
+
+    // Hook up delete button behaviour (remove any existing click events)
+    var $deleteButton = $('.manifest-modal__delete').off('click');
+    $deleteButton.click(function () {
+      // Show delete indicator
+      $('html').addClass('deleting-manifest');
+
+      $container.addClass('classified-manifest--deleting');
+
+      // Delete the manifest
+      _iiifActions.IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
+    });
+  },
+  deleteError: function deleteError(xhr, textStatus, error) {
+    console.log('ERROR DELETING', error);
+    $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
+  },
+  deleteSuccess: function deleteSuccess() {
+    // Hide delete indicator
+    $('html').removeClass('deleting-manifest');
+
+    // Kill the item stack
+    $('.classified-manifest--deleting').remove();
+
+    // Close the modal
+    $.magnificPopup.close();
+
+    // Fetch updated derived manifest data
+    Events.getCreatedManifests();
+  },
   domReady: function domReady() {
     DOM.init();
+    // Set terms
+    DOM.$deleteModalHeading.html('Are you sure you want to delete\n      this ' + (0, _terms.getTerm)('derivedManifest', 0) + '?');
+    DOM.$deleteModalStatus.html('Deleting ' + (0, _terms.getTerm)('derivedManifest', 0));
+
     Events.init();
   },
   editTitleClick: function editTitleClick() {
@@ -26963,6 +27064,12 @@ var Events = {
       $(this).closest('.classified-manifest').find('.classified-manifest__title-save').click();
     }
   },
+  getCreatedManifests: function getCreatedManifests() {
+    // get the container in presley
+    var collectionId = _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest);
+
+    $.getJSON(collectionId).done(Events.requestDerivedManifestsSuccess).fail(Events.requestDerivedManifestsFailure);
+  },
   init: function init() {
     DOM.$classifiedMaterial.on('click', '.classified-manifest__title-edit, .classified-manifest__title-text', Events.editTitleClick);
     DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
@@ -26970,13 +27077,34 @@ var Events = {
     DOM.$classifiedMaterial.on('click', '.classified-manifest', function (e) {
       return e.stopPropagation();
     });
+    DOM.$classifiedMaterial.on('click', '.action__publish', Events.publish);
+    DOM.$classifiedMaterial.on('click', '.action__delete', Events.delete);
+    // DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);
   },
   postError: function postError(xhr, textStatus, error) {
-    alert(error);
+    console.log(error);
   },
   postSuccess: function postSuccess() {
     cancelEdits();
     $('.classified-manifest--saving-label').removeClass('classified-manifest--saving-label');
+  },
+  postOmekaServiceError: function postOmekaServiceError(xhr, textStatus, error) {
+    console.log(error);
+  },
+  publish: function publish(e) {
+    e.preventDefault();
+    var $container = $(this).closest('.classified-manifest');
+    var manifestId = $container.attr('data-id');
+    _omekaActions.OmekaActions.pushToOmeka(manifestId).then(function () {
+      // fulfilled
+      _omekaActions.OmekaActions.addOmekaService(manifestId).then(function () {
+        Events.getCreatedManifests();
+      });
+    }, function () {
+      // rejected
+      console.log('failed to push to omeka');
+    });
+    // console.log(manifestId);
   },
   putError: function putError(xhr, textStatus, error) {
     alert(error);
@@ -26999,34 +27127,41 @@ var Events = {
     manifestStore.dispatch((0, _loadedManifest.setDerivedManifests)(collection));
     // console.log('RDMS', collection);
     var promises = [];
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
 
     try {
       var _loop = function _loop() {
-        var dm = _step2.value;
+        var dm = _step3.value;
 
         // console.log('dm', dm);
         promises.push(new Promise(function (resolve, reject) {
-          $.getJSON(dm['@id']).done(resolve).fail(reject);
+          $.getJSON(dm['@id']).done(resolve).fail(function (jqxhr, textStatus, error) {
+            console.log(jqxhr, textStatus, error);
+            if (jqxhr.status === 404) {
+              resolve();
+            } else {
+              reject();
+            }
+          });
         }));
       };
 
-      for (var _iterator2 = collection.members[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      for (var _iterator3 = collection.members[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
         _loop();
       }
     } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
+      _didIteratorError3 = true;
+      _iteratorError3 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-          _iterator2.return();
+        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+          _iterator3.return();
         }
       } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
+        if (_didIteratorError3) {
+          throw _iteratorError3;
         }
       }
     }
@@ -27034,71 +27169,64 @@ var Events = {
     var classifiedCanvases = new Set();
     var classifiedManifests = [];
     Promise.all(promises).then(function (values) {
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
 
       try {
-        for (var _iterator3 = values[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var manifest = _step3.value;
+        for (var _iterator4 = values[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          var manifest = _step4.value;
 
-          // const classifiedManifest = new Set();
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
+          if (typeof manifest !== 'undefined' && manifest !== null) {
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
 
-          try {
-            for (var _iterator4 = manifest.sequences[0].canvases[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var canvas = _step4.value;
-
-              if (canvas.images.length) {
-                // console.log(canvas.images[0].on);
-                classifiedCanvases.add(canvas.images[0].on);
-              }
-              // classifiedManifest.add(canvas.images[0].on);
-            } /*
-              classifiedManifests.push({
-               id: manifest['@id'],
-               imageSet: classifiedManifest,
-              });*/
-            // console.log(manifest);
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
             try {
-              if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                _iterator4.return();
+              for (var _iterator5 = manifest.sequences[0].canvases[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                var canvas = _step5.value;
+
+                if (canvas.images.length) {
+                  classifiedCanvases.add(canvas.images[0].on);
+                }
               }
+            } catch (err) {
+              _didIteratorError5 = true;
+              _iteratorError5 = err;
             } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
+              try {
+                if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                  _iterator5.return();
+                }
+              } finally {
+                if (_didIteratorError5) {
+                  throw _iteratorError5;
+                }
               }
             }
-          }
 
-          classifiedManifests.push(manifest);
+            classifiedManifests.push(manifest);
+          }
         }
       } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
+          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+            _iterator4.return();
           }
         } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
+          if (_didIteratorError4) {
+            throw _iteratorError4;
           }
         }
       }
 
       manifestStore.dispatch((0, _loadedManifest.setClassifiedCanvases)(classifiedCanvases));
       manifestStore.dispatch((0, _loadedManifest.setDerivedManifestsComplete)(classifiedManifests));
-      // console.log($('html'));
+
       $('html').addClass('dm-loaded manifest-loaded');
-      // console.log($('html'));
       (0, _thumbs.updateThumbsWithStatus)();
     }, function (reason) {
       console.log('Promise fail', reason);
@@ -27113,13 +27241,13 @@ var Events = {
     var titleText = $editableText.text();
     var derivedManifests = manifestStore.getState().derivedManifestsComplete;
     var manifestToUpdate = null;
-    var _iteratorNormalCompletion5 = true;
-    var _didIteratorError5 = false;
-    var _iteratorError5 = undefined;
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
 
     try {
-      for (var _iterator5 = derivedManifests[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-        var _dm = _step5.value;
+      for (var _iterator6 = derivedManifests[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+        var _dm = _step6.value;
 
         if (_dm['@id'] === manifestId) {
           manifestToUpdate = _dm;
@@ -27127,16 +27255,16 @@ var Events = {
         }
       }
     } catch (err) {
-      _didIteratorError5 = true;
-      _iteratorError5 = err;
+      _didIteratorError6 = true;
+      _iteratorError6 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion5 && _iterator5.return) {
-          _iterator5.return();
+        if (!_iteratorNormalCompletion6 && _iterator6.return) {
+          _iterator6.return();
         }
       } finally {
-        if (_didIteratorError5) {
-          throw _iteratorError5;
+        if (_didIteratorError6) {
+          throw _iteratorError6;
         }
       }
     }
@@ -27169,7 +27297,7 @@ var Events = {
     if ((0, _helpers.hasPropertyChanged)('classifiedCanvases', derivedState, lastLocalState)) {
       // console.log('classifiedCanvases changed', derivedState, lastLocalState);
     }
-    if ((0, _helpers.hasPropertyChangedNonZero)('derivedManifestsComplete', derivedState, lastLocalState)) {
+    if ((0, _helpers.hasPropertyChanged)('derivedManifestsComplete', derivedState, lastLocalState)) {
       // console.log('derivedManifestsComplete - updateArchivalUnits');
       updateArchivalUnits();
     }
@@ -27180,12 +27308,7 @@ var Events = {
   }
 };
 
-var getCreatedManifests = exports.getCreatedManifests = function getCreatedManifests() {
-  // get the container in presley
-  var collectionId = _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest);
-
-  $.getJSON(collectionId).done(Events.requestDerivedManifestsSuccess).fail(Events.requestDerivedManifestsFailure);
-};
+var getCreatedManifests = exports.getCreatedManifests = Events.getCreatedManifests;
 
 $(document).ready(Events.domReady);
 
@@ -27195,7 +27318,7 @@ var derivedManifestsInit = exports.derivedManifestsInit = function derivedManife
   manifestStore.subscribe(Events.subscribeActions);
 };
 
-},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../config/config.js":41,"../config/terms.js":42,"../helpers/helpers.js":43,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],31:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../config/config.js":42,"../config/terms.js":43,"../helpers/helpers.js":44,"./iiif-actions.js":32,"./omeka-actions.js":36,"./thumbs.js":40,"jquery":1}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27255,7 +27378,7 @@ var helpInit = exports.helpInit = function helpInit(globalStore) {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":28,"../helpers/helpers.js":43,"jquery":1}],32:[function(require,module,exports){
+},{"../actions/ui.js":28,"../helpers/helpers.js":44,"jquery":1}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27281,13 +27404,21 @@ IIIFActions.postManifest = function (manifest, url, success, error) {
 };
 
 IIIFActions.putManifest = function (manifest, success, error) {
-  console.log(manifest);
   $.ajax({
     url: manifest['@id'],
     type: 'PUT',
     contentType: 'application/json; charset=utf-8',
     data: JSON.stringify(manifest),
     dataType: 'json',
+    error: error,
+    success: success
+  });
+};
+
+IIIFActions.deleteManifest = function (uri, success, error) {
+  $.ajax({
+    url: uri,
+    type: 'DELETE',
     error: error,
     success: success
   });
@@ -27469,7 +27600,7 @@ var inputInit = exports.inputInit = function inputInit(globalStore, globalManife
   $(document).ready(Events.domReady);
 };
 
-},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":43,"../helpers/iiif.js":44,"./derived-manifests.js":30,"./iiif-actions.js":32,"./thumbs.js":39,"jquery":1}],34:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":44,"../helpers/iiif.js":45,"./derived-manifests.js":30,"./iiif-actions.js":32,"./thumbs.js":40,"jquery":1}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27661,7 +27792,7 @@ var attachLightboxBehaviour = exports.attachLightboxBehaviour = function attachL
   attachMagnific();
 };
 
-},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":43,"jquery":1,"leaflet":2}],35:[function(require,module,exports){
+},{"../actions/selected-collection.js":26,"../actions/ui.js":28,"../helpers/helpers.js":44,"jquery":1,"leaflet":2}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27670,6 +27801,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.makeManifestInit = undefined;
 
 var _config = require('../config/config.js');
+
+var _terms = require('../config/terms.js');
 
 var _iiif = require('../helpers/iiif.js');
 
@@ -27684,28 +27817,25 @@ var _workspace = require('../components/workspace.js');
 var _loadedManifest = require('../actions/loaded-manifest.js');
 
 // IIIF helpers
-var $ = require('jquery'); // Sorty config
-
+// Sorty config
+var $ = require('jquery');
 
 var store = null;
 var manifestStore = null;
 
 var DOM = {
-  $makeManifestButton: null,
-  $manifestModalInput: null,
-  $modalCancel: null,
-  $modalMakeManifest: null,
-  $html: null,
   init: function init() {
+    DOM.$html = $('html');
     DOM.$makeManifestButton = $('.classify-tools__make');
+    DOM.$manifestModalHeading = $('.manifest-modal--make .manifest-modal__heading');
     DOM.$manifestModalInput = $('.manifest-modal__input');
+    DOM.$manifestModalSavingText = $('.manifest-modal__saving-text');
     DOM.$modalCancel = $('.manifest-modal__dismiss');
     DOM.$modalMakeManifest = $('.manifest-modal__make');
-    DOM.$viewer = $('.viewer');
-    DOM.$savedFeedback = $('.saved__feedback');
     DOM.$savedCollection = $('.saved__collection');
+    DOM.$savedFeedback = $('.saved__feedback');
     DOM.$savedProgress = $('.saved__progress-bar');
-    DOM.$html = $('html');
+    DOM.$viewer = $('.viewer');
   }
 };
 
@@ -27768,6 +27898,10 @@ var Events = {
     DOM.$modalCancel.click(Events.modalCancel);
     DOM.$modalMakeManifest.click(Events.modalMakeManifest);
     DOM.$makeManifestButton.magnificPopup(Config.makeManifestModalOptions);
+
+    // Set terms
+    DOM.$manifestModalHeading.html('Give your ' + (0, _terms.getTerm)('derivedManifest', 0) + ' a label?');
+    DOM.$manifestModalSavingText.html('Saving your ' + (0, _terms.getTerm)('derivedManifest', 0));
   },
   modalCancel: function modalCancel() {
     $.magnificPopup.close();
@@ -27876,7 +28010,7 @@ var Events = {
     var collectionName = store.getState().selectedCollection.collectionName;
 
     // Update preview title
-    var savedFeedbackHtml = '\n    <p class="saved__feedback">\n      <i class="material-icons">done</i> Your new set "' + collectionName + '" is saved.\n      <span><a class="saved__make-set" href="">Start another set</a>, or\n      <a class="saved__view-sets" href="">view all the sets</a> ?</span>\n    </p>';
+    var savedFeedbackHtml = '\n      <i class="material-icons">done</i> Your new set "' + collectionName + '" is saved.\n      <span><a class="saved__make-set" href="#">Start another set</a>, or\n      <a class="saved__view-sets" href="#">view all the sets</a> ?</span>';
     DOM.$savedFeedback.html(savedFeedbackHtml);
     DOM.$savedFeedback.find('.saved__make-set').click(Events.savedMakeSetClick);
     DOM.$savedFeedback.find('.saved__view-sets').click(Events.savedViewSetsClick);
@@ -27938,7 +28072,89 @@ var makeManifestInit = exports.makeManifestInit = function makeManifestInit(glob
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../components/derived-manifests.js":30,"../components/workspace.js":40,"../config/config.js":41,"../helpers/iiif.js":44,"./iiif-actions.js":32,"jquery":1}],36:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/selected-collection.js":26,"../components/derived-manifests.js":30,"../components/workspace.js":41,"../config/config.js":42,"../config/terms.js":43,"../helpers/iiif.js":45,"./iiif-actions.js":32,"jquery":1}],36:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.omekaServiceProfile = exports.OmekaActions = undefined;
+
+var _config = require('../config/config.js');
+
+var $ = require('jquery');
+
+var OmekaActions = exports.OmekaActions = {};
+
+// Used by the omeka service block
+var omekaServiceProfile = exports.omekaServiceProfile = 'https://dlcs.info/omeka/';
+
+OmekaActions.pushToOmeka = function (url) {
+  // Auth data (dummy data for now)
+  var authObj = {
+    clientId: 'test',
+    clientSecret: 'test123'
+  };
+
+  // Combine auth and url
+  var data = Object.assign({}, authObj, { resourceUrl: url });
+
+  // API only takes uri encoded data for now...
+  var uriEncodedData = [];
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = Object.keys(data)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var key = _step.value;
+
+      uriEncodedData.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  uriEncodedData = uriEncodedData.join('&');
+
+  return $.ajax({
+    url: _config.SortyConfiguration.omekaImportEndpoint,
+    type: 'POST',
+    crossDomain: true,
+    data: uriEncodedData
+  });
+};
+
+OmekaActions.addOmekaService = function (manifestUrl) {
+  console.log('addOmekaService called', manifestUrl);
+
+  // Placeholder service values - to replace
+  var omekaServiceContext = 'https://dlcs.info/omeka/context.json';
+  var omekaServiceId = 'omekaId';
+  var serviceUrl = manifestUrl + '/iiif/services/';
+  var envelope = '\n  {\n   "@id": "' + manifestUrl + '",\n   "@type": "sc:Manifest",\n   "service": {\n     "@context": "' + omekaServiceContext + '",\n     "@id": "' + omekaServiceId + '",\n     "profile": "' + omekaServiceProfile + '"\n   }\n  }';
+  return $.ajax({
+    url: serviceUrl,
+    type: 'POST',
+    crossDomain: true,
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    data: envelope
+  });
+};
+
+},{"../config/config.js":42,"jquery":1}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28051,7 +28267,7 @@ var selectionInit = exports.selectionInit = function selectionInit(globalStore, 
   manifestStore.subscribe(Events.manifestStoreSubscribe);
 };
 
-},{"../actions/selected-collection.js":26,"../helpers/helpers.js":43,"./lightbox":34,"jquery":1}],37:[function(require,module,exports){
+},{"../actions/selected-collection.js":26,"../helpers/helpers.js":44,"./lightbox":34,"jquery":1}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28177,7 +28393,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":25,"../actions/source-list.js":27,"../config/config.js":41,"../helpers/helpers.js":43,"./input.js":33,"jquery":1}],38:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/source-list.js":27,"../config/config.js":42,"../helpers/helpers.js":44,"./input.js":33,"jquery":1}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28263,7 +28479,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":28,"../helpers/helpers.js":43,"./thumbs.js":39,"jquery":1}],39:[function(require,module,exports){
+},{"../actions/ui.js":28,"../helpers/helpers.js":44,"./thumbs.js":40,"jquery":1}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28309,6 +28525,11 @@ var updateThumbsWithStatus = exports.updateThumbsWithStatus = function updateThu
   // console.log('updateThumbsWithStatus');
   var classifiedThumbs = manifestStore.getState().classifiedCanvases;
   var $thumbs = $('.thumb');
+
+  // Wipe out any existing classified classes (may have been a delete)
+  $('.tc--classified').removeClass('tc--classified');
+
+  // Add the classified modifier to any that have been classified
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
@@ -28594,7 +28815,7 @@ var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore, globalMan
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":25,"../actions/ui.js":28,"../config/config.js":41,"../helpers/helpers.js":43,"./selection.js":36,"./thumb-size-selector.js":38,"jquery":1}],40:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25,"../actions/ui.js":28,"../config/config.js":42,"../helpers/helpers.js":44,"./selection.js":37,"./thumb-size-selector.js":39,"jquery":1}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28630,7 +28851,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"./lightbox.js":34,"jquery":1}],41:[function(require,module,exports){
+},{"./lightbox.js":34,"jquery":1}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28642,6 +28863,13 @@ var SortyConfiguration = exports.SortyConfiguration = {};
 
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
 var presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+
+// Omeka configuration options for derived manifests
+SortyConfiguration.enableOmekaImport = true;
+SortyConfiguration.omekaImportEndpoint = 'http://localhost:8888/api/iiif-import';
+
+// Delete configuration options for derived manifests
+SortyConfiguration.enableDelete = true;
 
 SortyConfiguration.sourceCollection = 'https://sorty.dlcs-ida.org/rollcollection';
 SortyConfiguration.mintCanvasIds = false;
@@ -28716,7 +28944,7 @@ SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) 
   };
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28728,7 +28956,7 @@ var getTerm = exports.getTerm = function getTerm(name, count) {
   return count > 1 ? terms.get(name + 'Plural') : terms.get(name + 'Singular');
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28749,7 +28977,7 @@ var hasPropertyChangedNonZero = exports.hasPropertyChangedNonZero = function has
   return false;
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29119,7 +29347,7 @@ IIIF.getAuthServices = function getAuthServices(info) {
   return svcInfo;
 };
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29142,7 +29370,7 @@ exports.default = (0, _redux.combineReducers)({
 });
 // import { loadedManifest } from './loaded-manifest.js';
 
-},{"./selected-collection.js":47,"./source-list.js":48,"./ui.js":49,"redux":20}],46:[function(require,module,exports){
+},{"./selected-collection.js":48,"./source-list.js":49,"./ui.js":50,"redux":20}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29221,7 +29449,7 @@ var loadedManifest = exports.loadedManifest = function loadedManifest() {
   }
 };
 
-},{"../actions/loaded-manifest.js":25}],47:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":25}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29313,7 +29541,7 @@ var selectedCollection = exports.selectedCollection = function selectedCollectio
   }
 };
 
-},{"../actions/selected-collection.js":26}],48:[function(require,module,exports){
+},{"../actions/selected-collection.js":26}],49:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29341,7 +29569,7 @@ var sourceList = exports.sourceList = function sourceList() {
   }
 };
 
-},{"../actions/source-list.js":27}],49:[function(require,module,exports){
+},{"../actions/source-list.js":27}],50:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29404,7 +29632,7 @@ var ui = exports.ui = function ui() {
   }
 };
 
-},{"../actions/ui.js":28}],50:[function(require,module,exports){
+},{"../actions/ui.js":28}],51:[function(require,module,exports){
 'use strict';
 
 var _redux = require('redux');
@@ -29470,7 +29698,7 @@ var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, wind
 (0, _makeManifestModal.makeManifestInit)(store, manifestStore);
 (0, _lightbox.lightboxInit)(store, manifestStore);
 
-},{"./components/classify-tools.js":29,"./components/derived-manifests.js":30,"./components/help.js":31,"./components/input.js":33,"./components/lightbox.js":34,"./components/make-manifest-modal.js":35,"./components/selection.js":36,"./components/source-list.js":37,"./components/thumbs.js":39,"./components/workspace.js":40,"./reducers/index.js":45,"./reducers/loaded-manifest.js":46,"./vendor/jquery.unveil.js":51,"./vendor/leaflet-iiif.js":52,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],51:[function(require,module,exports){
+},{"./components/classify-tools.js":29,"./components/derived-manifests.js":30,"./components/help.js":31,"./components/input.js":33,"./components/lightbox.js":34,"./components/make-manifest-modal.js":35,"./components/selection.js":37,"./components/source-list.js":38,"./components/thumbs.js":40,"./components/workspace.js":41,"./reducers/index.js":46,"./reducers/loaded-manifest.js":47,"./vendor/jquery.unveil.js":52,"./vendor/leaflet-iiif.js":53,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],52:[function(require,module,exports){
 "use strict";
 
 /**
@@ -29528,7 +29756,7 @@ var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, wind
   };
 })(window.jQuery || window.Zepto);
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -29771,4 +29999,4 @@ L.tileLayer.iiif = function (url, options) {
   return new L.TileLayer.Iiif(url, options);
 };
 
-},{}]},{},[50]);
+},{}]},{},[51]);
