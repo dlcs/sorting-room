@@ -13,7 +13,7 @@ SortyConfiguration.omekaImportEndpoint = 'http://localhost:8888/api/iiif-import'
 SortyConfiguration.enableDelete = true;
 
 SortyConfiguration.sourceCollection = 'https://sorty.dlcs-ida.org/rollcollection';
-SortyConfiguration.mintCanvasIds = false;
+SortyConfiguration.mintCanvasIds = true;
 
 function getPath(url) {
   const reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
