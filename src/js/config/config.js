@@ -12,7 +12,7 @@ SortyConfiguration.omekaImportEndpoint = 'http://localhost:8888/api/iiif-import'
 // Delete configuration options for derived manifests
 SortyConfiguration.enableDelete = true;
 
-SortyConfiguration.sourceCollection = 'https://sorty.dlcs-ida.org/rollcollection';
+SortyConfiguration.sourceCollection = 'https://manifests.dlcs-ida.org/rollcollection';
 SortyConfiguration.mintCanvasIds = true;
 
 function getPath(url) {
