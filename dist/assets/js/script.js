@@ -29261,7 +29261,7 @@ var presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
 SortyConfiguration.enableOmekaImport = true;
-SortyConfiguration.omekaImportEndpoint = 'http://localhost:8888/api/iiif-import';
+SortyConfiguration.omekaImportEndpoint = 'https://omeka.dlcs-ida.org/api/iiif-import';
 
 // Delete configuration options for derived manifests
 SortyConfiguration.enableDelete = true;
