@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/reducers/ui</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/reducers/ui"><meta name="groc-project-path" content="src/js/reducers/ui.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/reducers/ui.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> {
+  HIDE_LIGHTBOX,
+  SET_CURRENT_IMAGE,
+  SET_LOADING_MANIFEST,
+  SET_TAB,
+  SET_THUMB_SIZE,
+  SHOW_LIGHTBOX,
+  TOGGLE_HELP_VISIBLE,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/ui.js'</span>;
+
+<span class="hljs-keyword">const</span> initialState = {
+  activeTab: <span class="hljs-literal">null</span>,
+  helpVisible: <span class="hljs-literal">false</span>,
+  lightbox: {
+    currentImage: <span class="hljs-literal">null</span>,
+    index: <span class="hljs-literal">null</span>,
+    visible: <span class="hljs-literal">false</span>,
+  },
+  loadingManifest: <span class="hljs-literal">false</span>,
+  thumbSize: <span class="hljs-literal">null</span>,
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> ui = (state = initialState, action) =&gt; {
+  <span class="hljs-keyword">switch</span> (action.type) {
+    <span class="hljs-keyword">case</span> SET_CURRENT_IMAGE: {
+      <span class="hljs-keyword">const</span> lightbox = <span class="hljs-built_in">Object</span>.assign({}, state.lightbox, { currentImage: action.currentImage });
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { lightbox });
+    }
+    <span class="hljs-keyword">case</span> SET_TAB: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { activeTab: action.tab });
+    }
+    <span class="hljs-keyword">case</span> SHOW_LIGHTBOX: {
+      <span class="hljs-keyword">const</span> lightbox = <span class="hljs-built_in">Object</span>.assign({}, state.lightbox, { index: action.index, visible: <span class="hljs-literal">true</span> });
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { lightbox });
+    }
+    <span class="hljs-keyword">case</span> HIDE_LIGHTBOX: {
+      <span class="hljs-keyword">const</span> lightbox = <span class="hljs-built_in">Object</span>.assign({}, state.lightbox, { index: <span class="hljs-literal">null</span>, visible: <span class="hljs-literal">false</span> });
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { lightbox });
+    }
+    <span class="hljs-keyword">case</span> SET_LOADING_MANIFEST: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { loadingManifest: action.loading });
+    }
+    <span class="hljs-keyword">case</span> SET_THUMB_SIZE: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { thumbSize: action.thumbSize });
+    }
+    <span class="hljs-keyword">case</span> TOGGLE_HELP_VISIBLE: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { helpVisible: !state.helpVisible });
+    }
+    <span class="hljs-keyword">default</span>: <span class="hljs-keyword">return</span> state;
+  }
+};</div></div></div></div></body></html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/omeka-actions</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/omeka-actions"><meta name="groc-project-path" content="src/js/components/omeka-actions.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/omeka-actions.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { SortyConfiguration } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/config.js'</span>;
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> OmekaActions = {};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Used by the omeka service block</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> omekaServiceProfile = <span class="hljs-string">'https://dlcs.info/omeka/'</span>;
+
+OmekaActions.pushToOmeka = (url) =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Auth data (dummy data for now)</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> authObj = {
+    clientId: <span class="hljs-string">'test'</span>,
+    clientSecret: <span class="hljs-string">'test123'</span>,
+  };</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Combine auth and url</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> data = <span class="hljs-built_in">Object</span>.assign({}, authObj, { resourceUrl: url });</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>API only takes uri encoded data for now...</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">let</span> uriEncodedData = [];
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> key <span class="hljs-keyword">of</span> <span class="hljs-built_in">Object</span>.keys(data)) {
+    uriEncodedData.push(<span class="hljs-string">`<span class="hljs-subst">${encodeURIComponent(key)}</span>=<span class="hljs-subst">${encodeURIComponent(data[key])}</span>`</span>);
+  }
+  uriEncodedData = uriEncodedData.join(<span class="hljs-string">'&amp;'</span>);
+
+  <span class="hljs-keyword">return</span> $.ajax({
+    url: SortyConfiguration.omekaImportEndpoint,
+    type: <span class="hljs-string">'POST'</span>,
+    crossDomain: <span class="hljs-literal">true</span>,
+    data: uriEncodedData,
+  });
+};
+
+OmekaActions.addOmekaService = (manifestUrl) =&gt; {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'addOmekaService called'</span>, manifestUrl);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Placeholder service values - to replace</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> omekaServiceContext = <span class="hljs-string">'https://dlcs.info/omeka/context.json'</span>;
+  <span class="hljs-keyword">const</span> omekaServiceId = <span class="hljs-string">'omekaId'</span>;
+  <span class="hljs-keyword">const</span> serviceUrl = <span class="hljs-string">`<span class="hljs-subst">${manifestUrl}</span>/iiif/services/`</span>;
+  <span class="hljs-keyword">const</span> envelope = <span class="hljs-string">`
+  {
+   "@id": "<span class="hljs-subst">${manifestUrl}</span>",
+   "@type": "sc:Manifest",
+   "service": {
+     "@context": "<span class="hljs-subst">${omekaServiceContext}</span>",
+     "@id": "<span class="hljs-subst">${omekaServiceId}</span>",
+     "profile": "<span class="hljs-subst">${omekaServiceProfile}</span>"
+   }
+  }`</span>;
+  <span class="hljs-keyword">return</span> $.ajax({
+    url: serviceUrl,
+    type: <span class="hljs-string">'POST'</span>,
+    crossDomain: <span class="hljs-literal">true</span>,
+    contentType: <span class="hljs-string">'application/json; charset=utf-8'</span>,
+    dataType: <span class="hljs-string">'json'</span>,
+    data: envelope,
+  });
+};</div></div></div></div></body></html>

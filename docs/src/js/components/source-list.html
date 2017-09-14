@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/source-list</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/source-list"><meta name="groc-project-path" content="src/js/components/source-list.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/source-list.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> {
+  setSourceManifests,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/source-list.js'</span>;
+<span class="hljs-keyword">import</span> { SortyConfiguration } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/config.js'</span>;
+<span class="hljs-keyword">import</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ajaxLoadManifest,
+processQueryStringFromInput,</p></div></div><div class="code"><div class="wrapper">} from <span class="hljs-string">'./input.js'</span>;
+<span class="hljs-keyword">import</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>setManifestMetaData,</p></div></div><div class="code"><div class="wrapper">} from <span class="hljs-string">'../actions/loaded-manifest.js'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>let manifestStore = null;</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">let</span> lastLocalSourceListState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> Init = (globalStore) =&gt; {
+  store = globalStore;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>manifestStore = globalManifestStore;</p></div></div><div class="code"><div class="wrapper">};
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> Init;
+
+<span class="hljs-keyword">const</span> DOM = {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>$expandCollectionButton: null,</p></div></div><div class="code"><div class="wrapper">  $expandedCollection: <span class="hljs-literal">null</span>,
+
+  init() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>DOM.$expandCollectionButton = $(&#39;.manifest-input__expand-button&#39;);</p></div></div><div class="code"><div class="wrapper">    DOM.$expandedCollection = $(<span class="hljs-string">'.source-list'</span>);
+  },
+};
+
+<span class="hljs-keyword">const</span> storeCollectionData = (data) =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Try and add to localStorage with a timestamp</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">try</span> {
+    localStorage.setItem(<span class="hljs-string">'collectionData'</span>, <span class="hljs-built_in">JSON</span>.stringify({
+      raw: data,
+      timestamp: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(),
+    }));
+  } <span class="hljs-keyword">catch</span> (e) {
+    <span class="hljs-built_in">console</span>.log(e, <span class="hljs-string">'localStorage not supported for setItem'</span>);
+  }
+  store.dispatch(setSourceManifests(data));
+};
+
+<span class="hljs-keyword">const</span> getCollectionData = () =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Look in local storage first</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">let</span> collectionData = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">try</span> {
+    collectionData = <span class="hljs-built_in">JSON</span>.parse(localStorage.getItem(<span class="hljs-string">'collectionData'</span>));
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> collectionData.raw === <span class="hljs-string">'undefined'</span>
+    || <span class="hljs-keyword">typeof</span> collectionData.timestamp === <span class="hljs-string">'undefined'</span>) {
+      localStorage.collectionData = <span class="hljs-literal">null</span>;
+    }
+  } <span class="hljs-keyword">catch</span> (e) {
+    <span class="hljs-built_in">console</span>.log(e, <span class="hljs-string">'localStorage not supported for getItem'</span>);
+  }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>If collection is found display it</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">if</span> (collectionData !== <span class="hljs-literal">null</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;there is data&#39;, collectionData);</p></div></div><div class="code"><div class="wrapper">    store.dispatch(setSourceManifests(collectionData.raw));
+    <span class="hljs-keyword">const</span> timestamp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(collectionData.timestamp);
+    <span class="hljs-keyword">const</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">const</span> offset = now.setMinutes(now.getMinutes() - <span class="hljs-number">30</span>);
+    <span class="hljs-keyword">if</span> (timestamp &lt; offset) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;data is old&#39;, timestamp, offset);</p></div></div><div class="code"><div class="wrapper">      $.getJSON(SortyConfiguration.sourceCollection, storeCollectionData);
+    }
+  } <span class="hljs-keyword">else</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;collection data is null&#39;);
+If the data we&#39;re showing is old, get a fresh copy</p></div></div><div class="code"><div class="wrapper">    $.getJSON(SortyConfiguration.sourceCollection, storeCollectionData);
+  }
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">renderCollection</span>(<span class="hljs-params">collection</span>) </span>{
+  <span class="hljs-keyword">let</span> listItems = <span class="hljs-string">''</span>;
+  <span class="hljs-keyword">const</span> img = <span class="hljs-string">`
+  &lt;div class="source-list__image-container"&gt;
+    &lt;img class="source-list__image" src="//placehold.it/40x50" alt="" /&gt;
+  &lt;/div&gt;`</span>;
+  <span class="hljs-keyword">const</span> collectionToRender = collection;
+  <span class="hljs-keyword">if</span> (!collectionToRender.members) collectionToRender.members = collectionToRender.manifests;
+  <span class="hljs-keyword">if</span> (collectionToRender.members) {
+    collectionToRender.members.forEach(m =&gt; {
+      <span class="hljs-keyword">if</span> (m !== <span class="hljs-literal">null</span> &amp;&amp; m.service &amp;&amp; m.service.values) {
+        listItems += <span class="hljs-string">`
+        &lt;li class="source-list__item"&gt;
+          <span class="hljs-subst">${img}</span>
+          &lt;div class="source-list__description"&gt;
+            &lt;h2&gt;
+              &lt;a href="classify.html?manifest=<span class="hljs-subst">${m['@id']}</span>"
+              data-short-name="<span class="hljs-subst">${m.service.values[0]}</span>"
+              data-title="<span class="hljs-subst">${m.service.values[1]}</span>"&gt;
+                <span class="hljs-subst">${m.service.values[1]}</span>
+              &lt;/a&gt;
+            &lt;/h2&gt;
+            &lt;p&gt;<span class="hljs-subst">${m.service.values[2]}</span>: <span class="hljs-subst">${m.service.values[4]}</span>&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class="source-list__roll-data"&gt;
+            &lt;h3&gt;<span class="hljs-subst">${m.service.values[0]}</span>&lt;/h3&gt;
+            &lt;p&gt;X images, &lt;a href="sets.html?manifest=<span class="hljs-subst">${m['@id']}</span>"
+            data-short-name="<span class="hljs-subst">${m.service.values[0]}</span>"
+            data-title="<span class="hljs-subst">${m.service.values[1]}</span>"&gt;Y sets&lt;/a&gt;&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class="source-list__progress"&gt;
+            &lt;progress value="0" max="100" class="source-list__progress-bar"&gt;&lt;/progress&gt;
+          &lt;/div&gt;
+        &lt;/li&gt;
+        `</span>;
+      }
+    });
+  }
+
+  <span class="hljs-keyword">const</span> listTemplate = <span class="hljs-string">`
+  &lt;ul class="source-list__list"&gt;
+    <span class="hljs-subst">${listItems}</span>
+  &lt;/ul&gt;`</span>;
+
+  DOM.$expandedCollection.html(listTemplate);
+}
+
+<span class="hljs-keyword">const</span> Events = {
+  domReady() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Get DOM elements</p></div></div><div class="code"><div class="wrapper">    DOM.init();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Subscribe to store changes</p></div></div><div class="code"><div class="wrapper">    store.subscribe(Events.storeSubscribe);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Get list of manifests</p></div></div><div class="code"><div class="wrapper">    getCollectionData();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Hook up manifest list toggle
+DOM.$expandCollectionButton.click(() =&gt; store.dispatch(toggleList()));
+Hook up manifest list links to auto-load manifests
+DOM.$expandedCollection.on(&#39;click&#39;, &#39;a&#39;, Events.loadManifestLinkClick);</p></div></div><div class="code"><div class="wrapper">  },
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> sourceListState = store.getState().sourceList;
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'sourceManifests'</span>, sourceListState, lastLocalSourceListState)) {
+      renderCollection(sourceListState.sourceManifests);
+    }
+    lastLocalSourceListState = sourceListState;
+  },
+};
+
+$(<span class="hljs-built_in">document</span>).ready(Events.domReady);</div></div></div></div></body></html>

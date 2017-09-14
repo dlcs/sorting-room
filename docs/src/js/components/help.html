@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/help</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/help"><meta name="groc-project-path" content="src/js/components/help.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/help.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> { toggleHelpVisible } <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/ui.js'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> lastState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> DOM = {
+  $helpButton: <span class="hljs-literal">null</span>,
+  $helpText: <span class="hljs-literal">null</span>,
+
+  init() {
+    DOM.$helpButton = $(<span class="hljs-string">'.help-button'</span>);
+    DOM.$helpText = $(<span class="hljs-string">'.help'</span>);
+  },
+};
+
+<span class="hljs-keyword">const</span> Events = {
+  domReady() {
+    DOM.init();
+    Events.init();
+    store.subscribe(Events.storeSubscribe);
+  },
+  init() {
+    DOM.$helpButton.click(Events.helpToggle);
+  },
+  helpToggle() {
+    store.dispatch(toggleHelpVisible());
+  },
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> state = store.getState().ui;
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'helpVisible'</span>, state, lastState)) {
+      <span class="hljs-keyword">if</span> (state.helpVisible) {
+        DOM.$helpButton.addClass(<span class="hljs-string">'help-button--active'</span>);
+        DOM.$helpText.addClass(<span class="hljs-string">'help--active'</span>);
+      } <span class="hljs-keyword">else</span> {
+        DOM.$helpButton.removeClass(<span class="hljs-string">'help-button--active'</span>);
+        DOM.$helpText.removeClass(<span class="hljs-string">'help--active'</span>);
+      }
+    }
+    lastState = state;
+  },
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> helpInit = (globalStore) =&gt; {
+  store = globalStore;
+};
+
+$(<span class="hljs-built_in">document</span>).ready(Events.domReady);</div></div></div></div></body></html>

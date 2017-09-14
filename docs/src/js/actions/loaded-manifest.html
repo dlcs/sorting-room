@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/actions/loaded-manifest</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/actions/loaded-manifest"><meta name="groc-project-path" content="src/js/actions/loaded-manifest.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/actions/loaded-manifest.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_ALL_IMAGES = <span class="hljs-string">'SET_ALL_IMAGES'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_CANVASES = <span class="hljs-string">'SET_CANVASES'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_DERIVED_MANIFESTS = <span class="hljs-string">'SET_DERIVED_MANIFESTS'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> RESET_DERIVED_MANIFESTS = <span class="hljs-string">'RESET_DERIVED_MANIFESTS'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_DERIVED_MANIFESTS_COMPLETE = <span class="hljs-string">'SET_DERIVED_MANIFESTS_COMPLETE'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_CLASSIFIED_CANVASES = <span class="hljs-string">'SET_CLASSIFIED_CANVASES'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_MANIFEST = <span class="hljs-string">'SET_MANIFEST'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_MANIFEST_DATA = <span class="hljs-string">'SET_MANIFEST_DATA'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_THUMB_SIZES = <span class="hljs-string">'SET_THUMB_SIZES'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Action Creators </p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setManifest = (manifest) =&gt; ({
+  type: SET_MANIFEST,
+  manifest,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setManifestData = (manifestData) =&gt; ({
+  type: SET_MANIFEST_DATA,
+  manifestData,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setCanvases = (canvases) =&gt; ({
+  type: SET_CANVASES,
+  canvases,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setAllImages = (allImages) =&gt; ({
+  type: SET_ALL_IMAGES,
+  allImages,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setDerivedManifests = (derivedManifests) =&gt; ({
+  type: SET_DERIVED_MANIFESTS,
+  derivedManifests,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setDerivedManifestsComplete = (derivedManifestsComplete) =&gt; ({
+  type: SET_DERIVED_MANIFESTS_COMPLETE,
+  derivedManifestsComplete,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> resetDerivedManifests = () =&gt; ({
+  type: RESET_DERIVED_MANIFESTS,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setClassifiedCanvases = (classifiedCanvases) =&gt; ({
+  type: SET_CLASSIFIED_CANVASES,
+  classifiedCanvases,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setThumbSizes = (thumbSizes) =&gt; ({
+  type: SET_THUMB_SIZES,
+  thumbSizes,
+});</div></div></div></div></body></html>

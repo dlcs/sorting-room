@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="en"><head><title>src/scss/components/_header</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/scss/components/_header"><meta name="groc-project-path" content="src/scss/components/_header.scss"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/scss/components/_header.scss</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-class">.header</span> {
+  <span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-variable">$black90</span>;</span>
+  <span class="hljs-attribute">min-height</span><span class="hljs-value">: <span class="hljs-number">56px</span>;</span>
+  <span class="hljs-attribute">overflow</span><span class="hljs-value">: hidden;</span>
+  <span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+  <span class="hljs-attribute">position</span><span class="hljs-value">: relative;</span>
+  <span class="hljs-comment">//top: 0;</span>
+  <span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">100%</span>;</span>
+  <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">1000</span>;</span>
+
+  &amp;__title {
+    <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$white</span>;</span>
+    <span class="hljs-attribute">float</span><span class="hljs-value">: left;</span>
+    <span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">1.3rem</span>;</span>
+    <span class="hljs-attribute">line-height</span><span class="hljs-value">: <span class="hljs-number">24px</span>;</span>
+    <span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">15px</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">20px</span>;</span>
+    <span class="hljs-attribute">text-transform</span><span class="hljs-value">: uppercase;</span>
+    <span class="hljs-attribute">vertical-align</span><span class="hljs-value">: middle;</span>
+
+    <span class="hljs-tag">a</span> {
+      <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$white</span>;</span>
+      <span class="hljs-attribute">text-decoration</span><span class="hljs-value">: none;</span>
+
+      &amp;<span class="hljs-pseudo">:focus</span>,
+      &amp;<span class="hljs-pseudo">:hover</span> {
+        <span class="hljs-attribute">border-bottom</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid <span class="hljs-variable">$white</span>;</span>
+        <span class="hljs-attribute">outline</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+      }
+    }
+  }
+}
+
+<span class="hljs-class">.header-nav</span> {
+  <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$white</span>;</span>
+  <span class="hljs-attribute">display</span><span class="hljs-value">: inline-block;</span>
+  <span class="hljs-attribute">float</span><span class="hljs-value">: right;</span>
+  <span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">1.1rem</span>;</span>
+  <span class="hljs-attribute">list-style</span><span class="hljs-value">: none;</span>
+  <span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">16px</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">50px</span>;</span>
+  <span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">20px</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+
+  <span class="hljs-at_rule">@<span class="hljs-keyword">media</span> (min-width:<span class="hljs-preprocessor"> 740px</span>) {</span>
+    <span class="hljs-attribute">float</span><span class="hljs-value">: none;</span>
+    <span class="hljs-attribute">padding-right</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+  }
+
+  &amp;__item {
+    <span class="hljs-attribute">display</span><span class="hljs-value">: inline-block;</span>
+    <span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">29px</span>;</span>
+    <span class="hljs-attribute">line-height</span><span class="hljs-value">: <span class="hljs-number">1</span>;</span>
+    <span class="hljs-attribute">margin-left</span><span class="hljs-value">: <span class="hljs-number">25px</span>;</span>
+    <span class="hljs-attribute">position</span><span class="hljs-value">: relative;</span>
+
+    &amp;--manifest {
+      <span class="hljs-attribute">display</span><span class="hljs-value">: none;</span>
+    }
+
+    <span class="hljs-tag">i</span> {
+      <span class="hljs-attribute">left</span><span class="hljs-value">: -<span class="hljs-number">10px</span>;</span>
+      <span class="hljs-attribute">position</span><span class="hljs-value">: relative;</span>
+      <span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">4px</span>;</span>
+    }
+  }
+
+  &amp;__link {
+    <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$white</span>;</span>
+    <span class="hljs-attribute">text-decoration</span><span class="hljs-value">: none;</span>
+
+    &amp;<span class="hljs-pseudo">:focus</span>,
+    &amp;<span class="hljs-pseudo">:hover</span> {
+      <span class="hljs-attribute">border-bottom</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid <span class="hljs-variable">$white</span>;</span>
+      <span class="hljs-attribute">outline</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+    }
+  }
+
+  &amp;__progress {
+    <span class="hljs-attribute">bottom</span><span class="hljs-value">: -<span class="hljs-number">9px</span>;</span>
+    <span class="hljs-attribute">left</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+    <span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+    <span class="hljs-attribute">right</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+  }
+}</div></div></div></div></body></html>

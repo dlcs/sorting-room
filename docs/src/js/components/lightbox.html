@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/lightbox</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/lightbox"><meta name="groc-project-path" content="src/js/components/lightbox.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/lightbox.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> {
+    setCurrentImage,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/ui.js'</span>;
+<span class="hljs-keyword">import</span> L <span class="hljs-keyword">from</span> <span class="hljs-string">'leaflet'</span>;
+<span class="hljs-keyword">import</span> {
+  addOrRemoveFromSelection,
+  setCollectionName,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/selected-collection.js'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">let</span> lastLocalLightboxState = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">const</span> thumbsContainer = <span class="hljs-string">'.thumbs-container'</span>;
+<span class="hljs-keyword">let</span> map = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> createDeepZoomViewer = () =&gt; {
+  <span class="hljs-keyword">const</span> $thumb = $(<span class="hljs-string">`.thumb[data-mfp-src='<span class="hljs-subst">${$('.mfp-img').attr('src')}</span>']`</span>);
+  $(<span class="hljs-string">'.mfp-container'</span>).prepend(<span class="hljs-string">'&lt;div class="zoom-toolbar__map" id="map"&gt;&lt;/div&gt;'</span>);
+  $(<span class="hljs-string">'#map'</span>).click((e) =&gt; e.stopPropagation());
+  map = L.map(<span class="hljs-string">'map'</span>, {
+    center: [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
+    crs: L.CRS.Simple,
+    zoom: <span class="hljs-number">3</span>,
+  }).on(<span class="hljs-string">'layeradd'</span>, (e) =&gt; {
+    setTimeout(() =&gt; {
+      e.target.setZoom(<span class="hljs-number">3</span>);
+    }, <span class="hljs-number">1000</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>e.target.panTo(center);</p></div></div><div class="code"><div class="wrapper">  });
+
+  L.tileLayer.iiif($thumb.attr(<span class="hljs-string">'data-info'</span>)).addTo(map);
+};
+
+<span class="hljs-keyword">const</span> destroyDeepZoomViewer = () =&gt; {
+  <span class="hljs-keyword">if</span> (map !== <span class="hljs-literal">null</span>) {
+    map.remove();
+    $(<span class="hljs-string">'#map'</span>).remove();
+    map = <span class="hljs-literal">null</span>;
+  }
+};
+
+<span class="hljs-keyword">const</span> zoomInButtonText = <span class="hljs-string">'&lt;i class="material-icons"&gt;zoom_in&lt;/i&gt; Zoom in'</span>;
+<span class="hljs-keyword">const</span> zoomOutButtonText = <span class="hljs-string">'&lt;i class="material-icons"&gt;zoom_out&lt;/i&gt; Zoom out'</span>;
+
+<span class="hljs-keyword">const</span> deepZoomToggle = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> ($(<span class="hljs-string">'#map'</span>).length) {
+    $(<span class="hljs-keyword">this</span>).removeClass(<span class="hljs-string">'zoom-toolbar__zoom-button--active'</span>).html(zoomInButtonText);
+    destroyDeepZoomViewer();
+  } <span class="hljs-keyword">else</span> {
+    $(<span class="hljs-keyword">this</span>).addClass(<span class="hljs-string">'zoom-toolbar__zoom-button--active'</span>).html(zoomOutButtonText);
+    createDeepZoomViewer();
+  }
+};
+
+<span class="hljs-keyword">const</span> isIndexInSelection = (idx) =&gt; {
+  <span class="hljs-keyword">if</span> (store.getState().selectedCollection.selectedImages
+  .indexOf(<span class="hljs-built_in">parseInt</span>(idx, <span class="hljs-number">10</span>)) &gt; -<span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+};
+
+<span class="hljs-keyword">const</span> addOrRemoveClick = () =&gt; {
+  <span class="hljs-keyword">const</span> $thumb = $(<span class="hljs-string">`.thumb[data-mfp-src='<span class="hljs-subst">${$('.mfp-img').attr('src')}</span>']`</span>);
+  <span class="hljs-keyword">const</span> idx = $thumb.attr(<span class="hljs-string">'data-idx'</span>);
+  store.dispatch(addOrRemoveFromSelection(idx));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(store.getState().select);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">if</span> (isIndexInSelection(idx)) {
+    $(<span class="hljs-string">'.zoom-toolbar'</span>).addClass(<span class="hljs-string">'zoom-toolbar--selected'</span>);
+  } <span class="hljs-keyword">else</span> {
+    $(<span class="hljs-string">'.zoom-toolbar'</span>).removeClass(<span class="hljs-string">'zoom-toolbar--selected'</span>);
+  }
+};
+
+<span class="hljs-keyword">const</span> collectionNameChange = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">e</span>) </span>{
+  e.stopPropagation();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;collectionNameChange&#39;, $(this).val());</p></div></div><div class="code"><div class="wrapper">  store.dispatch(setCollectionName($(<span class="hljs-keyword">this</span>).val()));
+};
+
+<span class="hljs-keyword">const</span> createPopupToolbar = () =&gt; {
+  <span class="hljs-keyword">const</span> collectionName = store.getState().selectedCollection.collectionName !== <span class="hljs-literal">null</span> ?
+  store.getState().selectedCollection.collectionName : <span class="hljs-string">''</span>;
+  <span class="hljs-keyword">const</span> isSelected = isIndexInSelection(store.getState().ui.lightbox.currentImage.idx) ?
+  <span class="hljs-string">' zoom-toolbar--selected'</span> : <span class="hljs-string">''</span>;
+  <span class="hljs-keyword">const</span> $toolbar = $(<span class="hljs-string">`
+    &lt;ul class="zoom-toolbar<span class="hljs-subst">${isSelected}</span>"&gt;
+      &lt;li class="zoom-toolbar__item zoom-toolbar__collection-name" style="display:none"&gt;
+        &lt;input id="collection-name" type="text"
+        value="<span class="hljs-subst">${collectionName}</span>" placeholder="Name your collection" /&gt;
+      &lt;/li&gt;
+      &lt;li class="zoom-toolbar__item"&gt;
+        &lt;button class="btn zoom-toolbar__zoom-button"&gt;
+        &lt;i class="material-icons"&gt;zoom_in&lt;/i&gt; Zoom in&lt;/button&gt;
+      &lt;/li&gt;
+      &lt;li class="zoom-toolbar__item"&gt;
+        &lt;button class="btn zoom-toolbar__select-button"&gt;
+          &lt;span class="zoom-toolbar__zoom-button-add"&gt;
+          &lt;i class="material-icons"&gt;add_circle&lt;/i&gt; Add to selection&lt;/span&gt;
+          &lt;span class="zoom-toolbar__zoom-button-remove"&gt;
+          &lt;i class="material-icons"&gt;remove_circle&lt;/i&gt; Remove from selection&lt;/span&gt;
+        &lt;/button&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  `</span>);
+
+  $(<span class="hljs-string">'.mfp-gallery'</span>).addClass(<span class="hljs-string">'mfp-toolbar'</span>).append($toolbar);
+  $(<span class="hljs-string">'.zoom-toolbar__collection-name input'</span>).keyup(collectionNameChange);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log($(&#39;#collection-name&#39;));</p></div></div><div class="code"><div class="wrapper">  $(<span class="hljs-string">'.zoom-toolbar'</span>).click((e) =&gt; { e.stopPropagation(); });
+  $(<span class="hljs-string">'.zoom-toolbar__zoom-button'</span>).click(deepZoomToggle);
+  $(<span class="hljs-string">'.zoom-toolbar__select-button'</span>).click(addOrRemoveClick);
+};
+
+<span class="hljs-keyword">const</span> destroyPopupToolbar = () =&gt; {
+  $(<span class="hljs-string">'.zoom-toolbar'</span>).remove();
+  $(<span class="hljs-string">'.mfp-with-zoom'</span>).removeClass(<span class="hljs-string">'mfp-toolbar'</span>);
+};
+
+<span class="hljs-keyword">const</span> Config = {
+  magnificOptions: {
+    callbacks: {
+      change() {
+        <span class="hljs-keyword">const</span> $thumb = $(<span class="hljs-string">`.thumb[data-mfp-src='<span class="hljs-subst">${$(this.content).find('.mfp-img').attr('src')}</span>']`</span>);
+        <span class="hljs-keyword">const</span> currentImageData = {
+          idx: $thumb.attr(<span class="hljs-string">'data-idx'</span>),
+          info: $thumb.attr(<span class="hljs-string">'data-info'</span>),
+        };</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(currentImageData, store.getState().select.currentImage);</p></div></div><div class="code"><div class="wrapper">        store.dispatch(setCurrentImage(currentImageData));
+        destroyDeepZoomViewer();
+      },
+      close() {
+        destroyDeepZoomViewer();
+        destroyPopupToolbar();
+      },
+      open() {
+        createPopupToolbar();
+      },
+    },
+    delegate: <span class="hljs-string">'img.thumb:visible'</span>,
+    type: <span class="hljs-string">'image'</span>,
+    closeOnContentClick: <span class="hljs-literal">false</span>,
+    closeBtnInside: <span class="hljs-literal">false</span>,
+    closeOnBgClick: <span class="hljs-literal">false</span>,
+    mainClass: <span class="hljs-string">'mfp-with-zoom mfp-img-mobile'</span>,
+    image: {
+      verticalFit: <span class="hljs-literal">true</span>,
+    },
+    gallery: {
+      enabled: <span class="hljs-literal">true</span>,
+    },
+    zoom: {
+      enabled: <span class="hljs-literal">true</span>,
+      duration: <span class="hljs-number">300</span>, <span class="hljs-comment">// don't foget to change the duration also in CSS</span>
+      opener(element) {
+        <span class="hljs-keyword">return</span> element;
+      },
+    },
+  },
+};
+
+<span class="hljs-keyword">const</span> Events = {
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> lightboxState = store.getState().ui.lightbox;
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'currentImage'</span>, lightboxState, lastLocalLightboxState)) {
+      <span class="hljs-keyword">if</span> (isIndexInSelection(lightboxState.currentImage.idx)) {
+        $(<span class="hljs-string">'.zoom-toolbar'</span>).addClass(<span class="hljs-string">'zoom-toolbar--selected'</span>);
+      } <span class="hljs-keyword">else</span> {
+        $(<span class="hljs-string">'.zoom-toolbar'</span>).removeClass(<span class="hljs-string">'zoom-toolbar--selected'</span>);
+      }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;current image changed&#39;, state.currentImage);</p></div></div><div class="code"><div class="wrapper">    }
+    lastLocalLightboxState = lightboxState;
+  },
+  thumbZoomClick() {
+    <span class="hljs-keyword">const</span> $thisContainer = $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.tc'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const $thisThumb = $thisContainer.find(&#39;.thumb&#39;);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> posInThumbs = $(<span class="hljs-string">'.tc:visible'</span>).index($thisContainer);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(posInThumbs);</p></div></div><div class="code"><div class="wrapper">    $(thumbsContainer).magnificPopup(<span class="hljs-string">'open'</span>, posInThumbs);
+  },
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> attachMagnific = () =&gt; {
+  $(thumbsContainer).removeData(<span class="hljs-string">'magnificPopup'</span>);
+  $(thumbsContainer).magnificPopup(Config.magnificOptions);
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> lightboxInit = (globalStore) =&gt; {
+  store = globalStore;
+  store.subscribe(Events.storeSubscribe);
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> attachLightboxBehaviour = () =&gt; {
+  $(<span class="hljs-string">'.thumb__zoom'</span>).click(Events.thumbZoomClick);
+  attachMagnific();
+};</div></div></div></div></body></html>
