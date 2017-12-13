@@ -226,8 +226,8 @@ const Events = {
       IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
     });
   },
-  deleteError(xhr, textStatus, error) {
-    console.log('ERROR DELETING', error);
+  deleteError(/* xhr, textStatus,  error*/) {
+    // console.log('ERROR DELETING', error);
     $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
   },
   deleteSuccess() {
@@ -277,8 +277,8 @@ const Events = {
   getCreatedManifests() {
     // get the container in presley
     const collectionId = SortyConfiguration
-    .getCollectionUrl(manifestStore.getState().manifest);
-
+      .getCollectionUri(manifestStore.getState().manifest);
+    console.log('delivered-manifests.Events.getCreatedManifests', collectionId);
     $.getJSON(collectionId)
         .done(Events.requestDerivedManifestsSuccess)
         .fail(Events.requestDerivedManifestsFailure);
@@ -325,16 +325,17 @@ const Events = {
     // console.log(manifestId);
   },
   putError(xhr, textStatus, error) {
-    alert(error);
+    console.log(error);
   },
   putSuccess() {
     const manifest = store.getState().selectedCollection.collectionManifest;
     const newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
-    IIIFActions.postManifest(
+    IIIFActions.postCollection(
       manifest,
-      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionAddUrl(),
       Events.postSuccess,
       Events.postError
     );
@@ -342,11 +343,12 @@ const Events = {
   requestDerivedManifestsFailure() {
     manifestStore.dispatch(resetDerivedManifests());
     // If there's no derived manifest - just show the list
+    console.log('requestDerivedManifestsFailure');
     $('html').addClass('manifest-loaded');
   },
   requestDerivedManifestsSuccess(collection) {
     // IIIF.wrap(collection);
-    // console.log('Request derived manifests success', collection);
+    console.log('requestDerivedManifestsSuccess', collection);
     manifestStore.dispatch(setDerivedManifests(collection));
     // console.log('RDMS', collection);
     const promises = [];
@@ -410,7 +412,7 @@ const Events = {
       // Store new manifest
       store.dispatch(setCollectionManifest(manifestToUpdate));
       // RE-PUT
-      IIIFActions.putManifest(manifestToUpdate, Events.putSuccess, Events.putError);
+      IIIFActions.addUpdateManifest(manifestToUpdate, Events.putSuccess, Events.putError);
     } else {
       // Cancel edit
       cancelEdits(true);

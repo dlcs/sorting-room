@@ -171,11 +171,12 @@ const Events = {
     store.dispatch(setCollectionManifest(newManifest));
 
     // PUTs the manifest
-    IIIFActions.putManifest(newManifest, Events.putSuccess, Events.putError);
+    IIIFActions.addUpdateManifest(newManifest, Events.putSuccess, Events.putError);
   },
   postManifest(newManifest) {
-    IIIFActions.postManifest(newManifest,
-      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+    IIIFActions.postCollection(newManifest,
+      SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionAddUrl(),
       Events.postComplete,
       Events.postError);
   },
@@ -237,9 +238,10 @@ const Events = {
     const newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
-    IIIFActions.postManifest(
+    IIIFActions.postCollection(
       manifest,
-      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionAddUrl(),
       Events.postSuccess,
       Events.postError
     );
