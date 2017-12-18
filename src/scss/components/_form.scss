@@ -1,0 +1,23 @@
+.c-form {
+
+}
+
+.c-form-field {
+  margin-bottom: 16px;
+  &__label {
+    width: 150px;
+    display: inline-block;
+  }
+  &__item {
+    padding: 4px 8px;
+    border: 1px solid #aaa;
+    border-radius: 2px;
+    &:focus {
+      border-color: #ddd;
+    }
+  }
+}
+
+.c-form__submit {
+
+}
