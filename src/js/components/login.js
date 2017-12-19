@@ -1,4 +1,5 @@
 import { hasPropertyChanged } from '../helpers/helpers.js';
+import { requestLogin } from '../actions/auth';
 const $ = require('jquery');
 
 let store = null;
@@ -14,6 +15,8 @@ const DOM = {
     DOM.$userName = $('.c-form-field__item[name="username"]');
     DOM.$password = $('.c-form-field__item[name="password"]');
     DOM.$submitButton = $('.c-form-submit[type="submit"]');
+    DOM.$error = $('.c-form__error');
+    console.log(DOM);
   },
 };
 
@@ -24,15 +27,21 @@ const Events = {
     store.subscribe(Events.storeSubscribe);
   },
   init() {
-    DOM.$submitButton.click(Events.login);
+    DOM.$loginForm.submit(Events.login);
   },
-  login() {
-    // TODO: dispatch event
+  login(ev) {
+    ev.preventDefault();
+    store.dispatch(
+      requestLogin({
+        username: DOM.$userName.val(),
+        password: DOM.$password.val(),
+      })
+    );
   },
   storeSubscribe() {
     const state = store.getState().auth;
-    if (hasPropertyChanged('isAuthenticated', state, lastState)) {
-      // TODO: do some state handling...
+    if (hasPropertyChanged('errorMessage', state, lastState)) {
+      DOM.$error.text(state.errorMessage);
     }
     lastState = state;
   },

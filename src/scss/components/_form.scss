@@ -19,6 +19,9 @@
       border-color: $grey-2;
     }
   }
+  &__error {
+    color: red;
+  }
 }
 
 .c-form__submit {

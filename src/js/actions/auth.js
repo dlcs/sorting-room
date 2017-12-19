@@ -1,4 +1,4 @@
-import SortyConfiguration from '../config/config.js';
+import { SortyConfiguration } from '../config/config.js';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -57,7 +57,6 @@ export function requestLogin(creds) {
     });
   });
 }
-
 
 export function logout() {
   SortyConfiguration.navigate.login();
