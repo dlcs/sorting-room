@@ -69,6 +69,20 @@ SortyConfiguration.getCanvasUrl = function getCanvasUrl(loadedResource, start, e
 ${canvasIndex}`;
 };
 
+SortyConfiguration.getLoginUrl = function getLoginUrl() {
+  return `${presentationServer}login`;
+};
+
+
+SortyConfiguration.navigate = {
+  home: () => {
+    window.location = 'index.html';
+  },
+  login: () => {
+    window.location = 'login.html';
+  },
+};
+
 /* application-specific extra stuff to show per canvas */
 SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) {
   let divClass = 'ocrUnknown';
