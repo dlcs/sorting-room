@@ -7,10 +7,10 @@ import {
 } from '../actions/auth';
 import { hasValidToken, setUserToken, removeUserToken } from '../helpers/jwt';
 
-export default function auth(state = {
+export const auth = (state = {
   isFetching: false,
   isAuthenticated: hasValidToken(),
-}, action) {
+}, action) => {
   switch (action.type) {
     case LOGIN_REQUEST:
       return Object.assign({}, state, {
@@ -39,4 +39,4 @@ export default function auth(state = {
     default:
       return state;
   }
-}
+};

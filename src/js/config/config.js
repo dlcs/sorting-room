@@ -73,13 +73,17 @@ SortyConfiguration.getLoginUrl = function getLoginUrl() {
   return `${presentationServer}login`;
 };
 
+function goTo(url) {
+  window.location.href = url;
+}
 
 SortyConfiguration.navigate = {
   home: () => {
-    window.location = 'index.html';
+    setTimeout(goTo, 1, '/index.html');
   },
   login: () => {
-    window.location = 'login.html';
+    console.log('changing route');
+    setTimeout(goTo, 1, '/login.html');
   },
 };
 
