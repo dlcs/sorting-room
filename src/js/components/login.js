@@ -49,6 +49,6 @@ const Events = {
 
 export const loginInit = (globalStore) => {
   store = globalStore;
+  $(document).ready(Events.domReady);
 };
 
-$(document).ready(Events.domReady);

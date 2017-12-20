@@ -17,7 +17,7 @@ export function receiveLogin(data) {
   return {
     type: LOGIN_SUCCESS,
     user: {
-      id_token: data.access_token,
+      id_token: data.token,
     },
   };
 }

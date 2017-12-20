@@ -37,7 +37,7 @@ import { loginInit } from './components/login.js';
 
 import sourceListInit from './components/source-list.js';
 
-import hasValidToken from './helpers/jwt';
+import { hasValidToken } from './helpers/jwt';
 import { SortyConfiguration } from './config/config';
 
 const $ = require('jquery');
@@ -47,8 +47,9 @@ require('leaflet');
 require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
 
-if (!hasValidToken && window.location.pathname !== '/login.html') {
-  console.log(SortyConfiguration.navigate);
+console.log('hasValidToken', hasValidToken, hasValidToken());
+
+if (!hasValidToken() && window.location.pathname !== '/login.html') {
   SortyConfiguration.navigate.login();
 } else {
   // Create the store for the application - hook up redux devtools
@@ -65,6 +66,7 @@ if (!hasValidToken && window.location.pathname !== '/login.html') {
 
 
   // Pass the store to component initialisers
+  loginInit(store, manifestStore);
   sourceListInit(store, manifestStore);
   helpInit(store);
   thumbsInit(store, manifestStore);
@@ -74,5 +76,4 @@ if (!hasValidToken && window.location.pathname !== '/login.html') {
   inputInit(store, manifestStore);
   makeManifestInit(store, manifestStore);
   lightboxInit(store, manifestStore);
-  loginInit(store, manifestStore);
 }
