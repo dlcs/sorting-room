@@ -64,6 +64,19 @@ If you get the error **Error: No selenium server jar found at the specified loca
 * **Components** – specific UI components. This is where majority of our work takes place and our UI components are often composed of Objects and Components
 * **Trumps** – utilities and helper classes with ability to override anything which goes before in the triangle, eg. hide helper class
 
+## Running on docker
+
+### Build container
+
+From the root folder:
+
+`docker build -t digirati/sorting-room:staging .`
+
+Running the container:
+
+`docker run -p 3000:3000 digirati/sorting-room:staging`
+
+then browse `http://localhost:3000/`
 
 ## License
 
