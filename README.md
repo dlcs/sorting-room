@@ -70,11 +70,11 @@ If you get the error **Error: No selenium server jar found at the specified loca
 
 From the root folder:
 
-`docker build -t digirati/sorting-room:staging .`
+`docker build -t digirati/sorting-room:latest .`
 
 Running the container:
 
-`docker run -p 3000:3000 digirati/sorting-room:staging`
+`docker run -p 3000:3000 digirati/sorting-room:latest`
 
 then browse `http://localhost:3000/`
 
