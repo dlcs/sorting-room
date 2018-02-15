@@ -1,11 +1,9 @@
-FROM node:6.2.0
+FROM  digirati/node8-npm5-alpine37
 
 COPY . /srv/sorting-room
 
 WORKDIR /srv/sorting-room
 
-RUN npm install -g yarn grunt-cli
-
-RUN yarn install
+RUN apk add --no-cache yarn && npm install -g grunt-cli --unsafe-perm && yarn
 
 CMD ["grunt"]

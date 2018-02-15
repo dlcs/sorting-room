@@ -73,5 +73,12 @@ grunt</code></pre>
 <li><strong>Components</strong> – specific UI components. This is where majority of our work takes place and our UI components are often composed of Objects and Components</li>
 <li><strong>Trumps</strong> – utilities and helper classes with ability to override anything which goes before in the triangle, eg. hide helper class</li>
 </ul>
+<h2 id="running-on-docker">Running on docker</h2>
+<h3 id="build-container">Build container</h3>
+<p>From the root folder:</p>
+<p><code>docker build -t digirati/sorting-room:latest .</code></p>
+<p>Running the container:</p>
+<p><code>docker run -p 3000:3000 digirati/sorting-room:latest</code></p>
+<p>then browse <code>http://localhost:3000/</code></p>
 <h2 id="license">License</h2>
 <p>MIT Licensed. See <a href="LICENSE">LICENSE</a></p></div></div></div></div></body></html>

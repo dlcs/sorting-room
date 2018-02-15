@@ -6,7 +6,7 @@ module.exports = {
       browserifyOptions: {
         debug: true,
       },
-      transform: [['babelify', { presets: ['es2015', 'react'] }]],
+      transform: [['babelify', { presets: ['env'] }]],
     },
     src: ['src/js/script.js'],
     dest: 'build/assets/js/script.js',
@@ -14,7 +14,7 @@ module.exports = {
 
   dist: {
     options: {
-      transform: [['babelify', { presets: ['es2015', 'react'] }]],
+      transform: [['babelify', { presets: ['env'] }]],
     },
     src: ['src/js/script.js'],
     dest: 'dist/assets/js/script.js',

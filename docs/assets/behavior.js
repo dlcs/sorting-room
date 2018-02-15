@@ -13,195 +13,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "commentsOnly": true,
           "name": "Markdown"
         },
-        "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/README.md",
+        "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/README.md",
         "projectPath": "README.md",
         "targetPath": "index",
         "pageTitle": "index",
-        "firstHeader": {
-          "type": "heading",
-          "data": {
-            "level": 1,
-            "title": "Sorting room",
-            "slug": "sorting-room",
-            "isFileHeader": true
-          },
-          "depth": 1,
-          "children": [
-            {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Overview",
-                "slug": "overview"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Prerequisites",
-                "slug": "prerequisites"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Table of Contents",
-                "slug": "table-of-contents"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Requirements:",
-                "slug": "requirements"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Quick Start",
-                "slug": "quick-start"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Tests",
-                "slug": "tests"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Documentation",
-                "slug": "documentation"
-              },
-              "depth": 2,
-              "children": [
-                {
-                  "type": "heading",
-                  "data": {
-                    "level": 3,
-                    "title": "Grunt Commands",
-                    "slug": "grunt-commands"
-                  },
-                  "depth": 3
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 3,
-                    "title": "ITCSS",
-                    "slug": "itcss"
-                  },
-                  "depth": 3
-                }
-              ]
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "License",
-                "slug": "license"
-              },
-              "depth": 2
-            }
-          ]
-        },
-        "title": "Sorting room"
+        "title": "index"
       },
-      "depth": 1,
-      "outline": [
-        {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Overview",
-            "slug": "overview"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Prerequisites",
-            "slug": "prerequisites"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Table of Contents",
-            "slug": "table-of-contents"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Requirements:",
-            "slug": "requirements"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Quick Start",
-            "slug": "quick-start"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Tests",
-            "slug": "tests"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Documentation",
-            "slug": "documentation"
-          },
-          "depth": 2,
-          "children": [
-            {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Grunt Commands",
-                "slug": "grunt-commands"
-              },
-              "depth": 3
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "ITCSS",
-                "slug": "itcss"
-              },
-              "depth": 3
-            }
-          ]
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "License",
-            "slug": "license"
-          },
-          "depth": 2
-        }
-      ]
+      "depth": 1
     }, {
       "type": "file",
       "data": {
@@ -214,14 +32,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "foldPrefix": "^",
           "name": "JavaScript"
         },
-        "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/Gruntfile.js",
+        "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/Gruntfile.js",
         "projectPath": "Gruntfile.js",
         "targetPath": "Gruntfile",
         "pageTitle": "Gruntfile",
         "title": "Gruntfile"
       },
-      "depth": 1,
-      "outline": []
+      "depth": 1
     }, {
       "type": "folder",
       "data": {
@@ -258,14 +75,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/actions/loaded-manifest.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/actions/loaded-manifest.js",
                     "projectPath": "src/js/actions/loaded-manifest.js",
                     "targetPath": "src/js/actions/loaded-manifest",
                     "pageTitle": "src/js/actions/loaded-manifest",
                     "title": "loaded-manifest"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -278,14 +94,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/actions/selected-collection.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/actions/selected-collection.js",
                     "projectPath": "src/js/actions/selected-collection.js",
                     "targetPath": "src/js/actions/selected-collection",
                     "pageTitle": "src/js/actions/selected-collection",
                     "title": "selected-collection"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -298,14 +113,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/actions/source-list.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/actions/source-list.js",
                     "projectPath": "src/js/actions/source-list.js",
                     "targetPath": "src/js/actions/source-list",
                     "pageTitle": "src/js/actions/source-list",
                     "title": "source-list"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -318,14 +132,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/actions/ui.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/actions/ui.js",
                     "projectPath": "src/js/actions/ui.js",
                     "targetPath": "src/js/actions/ui",
                     "pageTitle": "src/js/actions/ui",
                     "title": "ui"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -348,14 +161,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/classify-tools.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/classify-tools.js",
                     "projectPath": "src/js/components/classify-tools.js",
                     "targetPath": "src/js/components/classify-tools",
                     "pageTitle": "src/js/components/classify-tools",
                     "title": "classify-tools"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -368,14 +180,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/derived-manifests.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/derived-manifests.js",
                     "projectPath": "src/js/components/derived-manifests.js",
                     "targetPath": "src/js/components/derived-manifests",
                     "pageTitle": "src/js/components/derived-manifests",
                     "title": "derived-manifests"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -388,14 +199,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/help.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/help.js",
                     "projectPath": "src/js/components/help.js",
                     "targetPath": "src/js/components/help",
                     "pageTitle": "src/js/components/help",
                     "title": "help"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -408,14 +218,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/iiif-actions.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/iiif-actions.js",
                     "projectPath": "src/js/components/iiif-actions.js",
                     "targetPath": "src/js/components/iiif-actions",
                     "pageTitle": "src/js/components/iiif-actions",
                     "title": "iiif-actions"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -428,14 +237,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/input.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/input.js",
                     "projectPath": "src/js/components/input.js",
                     "targetPath": "src/js/components/input",
                     "pageTitle": "src/js/components/input",
                     "title": "input"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -448,14 +256,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/lightbox.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/lightbox.js",
                     "projectPath": "src/js/components/lightbox.js",
                     "targetPath": "src/js/components/lightbox",
                     "pageTitle": "src/js/components/lightbox",
                     "title": "lightbox"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -468,14 +275,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/make-manifest-modal.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/make-manifest-modal.js",
                     "projectPath": "src/js/components/make-manifest-modal.js",
                     "targetPath": "src/js/components/make-manifest-modal",
                     "pageTitle": "src/js/components/make-manifest-modal",
                     "title": "make-manifest-modal"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -488,14 +294,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/omeka-actions.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/omeka-actions.js",
                     "projectPath": "src/js/components/omeka-actions.js",
                     "targetPath": "src/js/components/omeka-actions",
                     "pageTitle": "src/js/components/omeka-actions",
                     "title": "omeka-actions"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -508,14 +313,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/selection.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/selection.js",
                     "projectPath": "src/js/components/selection.js",
                     "targetPath": "src/js/components/selection",
                     "pageTitle": "src/js/components/selection",
                     "title": "selection"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -528,14 +332,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/source-list.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/source-list.js",
                     "projectPath": "src/js/components/source-list.js",
                     "targetPath": "src/js/components/source-list",
                     "pageTitle": "src/js/components/source-list",
                     "title": "source-list"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -548,14 +351,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/thumb-size-selector.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/thumb-size-selector.js",
                     "projectPath": "src/js/components/thumb-size-selector.js",
                     "targetPath": "src/js/components/thumb-size-selector",
                     "pageTitle": "src/js/components/thumb-size-selector",
                     "title": "thumb-size-selector"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -568,14 +370,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/thumbs.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/thumbs.js",
                     "projectPath": "src/js/components/thumbs.js",
                     "targetPath": "src/js/components/thumbs",
                     "pageTitle": "src/js/components/thumbs",
                     "title": "thumbs"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -588,14 +389,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/components/workspace.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/components/workspace.js",
                     "projectPath": "src/js/components/workspace.js",
                     "targetPath": "src/js/components/workspace",
                     "pageTitle": "src/js/components/workspace",
                     "title": "workspace"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -618,14 +418,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/config/config.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/config/config.js",
                     "projectPath": "src/js/config/config.js",
                     "targetPath": "src/js/config/config",
                     "pageTitle": "src/js/config/config",
                     "title": "config"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -638,14 +437,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/config/terms.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/config/terms.js",
                     "projectPath": "src/js/config/terms.js",
                     "targetPath": "src/js/config/terms",
                     "pageTitle": "src/js/config/terms",
                     "title": "terms"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -668,14 +466,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/helpers/helpers.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/helpers/helpers.js",
                     "projectPath": "src/js/helpers/helpers.js",
                     "targetPath": "src/js/helpers/helpers",
                     "pageTitle": "src/js/helpers/helpers",
                     "title": "helpers"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -688,14 +485,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/helpers/iiif.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/helpers/iiif.js",
                     "projectPath": "src/js/helpers/iiif.js",
                     "targetPath": "src/js/helpers/iiif",
                     "pageTitle": "src/js/helpers/iiif",
                     "title": "iiif"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -718,14 +514,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/reducers/index.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/reducers/index.js",
                     "projectPath": "src/js/reducers/index.js",
                     "targetPath": "src/js/reducers/index",
                     "pageTitle": "src/js/reducers/index",
                     "title": "index"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -738,14 +533,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/reducers/loaded-manifest.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/reducers/loaded-manifest.js",
                     "projectPath": "src/js/reducers/loaded-manifest.js",
                     "targetPath": "src/js/reducers/loaded-manifest",
                     "pageTitle": "src/js/reducers/loaded-manifest",
                     "title": "loaded-manifest"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -758,14 +552,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/reducers/selected-collection.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/reducers/selected-collection.js",
                     "projectPath": "src/js/reducers/selected-collection.js",
                     "targetPath": "src/js/reducers/selected-collection",
                     "pageTitle": "src/js/reducers/selected-collection",
                     "title": "selected-collection"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -778,14 +571,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/reducers/source-list.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/reducers/source-list.js",
                     "projectPath": "src/js/reducers/source-list.js",
                     "targetPath": "src/js/reducers/source-list",
                     "pageTitle": "src/js/reducers/source-list",
                     "title": "source-list"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -798,14 +590,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "JavaScript"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/reducers/ui.js",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/reducers/ui.js",
                     "projectPath": "src/js/reducers/ui.js",
                     "targetPath": "src/js/reducers/ui",
                     "pageTitle": "src/js/reducers/ui",
                     "title": "ui"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -820,14 +611,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                   "foldPrefix": "^",
                   "name": "JavaScript"
                 },
-                "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/js/script.js",
+                "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/js/script.js",
                 "projectPath": "src/js/script.js",
                 "targetPath": "src/js/script",
                 "pageTitle": "src/js/script",
                 "title": "script"
               },
-              "depth": 3,
-              "outline": []
+              "depth": 3
             }
           ]
         }, {
@@ -858,14 +648,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_button.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_button.scss",
                     "projectPath": "src/scss/components/_button.scss",
                     "targetPath": "src/scss/components/_button",
                     "pageTitle": "src/scss/components/_button",
                     "title": "_button"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -878,14 +667,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_classified-manifest.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_classified-manifest.scss",
                     "projectPath": "src/scss/components/_classified-manifest.scss",
                     "targetPath": "src/scss/components/_classified-manifest",
                     "pageTitle": "src/scss/components/_classified-manifest",
                     "title": "_classified-manifest"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -898,14 +686,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_classify-tools.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_classify-tools.scss",
                     "projectPath": "src/scss/components/_classify-tools.scss",
                     "targetPath": "src/scss/components/_classify-tools",
                     "pageTitle": "src/scss/components/_classify-tools",
                     "title": "_classify-tools"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -918,14 +705,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_description.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_description.scss",
                     "projectPath": "src/scss/components/_description.scss",
                     "targetPath": "src/scss/components/_description",
                     "pageTitle": "src/scss/components/_description",
                     "title": "_description"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -938,14 +724,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_example.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_example.scss",
                     "projectPath": "src/scss/components/_example.scss",
                     "targetPath": "src/scss/components/_example",
                     "pageTitle": "src/scss/components/_example",
                     "title": "_example"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -958,14 +743,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_footer.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_footer.scss",
                     "projectPath": "src/scss/components/_footer.scss",
                     "targetPath": "src/scss/components/_footer",
                     "pageTitle": "src/scss/components/_footer",
                     "title": "_footer"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -978,14 +762,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_header.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_header.scss",
                     "projectPath": "src/scss/components/_header.scss",
                     "targetPath": "src/scss/components/_header",
                     "pageTitle": "src/scss/components/_header",
                     "title": "_header"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -998,14 +781,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_help.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_help.scss",
                     "projectPath": "src/scss/components/_help.scss",
                     "targetPath": "src/scss/components/_help",
                     "pageTitle": "src/scss/components/_help",
                     "title": "_help"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1018,14 +800,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_help-button.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_help-button.scss",
                     "projectPath": "src/scss/components/_help-button.scss",
                     "targetPath": "src/scss/components/_help-button",
                     "pageTitle": "src/scss/components/_help-button",
                     "title": "_help-button"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1038,14 +819,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_info-bar.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_info-bar.scss",
                     "projectPath": "src/scss/components/_info-bar.scss",
                     "targetPath": "src/scss/components/_info-bar",
                     "pageTitle": "src/scss/components/_info-bar",
                     "title": "_info-bar"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1058,14 +838,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_load-bar.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_load-bar.scss",
                     "projectPath": "src/scss/components/_load-bar.scss",
                     "targetPath": "src/scss/components/_load-bar",
                     "pageTitle": "src/scss/components/_load-bar",
                     "title": "_load-bar"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1078,14 +857,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_manifest-input.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_manifest-input.scss",
                     "projectPath": "src/scss/components/_manifest-input.scss",
                     "targetPath": "src/scss/components/_manifest-input",
                     "pageTitle": "src/scss/components/_manifest-input",
                     "title": "_manifest-input"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1098,14 +876,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_manifest-modal.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_manifest-modal.scss",
                     "projectPath": "src/scss/components/_manifest-modal.scss",
                     "targetPath": "src/scss/components/_manifest-modal",
                     "pageTitle": "src/scss/components/_manifest-modal",
                     "title": "_manifest-modal"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1118,14 +895,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_manifest-select.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_manifest-select.scss",
                     "projectPath": "src/scss/components/_manifest-select.scss",
                     "targetPath": "src/scss/components/_manifest-select",
                     "pageTitle": "src/scss/components/_manifest-select",
                     "title": "_manifest-select"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1138,14 +914,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_saved.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_saved.scss",
                     "projectPath": "src/scss/components/_saved.scss",
                     "targetPath": "src/scss/components/_saved",
                     "pageTitle": "src/scss/components/_saved",
                     "title": "_saved"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1158,14 +933,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_source-list.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_source-list.scss",
                     "projectPath": "src/scss/components/_source-list.scss",
                     "targetPath": "src/scss/components/_source-list",
                     "pageTitle": "src/scss/components/_source-list",
                     "title": "_source-list"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1178,14 +952,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_thumb.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_thumb.scss",
                     "projectPath": "src/scss/components/_thumb.scss",
                     "targetPath": "src/scss/components/_thumb",
                     "pageTitle": "src/scss/components/_thumb",
                     "title": "_thumb"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1198,14 +971,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_thumb-size.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_thumb-size.scss",
                     "projectPath": "src/scss/components/_thumb-size.scss",
                     "targetPath": "src/scss/components/_thumb-size",
                     "pageTitle": "src/scss/components/_thumb-size",
                     "title": "_thumb-size"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1218,14 +990,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_toolbar.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_toolbar.scss",
                     "projectPath": "src/scss/components/_toolbar.scss",
                     "targetPath": "src/scss/components/_toolbar",
                     "pageTitle": "src/scss/components/_toolbar",
                     "title": "_toolbar"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1238,14 +1009,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_viewer.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_viewer.scss",
                     "projectPath": "src/scss/components/_viewer.scss",
                     "targetPath": "src/scss/components/_viewer",
                     "pageTitle": "src/scss/components/_viewer",
                     "title": "_viewer"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1258,14 +1028,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_workspace-tabs.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_workspace-tabs.scss",
                     "projectPath": "src/scss/components/_workspace-tabs.scss",
                     "targetPath": "src/scss/components/_workspace-tabs",
                     "pageTitle": "src/scss/components/_workspace-tabs",
                     "title": "_workspace-tabs"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1278,14 +1047,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/components/_zoom-toolbar.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/components/_zoom-toolbar.scss",
                     "projectPath": "src/scss/components/_zoom-toolbar.scss",
                     "targetPath": "src/scss/components/_zoom-toolbar",
                     "pageTitle": "src/scss/components/_zoom-toolbar",
                     "title": "_zoom-toolbar"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1308,14 +1076,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_button.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_button.scss",
                     "projectPath": "src/scss/elements/_button.scss",
                     "targetPath": "src/scss/elements/_button",
                     "pageTitle": "src/scss/elements/_button",
                     "title": "_button"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1328,14 +1095,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_form.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_form.scss",
                     "projectPath": "src/scss/elements/_form.scss",
                     "targetPath": "src/scss/elements/_form",
                     "pageTitle": "src/scss/elements/_form",
                     "title": "_form"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1348,14 +1114,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_input.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_input.scss",
                     "projectPath": "src/scss/elements/_input.scss",
                     "targetPath": "src/scss/elements/_input",
                     "pageTitle": "src/scss/elements/_input",
                     "title": "_input"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1368,14 +1133,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_link.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_link.scss",
                     "projectPath": "src/scss/elements/_link.scss",
                     "targetPath": "src/scss/elements/_link",
                     "pageTitle": "src/scss/elements/_link",
                     "title": "_link"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1388,14 +1152,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_list.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_list.scss",
                     "projectPath": "src/scss/elements/_list.scss",
                     "targetPath": "src/scss/elements/_list",
                     "pageTitle": "src/scss/elements/_list",
                     "title": "_list"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1408,14 +1171,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_page.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_page.scss",
                     "projectPath": "src/scss/elements/_page.scss",
                     "targetPath": "src/scss/elements/_page",
                     "pageTitle": "src/scss/elements/_page",
                     "title": "_page"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1428,14 +1190,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_progress.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_progress.scss",
                     "projectPath": "src/scss/elements/_progress.scss",
                     "targetPath": "src/scss/elements/_progress",
                     "pageTitle": "src/scss/elements/_progress",
                     "title": "_progress"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1448,14 +1209,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_quote.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_quote.scss",
                     "projectPath": "src/scss/elements/_quote.scss",
                     "targetPath": "src/scss/elements/_quote",
                     "pageTitle": "src/scss/elements/_quote",
                     "title": "_quote"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1468,14 +1228,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_select.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_select.scss",
                     "projectPath": "src/scss/elements/_select.scss",
                     "targetPath": "src/scss/elements/_select",
                     "pageTitle": "src/scss/elements/_select",
                     "title": "_select"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1488,14 +1247,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_table.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_table.scss",
                     "projectPath": "src/scss/elements/_table.scss",
                     "targetPath": "src/scss/elements/_table",
                     "pageTitle": "src/scss/elements/_table",
                     "title": "_table"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1508,14 +1266,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/elements/_typography.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/elements/_typography.scss",
                     "projectPath": "src/scss/elements/_typography.scss",
                     "targetPath": "src/scss/elements/_typography",
                     "pageTitle": "src/scss/elements/_typography",
                     "title": "_typography"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1538,14 +1295,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/generic/_accessibility.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/generic/_accessibility.scss",
                     "projectPath": "src/scss/generic/_accessibility.scss",
                     "targetPath": "src/scss/generic/_accessibility",
                     "pageTitle": "src/scss/generic/_accessibility",
                     "title": "_accessibility"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1558,14 +1314,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/generic/_box-sizing.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/generic/_box-sizing.scss",
                     "projectPath": "src/scss/generic/_box-sizing.scss",
                     "targetPath": "src/scss/generic/_box-sizing",
                     "pageTitle": "src/scss/generic/_box-sizing",
                     "title": "_box-sizing"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1588,14 +1343,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/objects/_layout.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/objects/_layout.scss",
                     "projectPath": "src/scss/objects/_layout.scss",
                     "targetPath": "src/scss/objects/_layout",
                     "pageTitle": "src/scss/objects/_layout",
                     "title": "_layout"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1608,14 +1362,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/objects/_media.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/objects/_media.scss",
                     "projectPath": "src/scss/objects/_media.scss",
                     "targetPath": "src/scss/objects/_media",
                     "pageTitle": "src/scss/objects/_media",
                     "title": "_media"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1628,14 +1381,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/objects/_wrapper.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/objects/_wrapper.scss",
                     "projectPath": "src/scss/objects/_wrapper.scss",
                     "targetPath": "src/scss/objects/_wrapper",
                     "pageTitle": "src/scss/objects/_wrapper",
                     "title": "_wrapper"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1658,14 +1410,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/settings/_breakpoints.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/settings/_breakpoints.scss",
                     "projectPath": "src/scss/settings/_breakpoints.scss",
                     "targetPath": "src/scss/settings/_breakpoints",
                     "pageTitle": "src/scss/settings/_breakpoints",
                     "title": "_breakpoints"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1678,14 +1429,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/settings/_colours.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/settings/_colours.scss",
                     "projectPath": "src/scss/settings/_colours.scss",
                     "targetPath": "src/scss/settings/_colours",
                     "pageTitle": "src/scss/settings/_colours",
                     "title": "_colours"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1698,14 +1448,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/settings/_fonts.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/settings/_fonts.scss",
                     "projectPath": "src/scss/settings/_fonts.scss",
                     "targetPath": "src/scss/settings/_fonts",
                     "pageTitle": "src/scss/settings/_fonts",
                     "title": "_fonts"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1718,14 +1467,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/settings/_form.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/settings/_form.scss",
                     "projectPath": "src/scss/settings/_form.scss",
                     "targetPath": "src/scss/settings/_form",
                     "pageTitle": "src/scss/settings/_form",
                     "title": "_form"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1738,14 +1486,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/settings/_global.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/settings/_global.scss",
                     "projectPath": "src/scss/settings/_global.scss",
                     "targetPath": "src/scss/settings/_global",
                     "pageTitle": "src/scss/settings/_global",
                     "title": "_global"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1758,14 +1505,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/settings/_typography.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/settings/_typography.scss",
                     "projectPath": "src/scss/settings/_typography.scss",
                     "targetPath": "src/scss/settings/_typography",
                     "pageTitle": "src/scss/settings/_typography",
                     "title": "_typography"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1780,80 +1526,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                   "foldPrefix": "^",
                   "name": "SCSS"
                 },
-                "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/styles.scss",
+                "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/styles.scss",
                 "projectPath": "src/scss/styles.scss",
                 "targetPath": "src/scss/styles",
                 "pageTitle": "src/scss/styles",
                 "title": "styles"
               },
-              "depth": 3,
-              "outline": [
-                {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "ITCSS Structure",
-                    "slug": "itcss-structure"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "1. Settings",
-                    "slug": "1-settings"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "2. Tools",
-                    "slug": "2-tools"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "3. Generic",
-                    "slug": "3-generic"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "4. Elements",
-                    "slug": "4-elements"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "5. Objects",
-                    "slug": "5-objects"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "6. Components",
-                    "slug": "6-components"
-                  },
-                  "depth": 2
-                }, {
-                  "type": "heading",
-                  "data": {
-                    "level": 2,
-                    "title": "7. Trumps",
-                    "slug": "7-trumps"
-                  },
-                  "depth": 2
-                }
-              ]
+              "depth": 3
             }, {
               "type": "folder",
               "data": {
@@ -1874,14 +1553,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/tools/_functions.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/tools/_functions.scss",
                     "projectPath": "src/scss/tools/_functions.scss",
                     "targetPath": "src/scss/tools/_functions",
                     "pageTitle": "src/scss/tools/_functions",
                     "title": "_functions"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1894,14 +1572,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/tools/_mixins.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/tools/_mixins.scss",
                     "projectPath": "src/scss/tools/_mixins.scss",
                     "targetPath": "src/scss/tools/_mixins",
                     "pageTitle": "src/scss/tools/_mixins",
                     "title": "_mixins"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1924,14 +1601,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/trumps/_utilities.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/trumps/_utilities.scss",
                     "projectPath": "src/scss/trumps/_utilities.scss",
                     "targetPath": "src/scss/trumps/_utilities",
                     "pageTitle": "src/scss/trumps/_utilities",
                     "title": "_utilities"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -1954,14 +1630,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/vendor/_leaflet.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/vendor/_leaflet.scss",
                     "projectPath": "src/scss/vendor/_leaflet.scss",
                     "targetPath": "src/scss/vendor/_leaflet",
                     "pageTitle": "src/scss/vendor/_leaflet",
                     "title": "_leaflet"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1974,14 +1649,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/vendor/_magnific.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/vendor/_magnific.scss",
                     "projectPath": "src/scss/vendor/_magnific.scss",
                     "targetPath": "src/scss/vendor/_magnific",
                     "pageTitle": "src/scss/vendor/_magnific",
                     "title": "_magnific"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -1994,72 +1668,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "SCSS"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/scss/vendor/_normalize.scss",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/scss/vendor/_normalize.scss",
                     "projectPath": "src/scss/vendor/_normalize.scss",
                     "targetPath": "src/scss/vendor/_normalize",
                     "pageTitle": "src/scss/vendor/_normalize",
                     "title": "_normalize"
                   },
-                  "depth": 4,
-                  "outline": [
-                    {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "HTML5 display definitions",
-                        "slug": "html5-display-definitions"
-                      },
-                      "depth": 1
-                    }, {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "Links",
-                        "slug": "links"
-                      },
-                      "depth": 1
-                    }, {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "Text-level semantics",
-                        "slug": "text-level-semantics"
-                      },
-                      "depth": 1
-                    }, {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "Embedded content",
-                        "slug": "embedded-content"
-                      },
-                      "depth": 1
-                    }, {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "Grouping content",
-                        "slug": "grouping-content"
-                      },
-                      "depth": 1
-                    }, {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "Forms",
-                        "slug": "forms"
-                      },
-                      "depth": 1
-                    }, {
-                      "type": "heading",
-                      "data": {
-                        "level": 1,
-                        "title": "Tables",
-                        "slug": "tables"
-                      },
-                      "depth": 1
-                    }
-                  ]
+                  "depth": 4
                 }
               ]
             }
@@ -2093,14 +1708,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/layouts/default.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/layouts/default.hbs",
                     "projectPath": "src/views/layouts/default.hbs",
                     "targetPath": "src/views/layouts/default",
                     "pageTitle": "src/views/layouts/default",
                     "title": "default"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -2124,14 +1738,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/molecules/example.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/molecules/example.hbs",
                     "projectPath": "src/views/molecules/example.hbs",
                     "targetPath": "src/views/molecules/example",
                     "pageTitle": "src/views/molecules/example",
                     "title": "example"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2145,14 +1758,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/molecules/workspace-tabs.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/molecules/workspace-tabs.hbs",
                     "projectPath": "src/views/molecules/workspace-tabs.hbs",
                     "targetPath": "src/views/molecules/workspace-tabs",
                     "pageTitle": "src/views/molecules/workspace-tabs",
                     "title": "workspace-tabs"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }, {
@@ -2176,14 +1788,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/classify-tools.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/classify-tools.hbs",
                     "projectPath": "src/views/organisms/classify-tools.hbs",
                     "targetPath": "src/views/organisms/classify-tools",
                     "pageTitle": "src/views/organisms/classify-tools",
                     "title": "classify-tools"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2197,14 +1808,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/delete-manifest-modal.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/delete-manifest-modal.hbs",
                     "projectPath": "src/views/organisms/delete-manifest-modal.hbs",
                     "targetPath": "src/views/organisms/delete-manifest-modal",
                     "pageTitle": "src/views/organisms/delete-manifest-modal",
                     "title": "delete-manifest-modal"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2218,14 +1828,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/description.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/description.hbs",
                     "projectPath": "src/views/organisms/description.hbs",
                     "targetPath": "src/views/organisms/description",
                     "pageTitle": "src/views/organisms/description",
                     "title": "description"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2239,14 +1848,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/footer.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/footer.hbs",
                     "projectPath": "src/views/organisms/footer.hbs",
                     "targetPath": "src/views/organisms/footer",
                     "pageTitle": "src/views/organisms/footer",
                     "title": "footer"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2260,14 +1868,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/header.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/header.hbs",
                     "projectPath": "src/views/organisms/header.hbs",
                     "targetPath": "src/views/organisms/header",
                     "pageTitle": "src/views/organisms/header",
                     "title": "header"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2281,14 +1888,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/header-nav.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/header-nav.hbs",
                     "projectPath": "src/views/organisms/header-nav.hbs",
                     "targetPath": "src/views/organisms/header-nav",
                     "pageTitle": "src/views/organisms/header-nav",
                     "title": "header-nav"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2302,14 +1908,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/help-text.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/help-text.hbs",
                     "projectPath": "src/views/organisms/help-text.hbs",
                     "targetPath": "src/views/organisms/help-text",
                     "pageTitle": "src/views/organisms/help-text",
                     "title": "help-text"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2323,14 +1928,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/info-bar.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/info-bar.hbs",
                     "projectPath": "src/views/organisms/info-bar.hbs",
                     "targetPath": "src/views/organisms/info-bar",
                     "pageTitle": "src/views/organisms/info-bar",
                     "title": "info-bar"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2344,14 +1948,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/make-manifest-modal.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/make-manifest-modal.hbs",
                     "projectPath": "src/views/organisms/make-manifest-modal.hbs",
                     "targetPath": "src/views/organisms/make-manifest-modal",
                     "pageTitle": "src/views/organisms/make-manifest-modal",
                     "title": "make-manifest-modal"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2365,14 +1968,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/manifest-input.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/manifest-input.hbs",
                     "projectPath": "src/views/organisms/manifest-input.hbs",
                     "targetPath": "src/views/organisms/manifest-input",
                     "pageTitle": "src/views/organisms/manifest-input",
                     "title": "manifest-input"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2386,14 +1988,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/manifest-select.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/manifest-select.hbs",
                     "projectPath": "src/views/organisms/manifest-select.hbs",
                     "targetPath": "src/views/organisms/manifest-select",
                     "pageTitle": "src/views/organisms/manifest-select",
                     "title": "manifest-select"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2407,14 +2008,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/modal.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/modal.hbs",
                     "projectPath": "src/views/organisms/modal.hbs",
                     "targetPath": "src/views/organisms/modal",
                     "pageTitle": "src/views/organisms/modal",
                     "title": "modal"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2428,14 +2028,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/source-list.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/source-list.hbs",
                     "projectPath": "src/views/organisms/source-list.hbs",
                     "targetPath": "src/views/organisms/source-list",
                     "pageTitle": "src/views/organisms/source-list",
                     "title": "source-list"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2449,14 +2048,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/thumb-size.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/thumb-size.hbs",
                     "projectPath": "src/views/organisms/thumb-size.hbs",
                     "targetPath": "src/views/organisms/thumb-size",
                     "pageTitle": "src/views/organisms/thumb-size",
                     "title": "thumb-size"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2470,14 +2068,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/toolbar.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/toolbar.hbs",
                     "projectPath": "src/views/organisms/toolbar.hbs",
                     "targetPath": "src/views/organisms/toolbar",
                     "pageTitle": "src/views/organisms/toolbar",
                     "title": "toolbar"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }, {
                   "type": "file",
                   "data": {
@@ -2491,14 +2088,13 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                       "foldPrefix": "^",
                       "name": "Handlebars"
                     },
-                    "sourcePath": "/Users/matt.mcgrattan/Documents/Github/sorting-room/src/views/organisms/viewer.hbs",
+                    "sourcePath": "/Users/adam.meszaros/project_tacsi/sorting-room/src/views/organisms/viewer.hbs",
                     "projectPath": "src/views/organisms/viewer.hbs",
                     "targetPath": "src/views/organisms/viewer",
                     "pageTitle": "src/views/organisms/viewer",
                     "title": "viewer"
                   },
-                  "depth": 4,
-                  "outline": []
+                  "depth": 4
                 }
               ]
             }
