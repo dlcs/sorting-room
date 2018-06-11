@@ -8,9 +8,8 @@ module.exports = function (grunt) {
     'sass:dist',
     'postcss:dist',
     'browserify:dist',
-    'accessibility',
+    //'accessibility',
     'groc',
     'modernizr:dist',
-    'copy:dist',
-    'browserSync:dist']);
+    'copy:dist']);
 };
