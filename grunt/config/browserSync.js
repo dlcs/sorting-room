@@ -9,6 +9,7 @@ module.exports = {
       directory: true,
       watchTask: true,
       server: './build',
+      startPath: 'index.html'
     },
   },
 
@@ -20,6 +21,7 @@ module.exports = {
       directory: true,
       watchTask: false,
       server: './dist',
+      startPath: 'index.html'
     },
   },
 
