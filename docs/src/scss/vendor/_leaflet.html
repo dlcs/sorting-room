@@ -1,0 +1,547 @@
+<!DOCTYPE html><html lang="en"><head><title>src/scss/vendor/_leaflet</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/scss/vendor/_leaflet"><meta name="groc-project-path" content="src/scss/vendor/_leaflet.scss"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/scss/vendor/_leaflet.scss</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>required styles </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-pane</span>,
+<span class="hljs-class">.leaflet-tile</span>,
+<span class="hljs-class">.leaflet-marker-icon</span>,
+<span class="hljs-class">.leaflet-marker-shadow</span>,
+<span class="hljs-class">.leaflet-tile-container</span>,
+<span class="hljs-class">.leaflet-pane</span> &gt; svg,
+<span class="hljs-class">.leaflet-pane</span> &gt; <span class="hljs-tag">canvas</span>,
+<span class="hljs-class">.leaflet-zoom-box</span>,
+<span class="hljs-class">.leaflet-image-layer</span>,
+<span class="hljs-class">.leaflet-layer</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">left</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-container</span> {
+	<span class="hljs-attribute">overflow</span><span class="hljs-value">: hidden;</span>
+	}
+<span class="hljs-class">.leaflet-tile</span>,
+<span class="hljs-class">.leaflet-marker-icon</span>,
+<span class="hljs-class">.leaflet-marker-shadow</span> {
+	-webkit-user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	   -moz-user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	        user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	  -webkit-user-drag<span class="hljs-value">: none;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Safari renders non-retina tile on retina better with this, but Chrome is worse </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-safari</span> <span class="hljs-class">.leaflet-tile</span> {
+	<span class="hljs-attribute">image-rendering</span><span class="hljs-value">: -webkit-optimize-contrast;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>hack that prevents hw layers &quot;stretching&quot; when loading new tiles </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-safari</span> <span class="hljs-class">.leaflet-tile-container</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">1600px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">1600px</span>;</span>
+	-webkit-<span class="hljs-attribute">transform-origin</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-marker-icon</span>,
+<span class="hljs-class">.leaflet-marker-shadow</span> {
+	<span class="hljs-attribute">display</span><span class="hljs-value">: block;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>.leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x 
+.leaflet-container img: map is broken in FF if you have max-width: 100% on tiles </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-overlay-pane</span> svg,
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-marker-pane</span> <span class="hljs-tag">img</span>,
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-shadow-pane</span> <span class="hljs-tag">img</span>,
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-tile-pane</span> <span class="hljs-tag">img</span>,
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-tag">img</span><span class="hljs-class">.leaflet-image-layer</span> {
+	<span class="hljs-attribute">max-width</span><span class="hljs-value">: none <span class="hljs-important">!important</span>;</span>
+	}
+
+<span class="hljs-class">.leaflet-container</span><span class="hljs-class">.leaflet-touch-zoom</span> {
+	-ms-touch-action<span class="hljs-value">: pan-x pan-y;</span>
+	touch-action<span class="hljs-value">: pan-x pan-y;</span>
+	}
+<span class="hljs-class">.leaflet-container</span><span class="hljs-class">.leaflet-touch-drag</span> {
+	-ms-touch-action<span class="hljs-value">: pinch-zoom;</span>
+	}
+<span class="hljs-class">.leaflet-container</span><span class="hljs-class">.leaflet-touch-drag</span><span class="hljs-class">.leaflet-touch-drag</span> {
+	-ms-touch-action<span class="hljs-value">: none;</span>
+	touch-action<span class="hljs-value">: none;</span>
+}
+<span class="hljs-class">.leaflet-tile</span> {
+	<span class="hljs-attribute">filter</span><span class="hljs-value">: inherit;</span>
+	<span class="hljs-attribute">visibility</span><span class="hljs-value">: hidden;</span>
+	}
+<span class="hljs-class">.leaflet-tile-loaded</span> {
+	<span class="hljs-attribute">visibility</span><span class="hljs-value">: inherit;</span>
+	}
+<span class="hljs-class">.leaflet-zoom-box</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	-moz-<span class="hljs-attribute">box-sizing</span><span class="hljs-value">: border-box;</span>
+	     <span class="hljs-attribute">box-sizing</span><span class="hljs-value">: border-box;</span>
+	<span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">800</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>workaround for <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=888319">https://bugzilla.mozilla.org/show_bug.cgi?id=888319</a> </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-overlay-pane</span> svg {
+	-moz-user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	}
+
+<span class="hljs-class">.leaflet-pane</span>         { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">400</span>;</span> }
+
+<span class="hljs-class">.leaflet-tile-pane</span>    { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">200</span>;</span> }
+<span class="hljs-class">.leaflet-overlay-pane</span> { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">400</span>;</span> }
+<span class="hljs-class">.leaflet-shadow-pane</span>  { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">500</span>;</span> }
+<span class="hljs-class">.leaflet-marker-pane</span>  { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">600</span>;</span> }
+<span class="hljs-class">.leaflet-tooltip-pane</span>   { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">650</span>;</span> }
+<span class="hljs-class">.leaflet-popup-pane</span>   { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">700</span>;</span> }
+
+<span class="hljs-class">.leaflet-map-pane</span> <span class="hljs-tag">canvas</span> { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">100</span>;</span> }
+<span class="hljs-class">.leaflet-map-pane</span> svg    { <span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">200</span>;</span> }
+
+<span class="hljs-class">.leaflet-vml-shape</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">1px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">1px</span>;</span>
+	}
+<span class="hljs-class">.lvml</span> {
+	behavior<span class="hljs-value">: <span class="hljs-function">url</span>(<span class="hljs-hexcolor">#defa</span>ult#VML);</span>
+	<span class="hljs-attribute">display</span><span class="hljs-value">: inline-block;</span>
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>control positioning </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: relative;</span>
+	<span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">800</span>;</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: visiblePainted;</span> <span class="hljs-comment">/* IE 9-10 doesn't have auto */</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: auto;</span>
+	}
+<span class="hljs-class">.leaflet-top</span>,
+<span class="hljs-class">.leaflet-bottom</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">z-index</span><span class="hljs-value">: <span class="hljs-number">1000</span>;</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: none;</span>
+	}
+<span class="hljs-class">.leaflet-top</span> {
+	<span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-right</span> {
+	<span class="hljs-attribute">right</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-bottom</span> {
+	<span class="hljs-attribute">bottom</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-left</span> {
+	<span class="hljs-attribute">left</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">float</span><span class="hljs-value">: left;</span>
+	<span class="hljs-attribute">clear</span><span class="hljs-value">: both;</span>
+	}
+<span class="hljs-class">.leaflet-right</span> <span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">float</span><span class="hljs-value">: right;</span>
+	}
+<span class="hljs-class">.leaflet-top</span> <span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: <span class="hljs-number">10px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-bottom</span> <span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">margin-bottom</span><span class="hljs-value">: <span class="hljs-number">10px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-left</span> <span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: <span class="hljs-number">10px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-right</span> <span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">margin-right</span><span class="hljs-value">: <span class="hljs-number">10px</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>zoom and fade animations </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-fade-anim</span> <span class="hljs-class">.leaflet-tile</span> {
+	will-change<span class="hljs-value">: opacity;</span>
+	}
+<span class="hljs-class">.leaflet-fade-anim</span> <span class="hljs-class">.leaflet-popup</span> {
+	<span class="hljs-attribute">opacity</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	-webkit-<span class="hljs-attribute">transition</span><span class="hljs-value">: opacity <span class="hljs-number">0.2s</span> linear;</span>
+	   -moz-<span class="hljs-attribute">transition</span><span class="hljs-value">: opacity <span class="hljs-number">0.2s</span> linear;</span>
+	     -o-<span class="hljs-attribute">transition</span><span class="hljs-value">: opacity <span class="hljs-number">0.2s</span> linear;</span>
+	        <span class="hljs-attribute">transition</span><span class="hljs-value">: opacity <span class="hljs-number">0.2s</span> linear;</span>
+	}
+<span class="hljs-class">.leaflet-fade-anim</span> <span class="hljs-class">.leaflet-map-pane</span> <span class="hljs-class">.leaflet-popup</span> {
+	<span class="hljs-attribute">opacity</span><span class="hljs-value">: <span class="hljs-number">1</span>;</span>
+	}
+<span class="hljs-class">.leaflet-zoom-animated</span> {
+	-webkit-<span class="hljs-attribute">transform-origin</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+	    -ms-<span class="hljs-attribute">transform-origin</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+	        <span class="hljs-attribute">transform-origin</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-zoom-anim</span> <span class="hljs-class">.leaflet-zoom-animated</span> {
+	will-change<span class="hljs-value">: transform;</span>
+	}
+<span class="hljs-class">.leaflet-zoom-anim</span> <span class="hljs-class">.leaflet-zoom-animated</span> {
+	-webkit-<span class="hljs-attribute">transition</span><span class="hljs-value">: -webkit-transform <span class="hljs-number">0.25s</span> <span class="hljs-function">cubic-bezier</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.25</span>,<span class="hljs-number">1</span>);</span>
+	   -moz-<span class="hljs-attribute">transition</span><span class="hljs-value">:    -moz-transform <span class="hljs-number">0.25s</span> <span class="hljs-function">cubic-bezier</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.25</span>,<span class="hljs-number">1</span>);</span>
+	     -o-<span class="hljs-attribute">transition</span><span class="hljs-value">:      -o-transform <span class="hljs-number">0.25s</span> <span class="hljs-function">cubic-bezier</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.25</span>,<span class="hljs-number">1</span>);</span>
+	        <span class="hljs-attribute">transition</span><span class="hljs-value">:         transform <span class="hljs-number">0.25s</span> <span class="hljs-function">cubic-bezier</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.25</span>,<span class="hljs-number">1</span>);</span>
+	}
+<span class="hljs-class">.leaflet-zoom-anim</span> <span class="hljs-class">.leaflet-tile</span>,
+<span class="hljs-class">.leaflet-pan-anim</span> <span class="hljs-class">.leaflet-tile</span> {
+	-webkit-<span class="hljs-attribute">transition</span><span class="hljs-value">: none;</span>
+	   -moz-<span class="hljs-attribute">transition</span><span class="hljs-value">: none;</span>
+	     -o-<span class="hljs-attribute">transition</span><span class="hljs-value">: none;</span>
+	        <span class="hljs-attribute">transition</span><span class="hljs-value">: none;</span>
+	}
+
+<span class="hljs-class">.leaflet-zoom-anim</span> <span class="hljs-class">.leaflet-zoom-hide</span> {
+	<span class="hljs-attribute">visibility</span><span class="hljs-value">: hidden;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>cursors </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-interactive</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: pointer;</span>
+	}
+<span class="hljs-class">.leaflet-grab</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: -webkit-grab;</span>
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">:    -moz-grab;</span>
+	}
+<span class="hljs-class">.leaflet-crosshair</span>,
+<span class="hljs-class">.leaflet-crosshair</span> <span class="hljs-class">.leaflet-interactive</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: crosshair;</span>
+	}
+<span class="hljs-class">.leaflet-popup-pane</span>,
+<span class="hljs-class">.leaflet-control</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: auto;</span>
+	}
+<span class="hljs-class">.leaflet-dragging</span> <span class="hljs-class">.leaflet-grab</span>,
+<span class="hljs-class">.leaflet-dragging</span> <span class="hljs-class">.leaflet-grab</span> <span class="hljs-class">.leaflet-interactive</span>,
+<span class="hljs-class">.leaflet-dragging</span> <span class="hljs-class">.leaflet-marker-draggable</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: move;</span>
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: -webkit-grabbing;</span>
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">:    -moz-grabbing;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>marker &amp; overlays interactivity </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-marker-icon</span>,
+<span class="hljs-class">.leaflet-marker-shadow</span>,
+<span class="hljs-class">.leaflet-image-layer</span>,
+<span class="hljs-class">.leaflet-pane</span> &gt; svg path,
+<span class="hljs-class">.leaflet-tile-container</span> {
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: none;</span>
+	}
+
+<span class="hljs-class">.leaflet-marker-icon</span><span class="hljs-class">.leaflet-interactive</span>,
+<span class="hljs-class">.leaflet-image-layer</span><span class="hljs-class">.leaflet-interactive</span>,
+<span class="hljs-class">.leaflet-pane</span> &gt; svg path<span class="hljs-class">.leaflet-interactive</span> {
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: visiblePainted;</span> <span class="hljs-comment">/* IE 9-10 doesn't have auto */</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: auto;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>visual tweaks </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-container</span> {
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-hexcolor">#ddd</span>;</span>
+	<span class="hljs-attribute">outline</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-tag">a</span> {
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#0078A8</span>;</span>
+	}
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-tag">a</span><span class="hljs-class">.leaflet-active</span> {
+	<span class="hljs-attribute">outline</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid orange;</span>
+	}
+<span class="hljs-class">.leaflet-zoom-box</span> {
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">2px</span> dotted <span class="hljs-hexcolor">#38f</span>;</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-function">rgba</span>(<span class="hljs-number">255</span>,<span class="hljs-number">255</span>,<span class="hljs-number">255</span>,<span class="hljs-number">0.5</span>);</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>general typography </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-container</span> {
+	<span class="hljs-attribute">font</span><span class="hljs-value">: <span class="hljs-number">12px</span>/<span class="hljs-number">1.5</span> <span class="hljs-string">"Helvetica Neue"</span>, Arial, Helvetica, sans-serif;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>general toolbar styles </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-bar</span> {
+	<span class="hljs-attribute">box-shadow</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">1px</span> <span class="hljs-number">5px</span> <span class="hljs-function">rgba</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.65</span>);</span>
+	<span class="hljs-attribute">border-radius</span><span class="hljs-value">: <span class="hljs-number">4px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span>,
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span><span class="hljs-pseudo">:hover</span> {
+	<span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">border-bottom</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#ccc</span>;</span>
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">26px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">26px</span>;</span>
+	<span class="hljs-attribute">line-height</span><span class="hljs-value">: <span class="hljs-number">26px</span>;</span>
+	<span class="hljs-attribute">display</span><span class="hljs-value">: block;</span>
+	<span class="hljs-attribute">text-align</span><span class="hljs-value">: center;</span>
+	<span class="hljs-attribute">text-decoration</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: black;</span>
+	}
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span>,
+<span class="hljs-class">.leaflet-control-layers-toggle</span> {
+	<span class="hljs-attribute">background-position</span><span class="hljs-value">: <span class="hljs-number">50%</span> <span class="hljs-number">50%</span>;</span>
+	<span class="hljs-attribute">background-repeat</span><span class="hljs-value">: no-repeat;</span>
+	<span class="hljs-attribute">display</span><span class="hljs-value">: block;</span>
+	}
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span><span class="hljs-pseudo">:hover</span> {
+	<span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#f4f4f4</span>;</span>
+	}
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span><span class="hljs-pseudo">:first-child</span> {
+	<span class="hljs-attribute">border-top-left-radius</span><span class="hljs-value">: <span class="hljs-number">4px</span>;</span>
+	<span class="hljs-attribute">border-top-right-radius</span><span class="hljs-value">: <span class="hljs-number">4px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span><span class="hljs-pseudo">:last-child</span> {
+	<span class="hljs-attribute">border-bottom-left-radius</span><span class="hljs-value">: <span class="hljs-number">4px</span>;</span>
+	<span class="hljs-attribute">border-bottom-right-radius</span><span class="hljs-value">: <span class="hljs-number">4px</span>;</span>
+	<span class="hljs-attribute">border-bottom</span><span class="hljs-value">: none;</span>
+	}
+<span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span><span class="hljs-class">.leaflet-disabled</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: default;</span>
+	<span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#f4f4f4</span>;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#bbb</span>;</span>
+	}
+
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-bar</span> <span class="hljs-tag">a</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">30px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">30px</span>;</span>
+	<span class="hljs-attribute">line-height</span><span class="hljs-value">: <span class="hljs-number">30px</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>zoom control </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-control-zoom-in</span>,
+<span class="hljs-class">.leaflet-control-zoom-out</span> {
+	<span class="hljs-attribute">font</span><span class="hljs-value">: bold <span class="hljs-number">18px</span> <span class="hljs-string">'Lucida Console'</span>, Monaco, monospace;</span>
+	<span class="hljs-attribute">text-indent</span><span class="hljs-value">: <span class="hljs-number">1px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-zoom-out</span> {
+	<span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">20px</span>;</span>
+	}
+
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-control-zoom-in</span> {
+	<span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">22px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-control-zoom-out</span> {
+	<span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">24px</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>layers control </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-control-layers</span> {
+	<span class="hljs-attribute">box-shadow</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">1px</span> <span class="hljs-number">5px</span> <span class="hljs-function">rgba</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.4</span>);</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">border-radius</span><span class="hljs-value">: <span class="hljs-number">5px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers-toggle</span> {
+	<span class="hljs-attribute">background-image</span><span class="hljs-value">: <span class="hljs-function">url</span>(images/layers.png);</span>
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">36px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">36px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-retina</span> <span class="hljs-class">.leaflet-control-layers-toggle</span> {
+	<span class="hljs-attribute">background-image</span><span class="hljs-value">: <span class="hljs-function">url</span>(images/layers-<span class="hljs-number">2</span>x.png);</span>
+	<span class="hljs-attribute">background-size</span><span class="hljs-value">: <span class="hljs-number">26px</span> <span class="hljs-number">26px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-control-layers-toggle</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">44px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">44px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers</span> <span class="hljs-class">.leaflet-control-layers-list</span>,
+<span class="hljs-class">.leaflet-control-layers-expanded</span> <span class="hljs-class">.leaflet-control-layers-toggle</span> {
+	<span class="hljs-attribute">display</span><span class="hljs-value">: none;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers-expanded</span> <span class="hljs-class">.leaflet-control-layers-list</span> {
+	<span class="hljs-attribute">display</span><span class="hljs-value">: block;</span>
+	<span class="hljs-attribute">position</span><span class="hljs-value">: relative;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers-expanded</span> {
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">6px</span> <span class="hljs-number">10px</span> <span class="hljs-number">6px</span> <span class="hljs-number">6px</span>;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#333</span>;</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers-scrollbar</span> {
+	<span class="hljs-attribute">overflow-y</span><span class="hljs-value">: scroll;</span>
+	<span class="hljs-attribute">padding-right</span><span class="hljs-value">: <span class="hljs-number">5px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers-selector</span> {
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: <span class="hljs-number">2px</span>;</span>
+	<span class="hljs-attribute">position</span><span class="hljs-value">: relative;</span>
+	<span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">1px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers</span> <span class="hljs-tag">label</span> {
+	<span class="hljs-attribute">display</span><span class="hljs-value">: block;</span>
+	}
+<span class="hljs-class">.leaflet-control-layers-separator</span> {
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">border-top</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#ddd</span>;</span>
+	<span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">5px</span> -<span class="hljs-number">10px</span> <span class="hljs-number">5px</span> -<span class="hljs-number">6px</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Default icon URLs </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-default-icon-path</span> {
+	<span class="hljs-attribute">background-image</span><span class="hljs-value">: <span class="hljs-function">url</span>(images/marker-icon.png);</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>attribution and scale controls </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-control-attribution</span> {
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-function">rgba</span>(<span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0.7</span>);</span>
+	<span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-attribution</span>,
+<span class="hljs-class">.leaflet-control-scale-line</span> {
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">5px</span>;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#333</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-attribution</span> <span class="hljs-tag">a</span> {
+	<span class="hljs-attribute">text-decoration</span><span class="hljs-value">: none;</span>
+	}
+<span class="hljs-class">.leaflet-control-attribution</span> <span class="hljs-tag">a</span><span class="hljs-pseudo">:hover</span> {
+	<span class="hljs-attribute">text-decoration</span><span class="hljs-value">: underline;</span>
+	}
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-control-attribution</span>,
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-class">.leaflet-control-scale</span> {
+	<span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">11px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-left</span> <span class="hljs-class">.leaflet-control-scale</span> {
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: <span class="hljs-number">5px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-bottom</span> <span class="hljs-class">.leaflet-control-scale</span> {
+	<span class="hljs-attribute">margin-bottom</span><span class="hljs-value">: <span class="hljs-number">5px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-scale-line</span> {
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid <span class="hljs-hexcolor">#777</span>;</span>
+	<span class="hljs-attribute">border-top</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">line-height</span><span class="hljs-value">: <span class="hljs-number">1.1</span>;</span>
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">2px</span> <span class="hljs-number">5px</span> <span class="hljs-number">1px</span>;</span>
+	<span class="hljs-attribute">font-size</span><span class="hljs-value">: <span class="hljs-number">11px</span>;</span>
+	<span class="hljs-attribute">white-space</span><span class="hljs-value">: nowrap;</span>
+	<span class="hljs-attribute">overflow</span><span class="hljs-value">: hidden;</span>
+	-moz-<span class="hljs-attribute">box-sizing</span><span class="hljs-value">: border-box;</span>
+	     <span class="hljs-attribute">box-sizing</span><span class="hljs-value">: border-box;</span>
+
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-function">rgba</span>(<span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0.5</span>);</span>
+	}
+<span class="hljs-class">.leaflet-control-scale-line</span><span class="hljs-pseudo">:not</span>(<span class="hljs-pseudo">:first-child</span>) {
+	<span class="hljs-attribute">border-top</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid <span class="hljs-hexcolor">#777</span>;</span>
+	<span class="hljs-attribute">border-bottom</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: -<span class="hljs-number">2px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-control-scale-line</span><span class="hljs-pseudo">:not</span>(<span class="hljs-pseudo">:first-child</span>)<span class="hljs-pseudo">:not</span>(<span class="hljs-pseudo">:last-child</span>) {
+	<span class="hljs-attribute">border-bottom</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid <span class="hljs-hexcolor">#777</span>;</span>
+	}
+
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-control-attribution</span>,
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-control-layers</span>,
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-bar</span> {
+	<span class="hljs-attribute">box-shadow</span><span class="hljs-value">: none;</span>
+	}
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-control-layers</span>,
+<span class="hljs-class">.leaflet-touch</span> <span class="hljs-class">.leaflet-bar</span> {
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">2px</span> solid <span class="hljs-function">rgba</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.2</span>);</span>
+	<span class="hljs-attribute">background-clip</span><span class="hljs-value">: padding-box;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>popup </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-popup</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">text-align</span><span class="hljs-value">: center;</span>
+	<span class="hljs-attribute">margin-bottom</span><span class="hljs-value">: <span class="hljs-number">20px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-popup-content-wrapper</span> {
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">1px</span>;</span>
+	<span class="hljs-attribute">text-align</span><span class="hljs-value">: left;</span>
+	<span class="hljs-attribute">border-radius</span><span class="hljs-value">: <span class="hljs-number">12px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-popup-content</span> {
+	<span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">13px</span> <span class="hljs-number">19px</span>;</span>
+	<span class="hljs-attribute">line-height</span><span class="hljs-value">: <span class="hljs-number">1.4</span>;</span>
+	}
+<span class="hljs-class">.leaflet-popup-content</span> <span class="hljs-tag">p</span> {
+	<span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">18px</span> <span class="hljs-number">0</span>;</span>
+	}
+<span class="hljs-class">.leaflet-popup-tip-container</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">40px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">20px</span>;</span>
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">left</span><span class="hljs-value">: <span class="hljs-number">50%</span>;</span>
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: -<span class="hljs-number">20px</span>;</span>
+	<span class="hljs-attribute">overflow</span><span class="hljs-value">: hidden;</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: none;</span>
+	}
+<span class="hljs-class">.leaflet-popup-tip</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">17px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">17px</span>;</span>
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">1px</span>;</span>
+
+	<span class="hljs-attribute">margin</span><span class="hljs-value">: -<span class="hljs-number">10px</span> auto <span class="hljs-number">0</span>;</span>
+
+	-webkit-<span class="hljs-attribute">transform</span><span class="hljs-value">: <span class="hljs-function">rotate</span>(<span class="hljs-number">45deg</span>);</span>
+	   -moz-<span class="hljs-attribute">transform</span><span class="hljs-value">: <span class="hljs-function">rotate</span>(<span class="hljs-number">45deg</span>);</span>
+	    -ms-<span class="hljs-attribute">transform</span><span class="hljs-value">: <span class="hljs-function">rotate</span>(<span class="hljs-number">45deg</span>);</span>
+	     -o-<span class="hljs-attribute">transform</span><span class="hljs-value">: <span class="hljs-function">rotate</span>(<span class="hljs-number">45deg</span>);</span>
+	        <span class="hljs-attribute">transform</span><span class="hljs-value">: <span class="hljs-function">rotate</span>(<span class="hljs-number">45deg</span>);</span>
+	}
+<span class="hljs-class">.leaflet-popup-content-wrapper</span>,
+<span class="hljs-class">.leaflet-popup-tip</span> {
+	<span class="hljs-attribute">background</span><span class="hljs-value">: white;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#333</span>;</span>
+	<span class="hljs-attribute">box-shadow</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">3px</span> <span class="hljs-number">14px</span> <span class="hljs-function">rgba</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.4</span>);</span>
+	}
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-tag">a</span><span class="hljs-class">.leaflet-popup-close-button</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">right</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">4px</span> <span class="hljs-number">4px</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">border</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">text-align</span><span class="hljs-value">: center;</span>
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">18px</span>;</span>
+	<span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">14px</span>;</span>
+	<span class="hljs-attribute">font</span><span class="hljs-value">: <span class="hljs-number">16px</span>/<span class="hljs-number">14px</span> Tahoma, Verdana, sans-serif;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#c3c3c3</span>;</span>
+	<span class="hljs-attribute">text-decoration</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">font-weight</span><span class="hljs-value">: bold;</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: transparent;</span>
+	}
+<span class="hljs-class">.leaflet-container</span> <span class="hljs-tag">a</span><span class="hljs-class">.leaflet-popup-close-button</span><span class="hljs-pseudo">:hover</span> {
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#999</span>;</span>
+	}
+<span class="hljs-class">.leaflet-popup-scrolled</span> {
+	<span class="hljs-attribute">overflow</span><span class="hljs-value">: auto;</span>
+	<span class="hljs-attribute">border-bottom</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#ddd</span>;</span>
+	<span class="hljs-attribute">border-top</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#ddd</span>;</span>
+	}
+
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-popup-content-wrapper</span> {
+	zoom<span class="hljs-value">: <span class="hljs-number">1</span>;</span>
+	}
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-popup-tip</span> {
+	<span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">24px</span>;</span>
+	<span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">0</span> auto;</span>
+
+	-ms-<span class="hljs-attribute">filter</span><span class="hljs-value">: <span class="hljs-string">"progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)"</span>;</span>
+	<span class="hljs-attribute">filter</span><span class="hljs-value">: progid:DXImageTransform.Microsoft.<span class="hljs-function">Matrix</span>(M11=<span class="hljs-number">0.70710678</span>, M12=<span class="hljs-number">0.70710678</span>, M21=-<span class="hljs-number">0.70710678</span>, M22=<span class="hljs-number">0.70710678</span>);</span>
+	}
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-popup-tip-container</span> {
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: -<span class="hljs-number">1px</span>;</span>
+	}
+
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-control-zoom</span>,
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-control-layers</span>,
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-popup-content-wrapper</span>,
+<span class="hljs-class">.leaflet-oldie</span> <span class="hljs-class">.leaflet-popup-tip</span> {
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#999</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>div icon </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-div-icon</span> {
+	<span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#666</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Tooltip 
+Base styles for the element that has a tooltip </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-tooltip</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">6px</span>;</span>
+	<span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">1px</span> solid <span class="hljs-hexcolor">#fff</span>;</span>
+	<span class="hljs-attribute">border-radius</span><span class="hljs-value">: <span class="hljs-number">3px</span>;</span>
+	<span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-hexcolor">#222</span>;</span>
+	<span class="hljs-attribute">white-space</span><span class="hljs-value">: nowrap;</span>
+	-webkit-user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	-moz-user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	-ms-user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	user-<span class="hljs-tag">select</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">box-shadow</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">1px</span> <span class="hljs-number">3px</span> <span class="hljs-function">rgba</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.4</span>);</span>
+	}
+<span class="hljs-class">.leaflet-tooltip</span><span class="hljs-class">.leaflet-clickable</span> {
+	<span class="hljs-attribute">cursor</span><span class="hljs-value">: pointer;</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: auto;</span>
+	}
+<span class="hljs-class">.leaflet-tooltip-top</span><span class="hljs-pseudo">:before</span>,
+<span class="hljs-class">.leaflet-tooltip-bottom</span><span class="hljs-pseudo">:before</span>,
+<span class="hljs-class">.leaflet-tooltip-left</span><span class="hljs-pseudo">:before</span>,
+<span class="hljs-class">.leaflet-tooltip-right</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">position</span><span class="hljs-value">: absolute;</span>
+	<span class="hljs-attribute">pointer-events</span><span class="hljs-value">: none;</span>
+	<span class="hljs-attribute">border</span><span class="hljs-value">: <span class="hljs-number">6px</span> solid transparent;</span>
+	<span class="hljs-attribute">background</span><span class="hljs-value">: transparent;</span>
+	<span class="hljs-attribute">content</span><span class="hljs-value">: <span class="hljs-string">""</span>;</span>
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Directions </p></div></div><div class="code"><div class="wrapper"><span class="hljs-class">.leaflet-tooltip-bottom</span> {
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: <span class="hljs-number">6px</span>;</span>
+}
+<span class="hljs-class">.leaflet-tooltip-top</span> {
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: -<span class="hljs-number">6px</span>;</span>
+}
+<span class="hljs-class">.leaflet-tooltip-bottom</span><span class="hljs-pseudo">:before</span>,
+<span class="hljs-class">.leaflet-tooltip-top</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">left</span><span class="hljs-value">: <span class="hljs-number">50%</span>;</span>
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: -<span class="hljs-number">6px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-tooltip-top</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">bottom</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">margin-bottom</span><span class="hljs-value">: -<span class="hljs-number">12px</span>;</span>
+	<span class="hljs-attribute">border-top-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	}
+<span class="hljs-class">.leaflet-tooltip-bottom</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: -<span class="hljs-number">12px</span>;</span>
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: -<span class="hljs-number">6px</span>;</span>
+	<span class="hljs-attribute">border-bottom-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	}
+<span class="hljs-class">.leaflet-tooltip-left</span> {
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: -<span class="hljs-number">6px</span>;</span>
+}
+<span class="hljs-class">.leaflet-tooltip-right</span> {
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: <span class="hljs-number">6px</span>;</span>
+}
+<span class="hljs-class">.leaflet-tooltip-left</span><span class="hljs-pseudo">:before</span>,
+<span class="hljs-class">.leaflet-tooltip-right</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">top</span><span class="hljs-value">: <span class="hljs-number">50%</span>;</span>
+	<span class="hljs-attribute">margin-top</span><span class="hljs-value">: -<span class="hljs-number">6px</span>;</span>
+	}
+<span class="hljs-class">.leaflet-tooltip-left</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">right</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">margin-right</span><span class="hljs-value">: -<span class="hljs-number">12px</span>;</span>
+	<span class="hljs-attribute">border-left-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	}
+<span class="hljs-class">.leaflet-tooltip-right</span><span class="hljs-pseudo">:before</span> {
+	<span class="hljs-attribute">left</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+	<span class="hljs-attribute">margin-left</span><span class="hljs-value">: -<span class="hljs-number">12px</span>;</span>
+	<span class="hljs-attribute">border-right-color</span><span class="hljs-value">: <span class="hljs-hexcolor">#fff</span>;</span>
+	}</div></div></div></div></body></html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/input</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/input"><meta name="groc-project-path" content="src/js/components/input.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/input.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> {
+  resetDerivedManifests,
+  setCanvases,
+  setManifest,
+  setManifestData,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/loaded-manifest.js'</span>;
+<span class="hljs-keyword">import</span> {
+  setLoading,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/ui.js'</span>;
+<span class="hljs-keyword">import</span> {
+  clearSelection,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/selected-collection.js'</span>;
+<span class="hljs-keyword">import</span> { thumbsUpdate } <span class="hljs-keyword">from</span> <span class="hljs-string">'./thumbs.js'</span>;
+<span class="hljs-keyword">import</span> { getCreatedManifests } <span class="hljs-keyword">from</span> <span class="hljs-string">'./derived-manifests.js'</span>;
+<span class="hljs-keyword">import</span> { IIIF } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/iiif.js'</span>;
+<span class="hljs-keyword">import</span> { IIIFActions } <span class="hljs-keyword">from</span> <span class="hljs-string">'./iiif-actions.js'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> manifestStore = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">let</span> lastLocalLoadedManifestState = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> lastLocalState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">let</span> Actions = {};
+<span class="hljs-keyword">let</span> DOM = {};
+<span class="hljs-keyword">let</span> Events = {};
+
+DOM = {
+  $manifestInputContainer: <span class="hljs-literal">null</span>,
+  $manifestInput: <span class="hljs-literal">null</span>,
+  $manifestInputLoad: <span class="hljs-literal">null</span>,
+
+  init() {
+    DOM.$html = $(<span class="hljs-string">'html'</span>);
+    DOM.$manifestInputContainer = $(<span class="hljs-string">'.manifest-input'</span>);
+    DOM.$manifestInput = $(<span class="hljs-string">'.manifest-input__text-input'</span>);
+    DOM.$manifestInputLoad = $(<span class="hljs-string">'.manifest-input__load-button'</span>);
+    DOM.$manifestInputFeedback = $(<span class="hljs-string">'.manifest-input__feedback'</span>);
+  },
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>function showCollectionUI() {
+  if (SortyConfiguration.sourceCollection) {
+    const $collectionLister = $(&#39;#collectionLister&#39;);
+    $collectionLister.click(() =&gt; {
+      $.getJSON(SortyConfiguration.sourceCollection, renderCollection);
+    });
+  }
+}</p></div></div><div class="code"><div class="wrapper">Actions = {
+  loadIIIFResource(manifest) {
+    IIIF.wrap(manifest);
+    manifestStore.dispatch(setManifestData(manifest));
+    getCreatedManifests();
+    <span class="hljs-keyword">if</span> (!manifest.mediaSequences) {
+      manifestStore.dispatch(setCanvases(manifest.sequences[<span class="hljs-number">0</span>].canvases));
+      thumbsUpdate();
+    }
+  },
+  ajaxLoadManifest() {
+    DOM.$html.removeClass(<span class="hljs-string">'dm-loaded'</span>);
+    DOM.$html.removeClass(<span class="hljs-string">'manifest-loaded'</span>);
+    $(<span class="hljs-string">'.workspace-tabs__link[data-modifier="all"]'</span>).click();
+    store.dispatch(clearSelection());
+    store.dispatch(resetDerivedManifests());
+    <span class="hljs-keyword">const</span> inputState = manifestStore.getState();
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> inputState.manifest !== <span class="hljs-string">'undefined'</span> &amp;&amp; inputState.manifest !== <span class="hljs-literal">null</span>) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> history !== <span class="hljs-string">'undefined'</span>) {
+        history.replaceState(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">`classify.html?manifest=<span class="hljs-subst">${inputState.manifest}</span>`</span>);
+      }
+      DOM.$manifestInputFeedback.text(<span class="hljs-string">`Loading '<span class="hljs-subst">${inputState.manifest}</span>'...`</span>);
+      store.dispatch(setLoading(<span class="hljs-literal">true</span>));
+
+      IIIFActions.loadManifest(
+        inputState.manifest,
+        Events.manifestLoadSuccess,
+        Events.manifestLoadError
+      );
+    }
+  },
+  processQueryStringFromInput(url) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;pqsfi[&#39;, url, &#39;]&#39;);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (url !== <span class="hljs-string">''</span>) {
+      <span class="hljs-keyword">const</span> qs = <span class="hljs-regexp">/manifest=(.*)/g</span>.exec(url);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;qs&#39;, qs);</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">if</span> (qs &amp;&amp; qs[<span class="hljs-number">1</span>]) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;pqsfi&#39;);</p></div></div><div class="code"><div class="wrapper">        manifestStore.dispatch(setManifest(<span class="hljs-built_in">decodeURIComponent</span>(qs[<span class="hljs-number">1</span>].replace(<span class="hljs-regexp">/%2b/g</span>, <span class="hljs-string">'%20'</span>))));
+        Actions.ajaxLoadManifest();
+      }
+    }
+  },
+};
+
+Events = {
+  domReady() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Get DOM elements</p></div></div><div class="code"><div class="wrapper">    DOM.init();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Process query string for manifests</p></div></div><div class="code"><div class="wrapper">    Actions.processQueryStringFromInput(<span class="hljs-built_in">window</span>.location.search);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Hook up load button event</p></div></div><div class="code"><div class="wrapper">    DOM.$manifestInputLoad.click(Events.loadManifestClick);
+  },
+  loadManifestClick(e) {
+    e.preventDefault();
+    manifestStore.dispatch(setManifest(DOM.$manifestInput.val()));
+    Actions.ajaxLoadManifest();
+  },
+  manifestLoadError(data) {
+    alert(<span class="hljs-string">`Error: <span class="hljs-subst">${data.statusText}</span>`</span>);
+    store.dispatch(setLoading(<span class="hljs-literal">false</span>));
+  },
+  manifestLoadSuccess(iiifResource) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;manifestLoadSuccess&#39;, iiifResource);</p></div></div><div class="code"><div class="wrapper">    DOM.$manifestInputFeedback.text(<span class="hljs-string">`Current manifest: '<span class="hljs-subst">${iiifResource['@id']}</span>'`</span>);
+    store.dispatch(setLoading(<span class="hljs-literal">false</span>));
+    <span class="hljs-keyword">if</span> (iiifResource[<span class="hljs-string">'@type'</span>] === <span class="hljs-string">'sc:Collection'</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO - collections</p></div></div><div class="code"><div class="wrapper">    } <span class="hljs-keyword">else</span> {
+      Actions.loadIIIFResource(iiifResource);
+    }
+  },
+  manifestStoreSubscribe() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;IN - subscribe&#39;, lastLocalState, store.getState().input);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> loadedManifestState = manifestStore.getState();
+
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'manifest'</span>, loadedManifestState, lastLocalLoadedManifestState)) {
+      DOM.$manifestInput.val(loadedManifestState.manifest);
+    }
+
+    lastLocalLoadedManifestState = loadedManifestState;
+  },
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> state = store.getState().ui;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;input store subscribe&#39;, state.loadingManifest,
+hasPropertyChanged(&#39;loadingManifest&#39;, state, lastLocalState));</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (DOM.$manifestInputContainer !== <span class="hljs-literal">null</span>
+      &amp;&amp; hasPropertyChanged(<span class="hljs-string">'loadingManifest'</span>, state, lastLocalState)) {
+      <span class="hljs-keyword">if</span> (state.loadingManifest) {
+        DOM.$manifestInputContainer.addClass(<span class="hljs-string">'manifest-input--loading'</span>);
+        DOM.$html.addClass(<span class="hljs-string">'loading-manifest'</span>);
+      } <span class="hljs-keyword">else</span> {
+        DOM.$manifestInputContainer.removeClass(<span class="hljs-string">'manifest-input--loading'</span>);
+        DOM.$html.removeClass(<span class="hljs-string">'loading-manifest'</span>);
+      }
+    }
+    lastLocalState = state;
+  },
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> inputInit = (globalStore, globalManifestStore) =&gt; {
+  store = globalStore;
+  manifestStore = globalManifestStore;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Subscribe to store changes</p></div></div><div class="code"><div class="wrapper">  manifestStore.subscribe(Events.manifestStoreSubscribe);
+  store.subscribe(Events.storeSubscribe);
+  $(<span class="hljs-built_in">document</span>).ready(Events.domReady);
+};</div></div></div></div></body></html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/reducers/selected-collection</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/reducers/selected-collection"><meta name="groc-project-path" content="src/js/reducers/selected-collection.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/reducers/selected-collection.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> {
+  ADD_OR_REMOVE_FROM_SELECTION,
+  CLEAR_SELECTION,
+  REPLACE_SELECTION,
+  SELECT,
+  SELECT_IMAGE_RANGE,
+  SET_COLLECTION_NAME,
+  SET_COLLECTION_MANIFEST,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/selected-collection.js'</span>;
+
+<span class="hljs-keyword">const</span> initialState = {
+  collectionName: <span class="hljs-literal">null</span>,
+  selectedImages: [],
+  collectionManifest: <span class="hljs-literal">null</span>,
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Given a state, return array of index values based on start and end values</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> selectImagesWithinRange = (start, end) =&gt; {
+  <span class="hljs-keyword">const</span> rangeSize = end - start + <span class="hljs-number">1</span>;
+  <span class="hljs-keyword">const</span> rangeCollection = [...Array(rangeSize).keys()].map(x =&gt; x + start);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Could optionally merge with existing values here</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">return</span> rangeCollection;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> selectedCollection = (state = initialState, action) =&gt; {
+  <span class="hljs-keyword">switch</span> (action.type) {
+    <span class="hljs-keyword">case</span> SET_COLLECTION_MANIFEST: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { collectionManifest: action.collectionManifest });
+    }
+    <span class="hljs-keyword">case</span> SELECT: {
+      <span class="hljs-keyword">let</span> selectedImagesArray = state.selectedImages;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>If not selected</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">const</span> currentImageArrayPosition = selectedImagesArray.indexOf(action.currentImage);
+      selectedImagesArray = [];
+      <span class="hljs-keyword">if</span> (currentImageArrayPosition === -<span class="hljs-number">1</span>) {
+        selectedImagesArray.push(action.currentImage);
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, {
+        selectedImages: selectedImagesArray,
+      });
+    }
+    <span class="hljs-keyword">case</span> SELECT_IMAGE_RANGE: {
+      <span class="hljs-keyword">let</span> selectedImages = state.selectedImages;
+      <span class="hljs-keyword">const</span> min = <span class="hljs-built_in">Math</span>.min.apply(<span class="hljs-built_in">Math</span>, selectedImages);
+      <span class="hljs-keyword">const</span> max = <span class="hljs-built_in">Math</span>.max.apply(<span class="hljs-built_in">Math</span>, selectedImages);
+
+      <span class="hljs-keyword">if</span> (action.selectTo &gt; min) {
+        selectedImages = selectImagesWithinRange(min, action.selectTo);
+      } <span class="hljs-keyword">else</span> {
+        selectedImages = selectImagesWithinRange(action.selectTo, max);
+      }
+
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { selectedImages });
+    }
+    <span class="hljs-keyword">case</span> ADD_OR_REMOVE_FROM_SELECTION: {
+      <span class="hljs-keyword">const</span> selectedImages = state.selectedImages.slice(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">const</span> currentImageArrayPosition = selectedImages.indexOf(action.addOrRemoveFromSelection);
+      <span class="hljs-keyword">if</span> (currentImageArrayPosition === -<span class="hljs-number">1</span>) {
+        selectedImages.push(action.addOrRemoveFromSelection);
+      } <span class="hljs-keyword">else</span> {
+        selectedImages.splice(currentImageArrayPosition, <span class="hljs-number">1</span>);
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { selectedImages });
+    }
+    <span class="hljs-keyword">case</span> REPLACE_SELECTION: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { selectedImages: action.selection });
+    }
+    <span class="hljs-keyword">case</span> CLEAR_SELECTION: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { selectedImages: [] });
+    }
+    <span class="hljs-keyword">case</span> SET_COLLECTION_NAME: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { collectionName: action.collectionName });
+    }
+    <span class="hljs-keyword">default</span>: <span class="hljs-keyword">return</span> state;
+  }
+};</div></div></div></div></body></html>

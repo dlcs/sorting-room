@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/helpers/iiif</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/helpers/iiif"><meta name="groc-project-path" content="src/js/helpers/iiif.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/helpers/iiif.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">jsonLdTidy</span>(<span class="hljs-params">obj, propNames</span>) </span>{
+  propNames.forEach((pn) =&gt; {
+    <span class="hljs-built_in">Object</span>.defineProperty(obj, pn, {
+      get() {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>[<span class="hljs-string">`@<span class="hljs-subst">${pn}</span>`</span>];
+      },
+      set(value) {
+        <span class="hljs-keyword">this</span>[<span class="hljs-string">`@<span class="hljs-subst">${pn}</span>`</span>] = value;
+      },
+    });
+  });
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getScale</span>(<span class="hljs-params">box, width, height</span>) </span>{
+  <span class="hljs-keyword">const</span> scaleW = box / width;
+  <span class="hljs-keyword">const</span> scaleH = box / height;
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.min(scaleW, scaleH);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fits</span>(<span class="hljs-params">size, min, max</span>) </span>{
+  <span class="hljs-keyword">if</span> (size.width &amp;&amp; size.height) {
+    <span class="hljs-keyword">return</span> (size.width &gt;= min || size.height &gt;= min) &amp;&amp; (size.width &lt;= max &amp;&amp; size.height &lt;= max);
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getDistance</span>(<span class="hljs-params">size, preferred</span>) </span>{
+  <span class="hljs-keyword">const</span> box = <span class="hljs-built_in">Math</span>.max(size.width, size.height);
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.abs(preferred - box);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCanonicalUri</span>(<span class="hljs-params">imageService, width, height</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO - this is not correct, it&#39;s a placeholder...</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${imageService.id}</span>/full/<span class="hljs-subst">${width}</span>,<span class="hljs-subst">${height}</span>/0/default.jpg`</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeThumb</span>(<span class="hljs-params">preferred, size, url</span>) </span>{
+  <span class="hljs-keyword">const</span> scale = getScale(preferred, size.width, size.height);
+  <span class="hljs-keyword">return</span> {
+    url,
+    width: <span class="hljs-built_in">Math</span>.round(scale * size.width),
+    height: <span class="hljs-built_in">Math</span>.round(scale * size.height),
+    actualWidth: size.width,
+    actualHeight: size.height,
+  };
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getThumbnailFromServiceSizes</span>(<span class="hljs-params">service, preferred, min, max</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>this will return a thumbnail between min and max</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> sizes = service.sizes;
+  sizes.sort((a, b) =&gt; a.width - b.width);
+  <span class="hljs-keyword">let</span> best = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">let</span> distance = <span class="hljs-built_in">Number</span>.MAX_SAFE_INTEGER;
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = sizes.length - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>start with the biggest; see if each one matches criteria.</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> size = sizes[i];
+    <span class="hljs-keyword">if</span> (fits(size, min, max)) {
+      <span class="hljs-keyword">const</span> sizeDist = getDistance(size, preferred);
+      <span class="hljs-keyword">if</span> (sizeDist &lt; distance) {
+        best = size;
+      }
+      distance = sizeDist;
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">if</span> (best) <span class="hljs-keyword">break</span>;
+    }
+  }
+  <span class="hljs-keyword">if</span> (best) {
+    <span class="hljs-keyword">const</span> url = getCanonicalUri(service, best.width, best.height);
+    <span class="hljs-keyword">return</span> makeThumb(preferred, best, url);
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isImageService</span>(<span class="hljs-params">service</span>) </span>{
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> service === <span class="hljs-string">'object'</span> &amp;&amp; service &amp;&amp; service.profile) {
+    <span class="hljs-keyword">if</span> (service.profile.asArray()[<span class="hljs-number">0</span>].indexOf(<span class="hljs-string">'http://iiif.io/api/image'</span>) !== -<span class="hljs-number">1</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasSizes</span>(<span class="hljs-params">service</span>) </span>{
+  <span class="hljs-keyword">return</span> service &amp;&amp; isImageService(service) &amp;&amp; service.sizes &amp;&amp; service.sizes.length;
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getThumbnailFromTileOnlyLevel0ImageService</span>(<span class="hljs-params">imgService, preferred</span>) </span>{ <span class="hljs-comment">// , min, max, follow</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>check for level 0 with tiles only - ask for a small tile
+unless there&#39;s enough info inline, will need to dereference info.json to determine tile sizes
+we have already checked for sizes
+TODO - this is not a complete implementation yet, assumes we have the width and height
+(we would if derefed),
+TODO - assumes only one set of tiles</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">if</span> (imgService.tiles) {
+    <span class="hljs-keyword">const</span> size = <span class="hljs-built_in">Math</span>.max(imgService.width, imgService.height);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>now we need to find a tile that the whole image fits on</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> tileWidth = imgService.tiles[<span class="hljs-number">0</span>].width; <span class="hljs-comment">// assume square for now</span>
+    imgService.tiles[<span class="hljs-number">0</span>].scaleFactors.sort((a, b) =&gt; (a - b));
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; imgService.tiles[<span class="hljs-number">0</span>].scaleFactors.length; i++) {
+      <span class="hljs-keyword">const</span> scaleFactor = imgService.tiles[<span class="hljs-number">0</span>].scaleFactors[i];
+      <span class="hljs-keyword">const</span> s = size / scaleFactor;
+      <span class="hljs-keyword">if</span> (s &lt;= tileWidth) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>this is not right...</p></div></div><div class="code"><div class="wrapper">        <span class="hljs-keyword">const</span> width = <span class="hljs-built_in">Math</span>.round(imgService.width / scaleFactor);
+        <span class="hljs-keyword">const</span> url = <span class="hljs-string">`<span class="hljs-subst">${imgService.id}</span>/full/<span class="hljs-subst">${width}</span>,/0/default.jpg`</span>;
+        <span class="hljs-keyword">const</span> thumbSize = {
+          width: <span class="hljs-built_in">Math</span>.round(imgService.width / scaleFactor),
+          height: <span class="hljs-built_in">Math</span>.round(imgService.height / scaleFactor),
+        };
+        <span class="hljs-keyword">return</span> makeThumb(preferred, thumbSize, url);
+      }
+    }
+  }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO: follow is not implemented - but if it was, the full info.json would be dereferenced here.
+if the dereferenced info.json has &#39;sizes&#39; use those, otherwise use tiles as above</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getThumbnailFromImageResource</span>(<span class="hljs-params">image, preferred, min, max, canvas</span>) </span>{
+  <span class="hljs-keyword">let</span> pref = preferred;
+  <span class="hljs-keyword">let</span> thumbnail = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> image === <span class="hljs-string">'string'</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>A thumbnail has been supplied but we have no idea how big it is</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (pref &lt;= <span class="hljs-number">0</span>) {
+      thumbnail = { url: image }; <span class="hljs-comment">// caller didn't care</span>
+    }
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (image.service) {
+    <span class="hljs-keyword">let</span> imgService = image.service.first(hasSizes);
+    <span class="hljs-keyword">if</span> (imgService) {
+      thumbnail = getThumbnailFromServiceSizes(imgService, pref, min, max);
+    } <span class="hljs-keyword">else</span> {
+      imgService = image.service.first(isImageService);
+      <span class="hljs-keyword">if</span> (imgService) {
+        <span class="hljs-keyword">if</span> (imgService.profile.asArray()[<span class="hljs-number">0</span>].indexOf(<span class="hljs-string">'level0.json'</span>) !== -<span class="hljs-number">1</span>) {
+          thumbnail = getThumbnailFromTileOnlyLevel0ImageService(imgService, pref, min, max);
+        } <span class="hljs-keyword">else</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>attempt to determine the aspect ratio</p></div></div><div class="code"><div class="wrapper">          <span class="hljs-keyword">const</span> size = {
+            width: imgService.width || image.width || canvas.width,
+            height: imgService.height || image.height || canvas.height,
+          };
+          <span class="hljs-keyword">if</span> (pref &lt;= <span class="hljs-number">0</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>we can&#39;t supply 0!</p></div></div><div class="code"><div class="wrapper">            pref = <span class="hljs-number">200</span>;
+          }
+          thumbnail = makeThumb(pref, size);
+          thumbnail.url = getCanonicalUri(imgService, thumbnail.width, thumbnail.height);
+          thumbnail.actualWidth = thumbnail.width;
+          thumbnail.actualHeight = thumbnail.height;
+        }
+      }
+    }
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">const</span> imageResourceSize = {
+      width: image.width,
+      height: image.height,
+    };
+    <span class="hljs-keyword">if</span> (pref &lt;= <span class="hljs-number">0</span> || fits(imageResourceSize, min, max)) {
+      thumbnail = makeThumb(pref, imageResourceSize, image.id);
+    }
+  }
+  <span class="hljs-keyword">return</span> thumbnail;
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getThumbnail</span>(<span class="hljs-params">preferred, minimum, maximum</span>) </span>{ <span class="hljs-comment">// , follow</span>
+  <span class="hljs-keyword">let</span> max = maximum;
+  <span class="hljs-keyword">const</span> min = minimum;
+  <span class="hljs-keyword">if</span> (!maximum) max = <span class="hljs-number">3</span> * (min || <span class="hljs-number">100</span>);
+  <span class="hljs-keyword">let</span> thumbnail;
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.hasOwnProperty(<span class="hljs-string">'thumbnail'</span>)) {
+    thumbnail = getThumbnailFromImageResource(<span class="hljs-keyword">this</span>.thumbnail, preferred, min, max);
+    <span class="hljs-keyword">if</span> (thumbnail) {
+      <span class="hljs-keyword">return</span> thumbnail;
+    }
+  }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>no explicit thumbnail. Now we need to take a look at what this actually is</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.type === <span class="hljs-string">'dctypes:Image'</span>) {
+    thumbnail = getThumbnailFromImageResource(<span class="hljs-keyword">this</span>, preferred, min, max);
+    <span class="hljs-keyword">if</span> (thumbnail) {
+      <span class="hljs-keyword">return</span> thumbnail;
+    }
+  }
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.type === <span class="hljs-string">'sc:Canvas'</span> &amp;&amp; <span class="hljs-keyword">this</span>.images &amp;&amp; <span class="hljs-keyword">this</span>.images.length &amp;&amp; <span class="hljs-keyword">this</span>.images[<span class="hljs-number">0</span>].resource) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(this.images[0].resource);</p></div></div><div class="code"><div class="wrapper">    thumbnail = getThumbnailFromImageResource(<span class="hljs-keyword">this</span>.images[<span class="hljs-number">0</span>].resource, preferred, min, max, <span class="hljs-keyword">this</span>);
+    <span class="hljs-keyword">if</span> (thumbnail) {
+      <span class="hljs-keyword">return</span> thumbnail;
+    }
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO - better handling of multiple images per canvas</p></div></div><div class="code"><div class="wrapper"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getDefaultImageService</span>(<span class="hljs-params"></span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>on sc:Canvas</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">let</span> imgService = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.images) {
+    <span class="hljs-keyword">this</span>.images.forEach((img) =&gt; {
+      <span class="hljs-keyword">if</span> (img.resource &amp;&amp; img.resource.service) {
+        imgService = img.resource.service.first(isImageService);
+        <span class="hljs-keyword">if</span> (imgService) <span class="hljs-keyword">return</span> imgService;
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    });
+  }
+  <span class="hljs-keyword">return</span> imgService;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">findIndexById</span>(<span class="hljs-params">id</span>) </span>{
+  <span class="hljs-keyword">let</span> idx;
+  <span class="hljs-keyword">for</span> (idx = <span class="hljs-number">0</span>; idx &lt; <span class="hljs-keyword">this</span>.length; idx++) {
+    <span class="hljs-keyword">if</span> (id === <span class="hljs-keyword">this</span>[idx][<span class="hljs-string">'@id'</span>]) {
+      <span class="hljs-keyword">return</span> idx;
+    }
+  }
+  <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> IIIF = {};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>eslint no-extend-native: [&quot;error&quot;, { &quot;exceptions&quot;: [&quot;String&quot;] }]</p></div></div><div class="code"><div class="wrapper"><span class="hljs-built_in">String</span>.prototype.asArray = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> [<span class="hljs-keyword">this</span>];
+};
+
+IIIF.wrap = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">wrap</span>(<span class="hljs-params">rawObj, key</span>) </span>{
+  <span class="hljs-keyword">let</span> newObj;
+  <span class="hljs-keyword">if</span> (!!rawObj) {
+    newObj = rawObj;
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> (newObj) === <span class="hljs-string">'object'</span>) {
+      <span class="hljs-keyword">if</span> (newObj.constructor !== <span class="hljs-built_in">Array</span>) {
+        jsonLdTidy(newObj, [<span class="hljs-string">'id'</span>, <span class="hljs-string">'type'</span>, <span class="hljs-string">'context'</span>]);
+        <span class="hljs-keyword">if</span> (newObj.hasOwnProperty(<span class="hljs-string">'@type'</span>) &amp;&amp; newObj[<span class="hljs-string">'@type'</span>].indexOf(<span class="hljs-string">'sc:'</span>) === <span class="hljs-number">0</span>) {
+          newObj.getThumbnail = getThumbnail; <span class="hljs-comment">// for all IIIF types</span>
+          <span class="hljs-keyword">if</span> (newObj[<span class="hljs-string">'@type'</span>] === <span class="hljs-string">'sc:Canvas'</span>) {
+            newObj.getDefaultImageService = getDefaultImageService; <span class="hljs-comment">// only for Canvas</span>
+          }
+        }
+      }
+      <span class="hljs-keyword">if</span> (key === <span class="hljs-string">'canvases'</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>We could do this for more than just canvases. But for now..</p></div></div><div class="code"><div class="wrapper">        newObj.findIndexById = findIndexById;
+      }
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> prop <span class="hljs-keyword">of</span> <span class="hljs-built_in">Object</span>.keys(newObj)) {
+        IIIF.wrap(newObj[prop], prop);
+      }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>add helpers for non-@container JSON-LD keys</p></div></div><div class="code"><div class="wrapper">      newObj.asArray = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">asArray</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> (<span class="hljs-keyword">this</span>.constructor === <span class="hljs-built_in">Array</span>) ? <span class="hljs-keyword">this</span> : [<span class="hljs-keyword">this</span>]; };
+      newObj.where = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">where</span>(<span class="hljs-params">predicate</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.asArray().filter(predicate); };
+      newObj.first = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">first</span>(<span class="hljs-params">predicate</span>) </span>{
+        <span class="hljs-keyword">let</span> taa = <span class="hljs-keyword">this</span>.asArray();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;taa&#39;, taa);</p></div></div><div class="code"><div class="wrapper">        <span class="hljs-keyword">if</span> (predicate) {
+          taa = taa.filter(predicate);
+        }
+        <span class="hljs-keyword">return</span> taa.length ? taa[<span class="hljs-number">0</span>] : <span class="hljs-literal">null</span>;
+      };
+      newObj.any = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">any</span>(<span class="hljs-params">predicate</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(this, predicate);</p></div></div><div class="code"><div class="wrapper">        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.first(predicate);
+      };
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> (rawObj) === <span class="hljs-string">'object'</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>prevent our helpers appearing as enumerable props</p></div></div><div class="code"><div class="wrapper">        <span class="hljs-built_in">Object</span>.defineProperty(rawObj, <span class="hljs-string">'asArray'</span>, { enumerable: <span class="hljs-literal">false</span> });
+        <span class="hljs-built_in">Object</span>.defineProperty(rawObj, <span class="hljs-string">'where'</span>, { enumerable: <span class="hljs-literal">false</span> });
+        <span class="hljs-built_in">Object</span>.defineProperty(rawObj, <span class="hljs-string">'first'</span>, { enumerable: <span class="hljs-literal">false</span> });
+        <span class="hljs-built_in">Object</span>.defineProperty(rawObj, <span class="hljs-string">'any'</span>, { enumerable: <span class="hljs-literal">false</span> });
+      }
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (key === <span class="hljs-string">'profile'</span> || key === <span class="hljs-string">'service'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> (newObj) === <span class="hljs-string">'string'</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>required for services, profiles etc as strings
+console.log(<code>$string... ${newObj}</code>);
+newObj.asArray = function asArray() { return [this]; };</p></div></div><div class="code"><div class="wrapper">    }
+  }
+};
+
+IIIF.getAuthServices = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getAuthServices</span>(<span class="hljs-params">info</span>) </span>{
+  <span class="hljs-keyword">const</span> svcInfo = {};
+  <span class="hljs-keyword">let</span> services = [];
+  <span class="hljs-keyword">if</span> (info.hasOwnProperty(<span class="hljs-string">'service'</span>)) {
+    <span class="hljs-keyword">if</span> (info.service.constructor === <span class="hljs-built_in">Array</span>) {
+      services = info.service;
+    } <span class="hljs-keyword">else</span> {
+      services = [info.service];
+    }
+
+    <span class="hljs-keyword">const</span> prefix = <span class="hljs-string">'http://iiif.io/api/auth/0/'</span>;
+    <span class="hljs-keyword">const</span> clickThrough = <span class="hljs-string">'http://iiif.io/api/auth/0/login/clickthrough'</span>;
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; services.length; i++) {
+      <span class="hljs-keyword">const</span> service = services[i];
+      <span class="hljs-keyword">let</span> serviceName = <span class="hljs-literal">null</span>;
+
+      <span class="hljs-keyword">if</span> (service.profile === clickThrough) {
+        serviceName = <span class="hljs-string">'clickthrough'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;Found click through service&#39;);</p></div></div><div class="code"><div class="wrapper">        svcInfo[serviceName] = {
+          id: service[<span class="hljs-string">'@id'</span>],
+          label: service.label,
+          description: service.description,
+          confirmLabel: <span class="hljs-string">'Accept terms and Open'</span>, <span class="hljs-comment">// fake this for now</span>
+        };
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (service.profile.indexOf(prefix) === <span class="hljs-number">0</span>) {
+        serviceName = service.profile.slice(prefix.length);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;Found &#39; + serviceName + &#39; auth service&#39;);</p></div></div><div class="code"><div class="wrapper">        svcInfo[serviceName] = { id: service[<span class="hljs-string">'@id'</span>], label: service.label };
+      }
+      <span class="hljs-keyword">if</span> (service.service &amp;&amp; serviceName) {
+        <span class="hljs-keyword">let</span> nestedServices = [];
+        <span class="hljs-keyword">if</span> (service.service.constructor === <span class="hljs-built_in">Array</span>) {
+          nestedServices = service.service;
+        } <span class="hljs-keyword">else</span> {
+          nestedServices = [service.service];
+        }
+
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> j = <span class="hljs-number">0</span>; j &lt; nestedServices.length; j++) {
+          <span class="hljs-keyword">const</span> nestedServiceName = nestedServices[j].profile.slice(prefix.length);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;Found nested &#39; + nestedServiceName + &#39; auth service&#39;);</p></div></div><div class="code"><div class="wrapper">          svcInfo[serviceName][nestedServiceName] = {
+            id: nestedServices[j][<span class="hljs-string">'@id'</span>],
+            label: nestedServices[j].label };
+        }
+      }
+    }
+  }
+  <span class="hljs-keyword">return</span> svcInfo;
+};</div></div></div></div></body></html>

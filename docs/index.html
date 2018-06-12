@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">README.md</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="sorting-room">Sorting room</h1>
+<h2 id="overview">Overview</h2>
+<p>Application for creating IIIF manifests from other manifests</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Node (check your version: <code>node -v</code>)</li>
+</ul>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#tests">Tests</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h2 id="requirements">Requirements:</h2>
+<ul>
+<li><a href="https://nodejs.org/en/">Node v6.2.0</a><ul>
+<li>Check your version using <code>node -v</code></li>
+</ul>
+</li>
+<li><a href="https://github.com/yarnpkg/yarn">Yarn</a><ul>
+<li><code>npm install -g yarn</code></li>
+</ul>
+</li>
+<li><a href="http://gruntjs.com/">Grunt</a><ul>
+<li><code>npm install -g grunt grunt-cli</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<p>Install all dependencies listed above.</p>
+<pre><code class="lang-sh">yarn install
+grunt</code></pre>
+<h2 id="tests">Tests</h2>
+<pre><code class="lang-sh">grunt <span class="hljs-built_in">test</span></code></pre>
+<p>If you get the error <strong>Error: No selenium server jar found at the specified location</strong> run <code>./node_modules/protractor/bin/webdriver-manager update</code></p>
+<h2 id="documentation">Documentation</h2>
+<h3 id="grunt-commands">Grunt Commands</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>grunt</code></td>
+<td>Builds all site assets, starts server and browsersync</td>
+</tr>
+<tr>
+<td><code>grunt dist</code></td>
+<td>Builds all site assets to dist folder(?)</td>
+</tr>
+<tr>
+<td><code>grunt test</code></td>
+<td>Run tests</td>
+</tr>
+<tr>
+<td><code>grunt styleguide</code></td>
+<td>Generates styleguide</td>
+</tr>
+</tbody>
+</table>
+<h3 id="itcss">ITCSS</h3>
+<ul>
+<li><a href="https://www.xfive.co/blog/itcss-scalable-maintainable-css-architecture/">ITCSS</a></li>
+<li><strong>Tools</strong> – globally used mixins and functions. It’s important not to output any CSS in the first 2 layers.</li>
+<li><strong>Generic</strong> – reset and/or normalize styles, box-sizing definition, etc. This is the first layer which generates actual CSS.</li>
+<li><strong>Elements</strong> – styling for bare HTML elements (like H1, A, etc.). These come with default styling from the browser so we can redefine them here.</li>
+<li><strong>Objects</strong> – class-based selectors which define undecorated design patterns, for example media object known from OOCSS</li>
+<li><strong>Components</strong> – specific UI components. This is where majority of our work takes place and our UI components are often composed of Objects and Components</li>
+<li><strong>Trumps</strong> – utilities and helper classes with ability to override anything which goes before in the triangle, eg. hide helper class</li>
+</ul>
+<h2 id="running-on-docker">Running on docker</h2>
+<h3 id="build-container">Build container</h3>
+<p>From the root folder:</p>
+<p><code>docker build -t digirati/sorting-room:latest .</code></p>
+<p>Running the container:</p>
+<p><code>docker run -p 3000:3000 digirati/sorting-room:latest</code></p>
+<p>then browse <code>http://localhost:3000/</code></p>
+<h2 id="license">License</h2>
+<p>MIT Licensed. See <a href="LICENSE">LICENSE</a></p></div></div></div></div></body></html>

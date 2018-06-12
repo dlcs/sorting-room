@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en"><head><title>src/scss/components/_help</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/scss/components/_help"><meta name="groc-project-path" content="src/scss/components/_help.scss"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/scss/components/_help.scss</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-class">.help</span> {
+  <span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-variable">$help</span>;</span>
+  <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$white</span>;</span>
+  <span class="hljs-attribute">display</span><span class="hljs-value">: none;</span>
+  <span class="hljs-attribute">overflow</span><span class="hljs-value">: hidden;</span>
+  <span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">20px</span>;</span>
+
+  &amp;--active {
+    <span class="hljs-attribute">display</span><span class="hljs-value">: block;</span>
+  }
+
+  &amp;__heading {
+    <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$selected</span>;</span>
+    <span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+  }
+
+  &amp;__list {
+    <span class="hljs-attribute">clear</span><span class="hljs-value">: left;</span>
+    <span class="hljs-attribute">display</span><span class="hljs-value">: inline-block;</span>
+    <span class="hljs-attribute">list-style</span><span class="hljs-value">: none;</span>
+    <span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">20px</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>;</span>
+    <span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+
+    <span class="hljs-at_rule">@<span class="hljs-keyword">media</span> (min-width:<span class="hljs-preprocessor"> 1030px</span>) {</span>
+      <span class="hljs-attribute">clear</span><span class="hljs-value">: none;</span>
+      <span class="hljs-attribute">float</span><span class="hljs-value">: right;</span>
+    }
+  }
+
+  &amp;__list-item {
+    <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-function">darken</span>(<span class="hljs-variable">$white</span>, <span class="hljs-number">15%</span>);</span>
+
+    <span class="hljs-at_rule">@<span class="hljs-keyword">media</span> (min-width:<span class="hljs-preprocessor"> 660px</span>) {</span>
+      <span class="hljs-attribute">float</span><span class="hljs-value">: right;</span>
+      <span class="hljs-attribute">margin-left</span><span class="hljs-value">: <span class="hljs-number">50px</span>;</span>
+    }
+
+    &amp;<span class="hljs-pseudo">:last-child</span> {
+      <span class="hljs-attribute">margin-left</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+    }
+
+    <span class="hljs-tag">strong</span> {
+      <span class="hljs-attribute">color</span><span class="hljs-value">: <span class="hljs-variable">$white</span>;</span>
+    }
+  }
+
+  &amp;__item-description {
+    <span class="hljs-attribute">display</span><span class="hljs-value">: inline-block;</span>
+    <span class="hljs-attribute">max-width</span><span class="hljs-value">: <span class="hljs-number">150px</span>;</span>
+    <span class="hljs-attribute">vertical-align</span><span class="hljs-value">: top;</span>
+  }
+
+  &amp;__text {
+    <span class="hljs-attribute">float</span><span class="hljs-value">: left;</span>
+  }
+
+  &amp;__visual {
+    <span class="hljs-attribute">display</span><span class="hljs-value">: inline-block;</span>
+    <span class="hljs-attribute">list-style</span><span class="hljs-value">: none;</span>
+    <span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">5px</span> <span class="hljs-number">0</span> <span class="hljs-number">15px</span> <span class="hljs-number">5px</span>;</span>
+    <span class="hljs-attribute">padding</span><span class="hljs-value">: <span class="hljs-number">0</span>;</span>
+    <span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">125px</span>;</span>
+
+    <span class="hljs-tag">li</span> {
+      <span class="hljs-tag">span</span>,
+      &amp;<span class="hljs-pseudo">:before</span>,
+      &amp;<span class="hljs-pseudo">:after</span> {
+        <span class="hljs-attribute">background</span><span class="hljs-value">: <span class="hljs-function">lighten</span>(<span class="hljs-variable">$black</span>, <span class="hljs-number">50%</span>);</span>
+        <span class="hljs-attribute">float</span><span class="hljs-value">: left;</span>
+        <span class="hljs-attribute">height</span><span class="hljs-value">: <span class="hljs-number">25px</span>;</span>
+        <span class="hljs-attribute">margin</span><span class="hljs-value">: <span class="hljs-number">0</span> <span class="hljs-number">5px</span> <span class="hljs-number">5px</span> <span class="hljs-number">0</span>;</span>
+        <span class="hljs-attribute">width</span><span class="hljs-value">: <span class="hljs-number">15px</span>;</span>
+      }
+
+      &amp;<span class="hljs-pseudo">:before</span>,
+      &amp;<span class="hljs-pseudo">:after</span> {
+        <span class="hljs-attribute">content</span><span class="hljs-value">: <span class="hljs-string">""</span>;</span>
+      }
+    }
+  }
+
+  &amp;__list-item {
+    &amp;--control {
+      <span class="hljs-class">.help__visual</span> <span class="hljs-tag">li</span><span class="hljs-pseudo">:nth-child</span>(2) {
+        &amp;<span class="hljs-pseudo">:before</span> {
+          <span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-variable">$selected</span>;</span>
+        }
+      }
+
+      <span class="hljs-class">.help__visual</span> <span class="hljs-tag">li</span><span class="hljs-pseudo">:nth-child</span>(3) {
+        <span class="hljs-tag">span</span> {
+          <span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-variable">$selected</span>;</span>
+        }
+      }
+
+      <span class="hljs-class">.help__visual</span> <span class="hljs-tag">li</span><span class="hljs-pseudo">:nth-child</span>(4) {
+        &amp;<span class="hljs-pseudo">:before</span>,
+        &amp;<span class="hljs-pseudo">:after</span> {
+          <span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-variable">$selected</span>;</span>
+        }
+      }
+    }
+
+    &amp;--shift {
+      <span class="hljs-class">.help__visual</span> <span class="hljs-tag">li</span><span class="hljs-pseudo">:nth-child</span>(2),
+      <span class="hljs-class">.help__visual</span> <span class="hljs-tag">li</span><span class="hljs-pseudo">:nth-child</span>(3) {
+        <span class="hljs-tag">span</span>,
+        &amp;<span class="hljs-pseudo">:before</span>,
+        &amp;<span class="hljs-pseudo">:after</span> {
+          <span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-variable">$selected</span>;</span>
+        }
+      }
+
+      <span class="hljs-class">.help__visual</span> <span class="hljs-tag">li</span><span class="hljs-pseudo">:nth-child</span>(4) {
+        &amp;<span class="hljs-pseudo">:before</span> {
+          <span class="hljs-attribute">background-color</span><span class="hljs-value">: <span class="hljs-variable">$selected</span>;</span>
+        }
+      }
+    }
+  }
+}</div></div></div></div></body></html>

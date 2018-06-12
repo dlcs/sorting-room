@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/config/config</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/config/config"><meta name="groc-project-path" content="src/js/config/config.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/config/config.js</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>this file is where you customise sorty to do what you need </p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SortyConfiguration = {};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>logic for naming IIIF resources in your CRUD server </p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const presentationServer = &#39;<a href="http://sorty.dlcs-ida.org/presley/ida/">http://sorty.dlcs-ida.org/presley/ida/</a>&#39;;</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> presentationServer = <span class="hljs-string">'https://presley.dlcs-ida.org/iiif/idatest01/'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Omeka configuration options for derived manifests</p></div></div><div class="code"><div class="wrapper">SortyConfiguration.enableOmekaImport = <span class="hljs-literal">true</span>;
+SortyConfiguration.omekaImportEndpoint = <span class="hljs-string">'https://omeka.dlcs-ida.org/api/iiif-import'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Delete configuration options for derived manifests</p></div></div><div class="code"><div class="wrapper">SortyConfiguration.enableDelete = <span class="hljs-literal">true</span>;
+
+SortyConfiguration.sourceCollection = <span class="hljs-string">'https://manifests.dlcs-ida.org/rollcollection'</span>;
+SortyConfiguration.mintCanvasIds = <span class="hljs-literal">true</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getPath</span>(<span class="hljs-params">url</span>) </span>{
+  <span class="hljs-keyword">const</span> reg = <span class="hljs-regexp">/.+?:\/\/.+?(\/.+?)(?:#|\?|$)/</span>;
+  <span class="hljs-keyword">return</span> reg.exec(url)[<span class="hljs-number">1</span>];
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getUriComponent</span>(<span class="hljs-params">str</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>for demo purposes! Not safe for general URL patterns</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">return</span> getPath(str).replace(<span class="hljs-regexp">/\//g</span>, <span class="hljs-string">'_'</span>);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getIdentifier</span>(<span class="hljs-params">loadedResource, start, end</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${getUriComponent(loadedResource)}</span>cvs-<span class="hljs-subst">${start}</span>-<span class="hljs-subst">${end}</span>`</span>;
+}
+
+SortyConfiguration.getManifestLabel = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getManifestLabel</span>(<span class="hljs-params">loadedResource, start, end</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${getPath(loadedResource).replace(/\//g, ' ')}</span> canvases <span class="hljs-subst">${start}</span>-<span class="hljs-subst">${end}</span>`</span>;
+};
+
+SortyConfiguration.getCollectionUrl = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCollectionUrl</span>(<span class="hljs-params">loadedResource</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${presentationServer}</span>collection/<span class="hljs-subst">${getUriComponent(loadedResource)}</span>`</span>;
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>These are MVP and don&#39;t offer a lot of flexibility.</p></div></div><div class="code"><div class="wrapper">SortyConfiguration.getManifestUrl = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getManifestUrl</span>(<span class="hljs-params">loadedResource, start, end</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${presentationServer}</span><span class="hljs-subst">${getIdentifier(loadedResource, start, end)}</span>/manifest`</span>;
+};
+
+SortyConfiguration.getSequenceUrl = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSequenceUrl</span>(<span class="hljs-params">loadedResource, start, end</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${presentationServer}</span><span class="hljs-subst">${getIdentifier(loadedResource, start, end)}</span>/sequence/s0`</span>;
+};
+
+SortyConfiguration.getCanvasUrl = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCanvasUrl</span>(<span class="hljs-params">loadedResource, start, end, canvasIndex</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${presentationServer}</span><span class="hljs-subst">${getIdentifier(loadedResource, start, end)}</span>/canvas/c\
+<span class="hljs-subst">${canvasIndex}</span>`</span>;
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>application-specific extra stuff to show per canvas </p></div></div><div class="code"><div class="wrapper">SortyConfiguration.getCanvasDecorations = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCanvasDecorations</span>(<span class="hljs-params">canvas</span>) </span>{
+  <span class="hljs-keyword">let</span> divClass = <span class="hljs-string">'ocrUnknown'</span>;
+  <span class="hljs-keyword">let</span> additionalHtml = <span class="hljs-string">''</span>;
+  <span class="hljs-keyword">let</span> confBar = <span class="hljs-string">'&lt;div class="confBarPlaceholder"&gt;&lt;/div&gt;'</span>;
+  <span class="hljs-keyword">let</span> imgLabel = <span class="hljs-string">''</span>;
+  <span class="hljs-keyword">if</span> (canvas.service &amp;&amp; canvas.service.context === <span class="hljs-string">'https://dlcs-ida.org/ocr-info'</span>) {
+    <span class="hljs-keyword">const</span> isType = canvas.service.Typescript;
+    divClass = isType ? <span class="hljs-string">'ocrType'</span> : <span class="hljs-string">'ocrHand'</span>;
+    <span class="hljs-keyword">if</span> (isType) {
+      <span class="hljs-keyword">const</span> conf = canvas.service.Average_confidence || <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">const</span> accu = canvas.service.Spelling_accuracy || <span class="hljs-number">0</span>;
+      confBar = <span class="hljs-string">`&lt;div class="confBar"&gt;&lt;div class="conf" style="width:<span class="hljs-subst">${conf}</span>%;"&gt;&lt;/div&gt;&lt;/div&gt;
+                 &lt;div class="confBar"&gt;&lt;div class="accu" style="width: <span class="hljs-subst">${accu}</span>%;"&gt;&lt;/div&gt;&lt;/div&gt;`</span>;
+    }
+    <span class="hljs-keyword">const</span> textLength = canvas.service.Full_text_length;
+    <span class="hljs-keyword">const</span> entities = canvas.service.Total_entities_found;
+    additionalHtml += <span class="hljs-string">'&lt;div class="imgInfo"&gt;'</span>;
+    <span class="hljs-keyword">if</span> (textLength &gt; <span class="hljs-number">3</span>) additionalHtml += <span class="hljs-string">`T: <span class="hljs-subst">${textLength}</span>&amp;nbsp;&amp;nbsp;`</span>;
+    <span class="hljs-keyword">if</span> (entities &gt; <span class="hljs-number">1</span>) additionalHtml += <span class="hljs-string">`E: <span class="hljs-subst">${entities}</span>`</span>;
+    additionalHtml += <span class="hljs-string">'&amp;nbsp;&lt;/div&gt;'</span>;
+    <span class="hljs-keyword">const</span> stats = canvas.service.Entity_stats;
+    <span class="hljs-keyword">if</span> (stats) {
+      stats.forEach((currentValue, index) =&gt; {
+        imgLabel += <span class="hljs-string">`\r\n<span class="hljs-subst">${index}</span>: <span class="hljs-subst">${currentValue}</span>`</span>;
+      });
+    }
+  }
+
+  <span class="hljs-keyword">return</span> {
+    divClass,
+    label: imgLabel,
+    canvasInfo: confBar + additionalHtml,
+  };
+};</div></div></div></div></body></html>

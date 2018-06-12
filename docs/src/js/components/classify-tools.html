@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/classify-tools</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/classify-tools"><meta name="groc-project-path" content="src/js/components/classify-tools.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/classify-tools.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> { switchView } <span class="hljs-keyword">from</span> <span class="hljs-string">'./workspace.js'</span>;
+<span class="hljs-keyword">import</span> { getTerm } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/terms.js'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> manifestStore = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> lastSelectionState = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> lastManifestState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> classNamespace = <span class="hljs-string">'classify-tools'</span>;
+
+<span class="hljs-keyword">const</span> DOM = {
+  $classifyTools: <span class="hljs-literal">null</span>,
+  $classifyFeedback: <span class="hljs-literal">null</span>,
+  $classifyNumImages: <span class="hljs-literal">null</span>,
+  $classifyMake: <span class="hljs-literal">null</span>,
+  $classifyClear: <span class="hljs-literal">null</span>,
+  $classifyProgress: <span class="hljs-literal">null</span>,
+  $classifyNumSets: <span class="hljs-literal">null</span>,
+  init() {
+    DOM.$classifyTools = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>`</span>);
+    DOM.$classifyFeedback = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>__feedback`</span>);
+    DOM.$classifyNumImages = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>__num-images`</span>);
+    DOM.$classifyMake = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>__make`</span>);
+    DOM.$classifyClear = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>__clear`</span>);
+    DOM.$classifyProgress = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>__progress-bar`</span>);
+    DOM.$classifyNumSets = $(<span class="hljs-string">`.<span class="hljs-subst">${classNamespace}</span>__num-sets`</span>);
+    DOM.$classifyTitle = $(<span class="hljs-string">'.classify-tools__title'</span>);
+    DOM.$classifySubtitle = $(<span class="hljs-string">'.classify-tools__sub-title'</span>);
+    DOM.$savedProgress = $(<span class="hljs-string">'.saved__progress-bar'</span>);
+    DOM.$viewer = $(<span class="hljs-string">'.viewer'</span>);
+  },
+};
+
+<span class="hljs-keyword">const</span> Events = {
+  domReady() {
+    DOM.init();
+    Events.init();
+    store.subscribe(Events.storeSubscribe);
+    manifestStore.subscribe(Events.manifestStoreSubscribe);
+  },
+  init() {
+    DOM.$classifyNumSets.click(Events.numSetsClick);
+    DOM.$classifyTitle.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'a'</span>, Events.titleClick);
+    DOM.$classifySubtitle.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'a'</span>, Events.titleClick);
+  },
+  manifestStoreSubscribe() {
+    <span class="hljs-keyword">const</span> manifestState = manifestStore.getState();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(manifestState);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'allImages'</span>, manifestState, lastManifestState)) {
+      DOM.$classifyNumImages.html(<span class="hljs-string">`<span class="hljs-subst">${manifestState.allImages.length}</span>
+        <span class="hljs-subst">${getTerm('image', manifestState.allImages.length)}</span>`</span>);
+    }
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'derivedManifestsComplete'</span>, manifestState, lastManifestState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>If there are derived manifests update the count</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> manifestState.derivedManifestsComplete.length !== <span class="hljs-string">'undefined'</span>
+      &amp;&amp; manifestState.derivedManifestsComplete.length) {
+        DOM.$classifyNumSets.show();
+        DOM.$classifyNumSets.html(<span class="hljs-string">`<span class="hljs-subst">${manifestState.derivedManifestsComplete.length}</span>
+          <span class="hljs-subst">${getTerm('derivedManifest', manifestState.derivedManifestsComplete.length)}</span>`</span>);
+      } <span class="hljs-keyword">else</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Reset the number of sets</p></div></div><div class="code"><div class="wrapper">        DOM.$classifyNumSets.html(<span class="hljs-string">`0 <span class="hljs-subst">${getTerm('derivedManifest', 0)}</span>`</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Hide the number of sets</p></div></div><div class="code"><div class="wrapper">        DOM.$classifyNumSets.hide();
+      }
+    }
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'manifestData'</span>, manifestState, lastManifestState)) {
+      DOM.$classifyTitle.html(<span class="hljs-string">`&lt;a class="classify-tools__link" href="#"&gt;
+      <span class="hljs-subst">${manifestState.manifestData.metadata[0].value}</span>&lt;/a&gt;`</span>);
+      DOM.$classifySubtitle.html(<span class="hljs-string">`&lt;a href="#"
+      class="classify-tools__back"&gt;&lt; Back to select items&lt;/a&gt;`</span>);
+    }
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'classifiedCanvases'</span>, manifestState, lastManifestState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;classifiedCanvases changed&#39;, derivedState, lastLocalState);</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">const</span> classifiedTotal = manifestState
+      .classifiedCanvases.size;
+      <span class="hljs-keyword">const</span> total = manifestState.allImages.length;
+      <span class="hljs-keyword">const</span> progressVal = total &gt; <span class="hljs-number">0</span> ? <span class="hljs-built_in">Math</span>.round((classifiedTotal / total) * <span class="hljs-number">100</span>) : <span class="hljs-number">0</span>;
+      DOM.$classifyProgress.val(progressVal);
+      DOM.$savedProgress.val(progressVal);
+    }
+    lastManifestState = manifestState;
+  },
+  numSetsClick(e) {
+    e.preventDefault();
+    switchView(<span class="hljs-string">'done'</span>);
+  },
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> selectionState = store.getState().selectedCollection;
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'selectedImages'</span>, selectionState, lastSelectionState)) {
+      <span class="hljs-keyword">if</span> (selectionState.selectedImages.length) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Show selected context controls</p></div></div><div class="code"><div class="wrapper">        DOM.$classifyTools
+        .removeClass(<span class="hljs-string">`<span class="hljs-subst">${classNamespace}</span>--no-selection`</span>)
+        .addClass(<span class="hljs-string">`<span class="hljs-subst">${classNamespace}</span>--selection`</span>);
+        DOM.$classifyFeedback.html(<span class="hljs-string">`<span class="hljs-subst">${selectionState.selectedImages.length}</span> selected`</span>);
+      } <span class="hljs-keyword">else</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Show unselected context controls</p></div></div><div class="code"><div class="wrapper">        DOM.$classifyTools
+        .removeClass(<span class="hljs-string">`<span class="hljs-subst">${classNamespace}</span>--selection`</span>)
+        .addClass(<span class="hljs-string">`<span class="hljs-subst">${classNamespace}</span>--no-selection`</span>);
+      }
+    }
+    lastSelectionState = selectionState;
+  },
+  titleClick(e) {
+    e.preventDefault();
+    switchView(<span class="hljs-string">'add'</span>);
+  },
+};
+
+<span class="hljs-keyword">const</span> Init = (globalStore, globalManifestStore) =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;classify init&#39;);</p></div></div><div class="code"><div class="wrapper">  store = globalStore;
+  manifestStore = globalManifestStore;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> Init;
+$(<span class="hljs-built_in">document</span>).ready(Events.domReady);</div></div></div></div></body></html>

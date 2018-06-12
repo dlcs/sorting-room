@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/actions/ui</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/actions/ui"><meta name="groc-project-path" content="src/js/actions/ui.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/actions/ui.js</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Action Types </p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> HIDE_LIGHTBOX = <span class="hljs-string">'HIDE_LIGHTBOX'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_CURRENT_IMAGE = <span class="hljs-string">'SET_CURRENT_IMAGE'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_LOADING_MANIFEST = <span class="hljs-string">'SET_LOADING_MANIFEST'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_TAB = <span class="hljs-string">'SET_TAB'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SET_THUMB_SIZE = <span class="hljs-string">'SET_THUMB_SIZE'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SHOW_LIGHTBOX = <span class="hljs-string">'SHOW_LIGHTBOX'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> TOGGLE_HELP_VISIBLE = <span class="hljs-string">'TOGGLE_HELP_VISIBLE'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> hideLightbox = () =&gt; ({
+  type: HIDE_LIGHTBOX,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> showLightbox = (index) =&gt; ({
+  type: SHOW_LIGHTBOX,
+  index,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setCurrentImage = (currentImage) =&gt; ({
+  type: SET_CURRENT_IMAGE,
+  currentImage,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setLoading = (loading) =&gt; ({
+  type: SET_LOADING_MANIFEST,
+  loading,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setTab = (tab) =&gt; ({
+  type: SET_TAB,
+  tab,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> setThumbSize = (thumbSize) =&gt; ({
+  type: SET_THUMB_SIZE,
+  thumbSize,
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> toggleHelpVisible = () =&gt; ({
+  type: TOGGLE_HELP_VISIBLE,
+});</div></div></div></div></body></html>

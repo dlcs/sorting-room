@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/thumbs</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/thumbs"><meta name="groc-project-path" content="src/js/components/thumbs.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/thumbs.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { SortyConfiguration } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/config.js'</span>;
+<span class="hljs-keyword">import</span> {
+  hasPropertyChanged,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> { attachSelectionBehaviour } <span class="hljs-keyword">from</span> <span class="hljs-string">'./selection.js'</span>;
+<span class="hljs-keyword">import</span> thumbSizeInit, { makeThumbSizeSelector } <span class="hljs-keyword">from</span> <span class="hljs-string">'./thumb-size-selector.js'</span>;
+<span class="hljs-keyword">import</span> {
+  setAllImages,
+  setThumbSizes,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/loaded-manifest.js'</span>;
+<span class="hljs-keyword">import</span> {
+  setThumbSize,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/ui.js'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> manifestStore = <span class="hljs-literal">null</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Keep track of previous state for state diffing
+let lastState = null;</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">let</span> lastManifestState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> isActive = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> store.getState().selectedCollection.selectedImages.indexOf(<span class="hljs-keyword">this</span>.index) &gt; -<span class="hljs-number">1</span>;
+};
+
+<span class="hljs-keyword">const</span> isClassified = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(this.canvasId, store.getState().derivedManifestsReducer.classifiedCanvases);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">return</span> manifestStore.getState().classifiedCanvases.has(<span class="hljs-keyword">this</span>.canvasId);
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> updateThumbsWithStatus = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;updateThumbsWithStatus&#39;);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> classifiedThumbs = manifestStore.getState().classifiedCanvases;
+  <span class="hljs-keyword">const</span> $thumbs = $(<span class="hljs-string">'.thumb'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Wipe out any existing classified classes (may have been a delete)</p></div></div><div class="code"><div class="wrapper">  $(<span class="hljs-string">'.tc--classified'</span>).removeClass(<span class="hljs-string">'tc--classified'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Add the classified modifier to any that have been classified</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> thumbUri <span class="hljs-keyword">of</span> classifiedThumbs.values()) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(thumbUri);</p></div></div><div class="code"><div class="wrapper">    $thumbs.filter(<span class="hljs-string">`.thumb[data-uri="<span class="hljs-subst">${thumbUri}</span>"]`</span>).parent().addClass(<span class="hljs-string">'tc--classified'</span>);
+  }
+  $(<span class="hljs-built_in">window</span>).trigger(<span class="hljs-string">'lookup'</span>);
+};
+
+<span class="hljs-keyword">const</span> getThumbsFromCanvas = (canvas, thumbSizes) =&gt; {
+  <span class="hljs-keyword">const</span> thumbs = {};
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> thumbSize <span class="hljs-keyword">of</span> thumbSizes) {
+    <span class="hljs-keyword">const</span> min = thumbSize &lt; <span class="hljs-number">100</span> ? <span class="hljs-number">0</span> : <span class="hljs-built_in">Math</span>.round(thumbSize * <span class="hljs-number">0.8</span>);
+    <span class="hljs-keyword">const</span> max = thumbSize &lt; <span class="hljs-number">100</span> ? <span class="hljs-number">200</span> : thumbSize * <span class="hljs-number">2</span>;
+    <span class="hljs-keyword">const</span> thumb = canvas.getThumbnail(thumbSize, min, max);
+    thumbs[thumbSize] = thumb;
+  }
+  <span class="hljs-keyword">return</span> thumbs;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> storeThumbs = (canvases) =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;storeThumbs&#39;);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> allImages = [];
+  <span class="hljs-keyword">const</span> thumbSizes = manifestStore.getState().thumbSizes;
+  <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;storeThumbs called with&#39;, canvases);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> canvas <span class="hljs-keyword">of</span> canvases) {
+    <span class="hljs-keyword">const</span> thumbs = getThumbsFromCanvas(canvas, thumbSizes);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(canvas);</p></div></div><div class="code"><div class="wrapper">    allImages.push({
+      canvasId: canvas.id,
+      fullSrc: canvas.getThumbnail(<span class="hljs-number">1000</span>, <span class="hljs-number">800</span>, <span class="hljs-number">2000</span>),
+      index: i,
+      info: <span class="hljs-string">`<span class="hljs-subst">${canvas.getDefaultImageService().id}</span>/info.json`</span>,
+      isActive,
+      isClassified,
+      thumbs,
+    });
+    i++;
+  }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;all images&#39;, allImages);</p></div></div><div class="code"><div class="wrapper">  manifestStore.dispatch(setAllImages(allImages));
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Get preferred size ensuring that the preference is valid</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> getPreferredSize = () =&gt; {
+  <span class="hljs-keyword">const</span> preferredSize = <span class="hljs-built_in">parseInt</span>(store.getState().ui.thumbSize, <span class="hljs-number">10</span>);
+  <span class="hljs-keyword">const</span> availableThumbSizes = manifestStore.getState().thumbSizes;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(availableThumbSizes.indexOf(preferredSize));</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">if</span> (availableThumbSizes.indexOf(preferredSize) &gt; -<span class="hljs-number">1</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${preferredSize}</span>`</span>;
+  }
+  store.dispatch(setThumbSize(availableThumbSizes[<span class="hljs-number">0</span>]));
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${availableThumbSizes[0]}</span>`</span>;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> drawThumbs = () =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const $title = $(&#39;.viewer<strong>title&#39;);
+const $subtitle = $(&#39;.viewer</strong>sub-title&#39;);
+$title.text(<code>${manifestStore.getState().allImages.length}</code>);
+console.log(&#39;drawThumbs&#39;);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> manifestState = manifestStore.getState();
+  <span class="hljs-keyword">if</span> (manifestState.allImages !== <span class="hljs-literal">null</span>
+    &amp;&amp; manifestState.allImages.length
+    &amp;&amp; manifestState.thumbSizes !== <span class="hljs-literal">null</span>) {
+    <span class="hljs-keyword">const</span> $thumbs = $(<span class="hljs-string">'.thumbs-container'</span>);
+    $thumbs.empty();
+    <span class="hljs-keyword">const</span> preferredSize = getPreferredSize();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(preferredSize);
+console.log(preferredSize);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> image <span class="hljs-keyword">of</span> manifestStore.getState().allImages) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(image, store.getState().loadedManifest.allImages);</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">const</span> preferredThumb = image.thumbs[preferredSize];
+      <span class="hljs-keyword">const</span> dimensions = preferredThumb.width &amp;&amp; preferredThumb.height ?
+      <span class="hljs-string">`width="<span class="hljs-subst">${preferredThumb.width}</span>" height="<span class="hljs-subst">${preferredThumb.height}</span>"`</span> : <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">const</span> activeClass = image.isActive() ? <span class="hljs-string">' thumb--active'</span> : <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">const</span> classifiedClass = image.isClassified() ? <span class="hljs-string">' tc--classified'</span> : <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">const</span> decorations = SortyConfiguration.getCanvasDecorations(image);
+      <span class="hljs-keyword">const</span> thumbnail = <span class="hljs-string">`
+      &lt;div class="tc<span class="hljs-subst">${classifiedClass}</span>"&gt;
+        &lt;img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB\
+        CAQAAAC1HAwCAAAAC0lEQVR42mO8+R8AArcB2pIvCSwAAAAASUVORK5CYII=" class="thumb<span class="hljs-subst">${activeClass}</span>"
+        data-uri="<span class="hljs-subst">${image.canvasId}</span>"
+        data-src="<span class="hljs-subst">${preferredThumb.url}</span>"
+        data-mfp-src="<span class="hljs-subst">${image.fullSrc.url}</span>"
+        data-idx="<span class="hljs-subst">${image.index}</span>"
+        data-info="<span class="hljs-subst">${image.info}</span>"
+        <span class="hljs-subst">${dimensions}</span> /&gt;
+        &lt;button class="thumb__zoom"&gt;&lt;i class="material-icons"&gt;zoom_in&lt;/i&gt;&lt;/button&gt;
+        <span class="hljs-subst">${decorations.canvasInfo}</span>
+      &lt;/div&gt;
+      `</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(thumbnail);</p></div></div><div class="code"><div class="wrapper">      $thumbs.append(thumbnail);
+    }
+    attachSelectionBehaviour();
+  }
+};
+
+<span class="hljs-keyword">const</span> getThumbSizesFromCanvases = (canvases) =&gt; {
+  <span class="hljs-keyword">const</span> maxSize = <span class="hljs-number">600</span>;
+  <span class="hljs-keyword">const</span> foundSizes = [];
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">Math</span>.min(canvases.length, <span class="hljs-number">10</span>); i++) {
+    <span class="hljs-keyword">const</span> canvas = canvases[i];
+    <span class="hljs-keyword">if</span> (canvas.thumbnail &amp;&amp; canvas.thumbnail.service &amp;&amp; canvas.thumbnail.service.sizes) {
+      <span class="hljs-keyword">const</span> sizes = canvas.thumbnail.service.sizes;
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> j = <span class="hljs-number">0</span>; j &lt; sizes.length; j++) {
+        <span class="hljs-keyword">const</span> testSize = <span class="hljs-built_in">Math</span>.max(sizes[j].width, sizes[j].height);
+        <span class="hljs-keyword">if</span> (foundSizes.indexOf(testSize) === -<span class="hljs-number">1</span> &amp;&amp; testSize &lt;= maxSize) {
+          foundSizes.push(testSize);
+        }
+      }
+    }
+  }
+  <span class="hljs-keyword">return</span> foundSizes;
+};
+
+<span class="hljs-keyword">const</span> getSmallMediumLargeSizes = (foundSizes, defaultChoices) =&gt; {
+  <span class="hljs-keyword">let</span> smallMediumLarge = [];
+  <span class="hljs-keyword">if</span> (foundSizes.length === <span class="hljs-number">3</span>) {
+    <span class="hljs-keyword">return</span> foundSizes;
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (foundSizes.length === <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> defaultChoices;
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (foundSizes.length &gt; <span class="hljs-number">3</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Take the lowest, highest and (smallest) middle value</p></div></div><div class="code"><div class="wrapper">    smallMediumLarge.push(foundSizes[<span class="hljs-number">0</span>]);
+    smallMediumLarge.push(foundSizes[<span class="hljs-built_in">Math</span>.floor(foundSizes.length / <span class="hljs-number">2</span>)]);
+    smallMediumLarge.push(foundSizes[foundSizes.length - <span class="hljs-number">1</span>]);
+    <span class="hljs-keyword">return</span> smallMediumLarge;
+  }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Add some options favouring foundSizes</p></div></div><div class="code"><div class="wrapper">  smallMediumLarge = foundSizes.splice(<span class="hljs-number">0</span>);
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> defaultSize <span class="hljs-keyword">of</span> defaultChoices) {
+    <span class="hljs-keyword">if</span> (smallMediumLarge.length === <span class="hljs-number">3</span>) <span class="hljs-keyword">break</span>;
+    <span class="hljs-keyword">if</span> (smallMediumLarge.indexOf(defaultSize) === -<span class="hljs-number">1</span>) {
+      smallMediumLarge.push(defaultSize);
+    }
+  }
+  smallMediumLarge.sort((a, b) =&gt; a - b);
+  <span class="hljs-keyword">return</span> smallMediumLarge;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> storeThumbSizes = (canvases) =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;storeThumbSizes&#39;);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> defaultChoices = [<span class="hljs-number">100</span>, <span class="hljs-number">200</span>, <span class="hljs-number">400</span>];
+  <span class="hljs-keyword">const</span> foundSizes = getThumbSizesFromCanvases(canvases);
+  defaultChoices.sort((a, b) =&gt; a - b);
+  foundSizes.sort((a, b) =&gt; a - b);
+  <span class="hljs-keyword">const</span> choices = getSmallMediumLargeSizes(foundSizes, defaultChoices);
+  manifestStore.dispatch(setThumbSizes(choices));
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> thumbsUpdate = () =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;thumbsUpdate&#39;);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> canvases = manifestStore.getState().canvases;
+  storeThumbSizes(canvases);
+  storeThumbs(canvases);
+  makeThumbSizeSelector();
+  drawThumbs();
+};
+
+<span class="hljs-keyword">const</span> Events = {
+  domReady() {
+    manifestStore.subscribe(Events.manifestStoreSubscribe);
+  },
+  manifestStoreSubscribe() {
+    <span class="hljs-keyword">const</span> state = manifestStore.getState();
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'canvases'</span>, state, lastManifestState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;canvases changed&#39;);
+thumbsUpdate();</p></div></div><div class="code"><div class="wrapper">    }
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'manifestData'</span>, state, lastManifestState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;manifestData changed&#39;);
+drawThumbs();</p></div></div><div class="code"><div class="wrapper">    }
+    lastManifestState = state;
+  },
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> thumbsInit = (globalStore, globalManifestStore) =&gt; {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  thumbSizeInit(store, manifestStore);
+};
+
+$(<span class="hljs-built_in">document</span>).ready(Events.domReady);</div></div></div></div></body></html>

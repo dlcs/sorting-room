@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/selection</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/selection"><meta name="groc-project-path" content="src/js/components/selection.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/selection.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> {
+  addOrRemoveFromSelection,
+  selectImage,
+  selectImageRange,
+  clearSelection,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/selected-collection.js'</span>;
+<span class="hljs-keyword">import</span> {
+  attachLightboxBehaviour,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'./lightbox'</span>;
+
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> manifestStore = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">let</span> lastLocalSelectedCollectionState = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> lastLocalLoadedManifestState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> clearSelectionButton = <span class="hljs-string">'.classify-tools__clear'</span>;
+
+<span class="hljs-keyword">const</span> Events = {
+  contextMenu(e) {
+    <span class="hljs-keyword">const</span> $target = $(e.target);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(e, $target);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (($target.hasClass(<span class="hljs-string">'thumb'</span>) || $target.hasClass(<span class="hljs-string">'tc'</span>)) &amp;&amp; e.ctrlKey) {
+      <span class="hljs-keyword">const</span> idx = $target.attr(<span class="hljs-string">'data-idx'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(idx);</p></div></div><div class="code"><div class="wrapper">      store.dispatch(addOrRemoveFromSelection(idx));
+      e.preventDefault();
+    }
+  },
+  clearSelectionClick() {
+    store.dispatch(clearSelection());
+  },
+  domReady() {
+    $(clearSelectionButton).click(Events.clearSelectionClick);
+    $(<span class="hljs-built_in">document</span>).on(<span class="hljs-string">'contextmenu'</span>, Events.contextMenu);
+  },
+  manifestStoreSubscribe() {
+    <span class="hljs-keyword">const</span> loadedManifestState = manifestStore.getState();
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'manifestTitle'</span>, loadedManifestState, lastLocalLoadedManifestState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(loadedManifestState.manifestTitle);</p></div></div><div class="code"><div class="wrapper">    }
+    lastLocalLoadedManifestState = loadedManifestState;
+  },
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> selectedCollectionState = store.getState().selectedCollection;
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'selectedImages'</span>, selectedCollectionState,
+    lastLocalSelectedCollectionState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;SEL - changed&#39;);</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">const</span> $thumbActive = $(<span class="hljs-string">'.thumb--active'</span>);
+      <span class="hljs-keyword">const</span> selectedImages = selectedCollectionState.selectedImages;
+
+      $thumbActive.removeClass(<span class="hljs-string">'thumb--active'</span>);
+
+      <span class="hljs-keyword">if</span> (selectedImages.length) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> idx <span class="hljs-keyword">of</span> selectedImages) {
+          $(<span class="hljs-string">`.thumb:eq(<span class="hljs-subst">${idx}</span>)`</span>).addClass(<span class="hljs-string">'thumb--active'</span>);
+        }
+      }
+    }
+    lastLocalSelectedCollectionState = selectedCollectionState;
+  },
+  thumbClick(e) {
+    <span class="hljs-keyword">const</span> idx = $(<span class="hljs-keyword">this</span>).attr(<span class="hljs-string">'data-idx'</span>);
+    <span class="hljs-keyword">if</span> (e.shiftKey) {
+      store.dispatch(selectImageRange(idx));
+    } <span class="hljs-keyword">else</span> {
+      store.dispatch(selectImage(idx));
+    }
+    e.stopPropagation();
+  },
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> attachSelectionBehaviour = () =&gt; {
+  <span class="hljs-keyword">const</span> $thumb = $(<span class="hljs-string">'img.thumb'</span>);
+  $thumb.click(Events.thumbClick);
+  attachLightboxBehaviour();
+  $thumb.unveil(<span class="hljs-number">300</span>);
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> selectionInit = (globalStore, globalManifestStore) =&gt; {
+  store = globalStore;
+  manifestStore = globalManifestStore;
+  $(<span class="hljs-built_in">document</span>).ready(Events.domReady);
+  store.subscribe(Events.storeSubscribe);
+  manifestStore.subscribe(Events.manifestStoreSubscribe);
+};</div></div></div></div></body></html>

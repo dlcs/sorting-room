@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/reducers/loaded-manifest</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/reducers/loaded-manifest"><meta name="groc-project-path" content="src/js/reducers/loaded-manifest.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/reducers/loaded-manifest.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> {
+  RESET_DERIVED_MANIFESTS,
+  SET_ALL_IMAGES,
+  SET_CANVASES,
+  SET_CLASSIFIED_CANVASES,
+  SET_DERIVED_MANIFESTS,
+  SET_DERIVED_MANIFESTS_COMPLETE,
+  SET_MANIFEST,
+  SET_MANIFEST_DATA,
+  SET_THUMB_SIZES,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/loaded-manifest.js'</span>;
+
+<span class="hljs-keyword">const</span> initialState = {
+  manifest: <span class="hljs-literal">null</span>,
+  manifestData: <span class="hljs-literal">null</span>,</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>All images with additional data</p></div></div><div class="code"><div class="wrapper">  allImages: [],</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Canvases with limited data</p></div></div><div class="code"><div class="wrapper">  canvases: <span class="hljs-literal">null</span>,
+  classifiedCanvases: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Set</span>(),
+  derivedManifests: <span class="hljs-literal">null</span>,
+  derivedManifestsComplete: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Set</span>(),
+  thumbSizes: <span class="hljs-literal">null</span>,
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> loadedManifest = (state = initialState, action) =&gt; {
+  <span class="hljs-keyword">switch</span> (action.type) {
+    <span class="hljs-keyword">case</span> SET_MANIFEST: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { manifest: action.manifest });
+    }
+    <span class="hljs-keyword">case</span> SET_MANIFEST_DATA: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { manifestData: action.manifestData });
+    }
+    <span class="hljs-keyword">case</span> SET_ALL_IMAGES: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { allImages: action.allImages });
+    }
+    <span class="hljs-keyword">case</span> SET_CANVASES: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, { canvases: action.canvases });
+    }
+    <span class="hljs-keyword">case</span> SET_DERIVED_MANIFESTS: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, {
+        derivedManifests: action.derivedManifests,
+      });
+    }
+    <span class="hljs-keyword">case</span> RESET_DERIVED_MANIFESTS: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, {
+        derivedManifests: initialState.derivedManifests,
+      });
+    }
+    <span class="hljs-keyword">case</span> SET_DERIVED_MANIFESTS_COMPLETE: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, {
+        derivedManifestsComplete: action.derivedManifestsComplete,
+      });
+    }
+    <span class="hljs-keyword">case</span> SET_CLASSIFIED_CANVASES: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, {
+        classifiedCanvases: action.classifiedCanvases,
+      });
+    }
+    <span class="hljs-keyword">case</span> SET_THUMB_SIZES: {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign({}, state, {
+        thumbSizes: action.thumbSizes,
+      });
+    }
+    <span class="hljs-keyword">default</span>: <span class="hljs-keyword">return</span> state;
+  }
+};</div></div></div></div></body></html>
