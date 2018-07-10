@@ -1,3 +1,5 @@
+$red: red;
+
 .c-form {
   display: block;
 }
@@ -19,8 +21,9 @@
       border-color: $grey-2;
     }
   }
+
   &__error {
-    color: red;
+    color: $red;
   }
 }
 

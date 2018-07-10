@@ -4,18 +4,18 @@ export const SortyConfiguration = {};
 
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
 // const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
-const presentationServerNew = 'https://presley.glam-dev.org/iiif/';
-const presentationServer = 'https://presley.glam-dev.org/iiif/customer/';
+const presentationServerNew = window.PRESENTATION_SERVER_ROOT || 'https://presley.glam-dev.org/iiif/';
+const presentationServer = window.PRESENTATION_SERVER_CUSTOMER || 'https://presley.glam-dev.org/iiif/customer/';
 // const presentationServer = 'http://localhost:8000/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
 SortyConfiguration.enableOmekaImport = true;
-SortyConfiguration.omekaImportEndpoint = 'https://omeka.dlcs-ida.org/api/iiif-import';
+SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'https://omeka.dlcs-ida.org/api/iiif-import';
 
 // Delete configuration options for derived manifests
 SortyConfiguration.enableDelete = true;
 
-SortyConfiguration.sourceCollection = 'https://manifests.dlcs-ida.org/rollcollection';
+SortyConfiguration.sourceCollection = window.SOURCE_COLLECTION || 'https://manifests.dlcs-ida.org/rollcollection';
 SortyConfiguration.mintCanvasIds = true;
 
 function getPath(url) {

@@ -6,4 +6,4 @@ WORKDIR /srv/sorting-room
 
 RUN apk add --no-cache yarn && npm install -g grunt-cli http-server --unsafe-perm && yarn && grunt dist
 
-CMD http-server ./dist -p 3000
+CMD sh ./makeConfig.sh && http-server ./dist -p 3000
