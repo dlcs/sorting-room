@@ -9,14 +9,14 @@ const presentationServer = window.PRESENTATION_SERVER_CUSTOMER || 'https://presl
 // const presentationServer = 'http://localhost:8000/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
-SortyConfiguration.enableOmekaImport = true;
+SortyConfiguration.enableOmekaImport = window.ENABLE_OMEKA_IMPORT !== undefined ? window.ENABLE_OMEKA_IMPORT === 'true' : true;
 SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'https://omeka.dlcs-ida.org/api/iiif-import';
 
 // Delete configuration options for derived manifests
-SortyConfiguration.enableDelete = true;
+SortyConfiguration.enableDelete = window.ENABLE_DELETE !== undefined ? window.ENABLE_DELETE === 'true' : true;
 
 SortyConfiguration.sourceCollection = window.SOURCE_COLLECTION || 'https://manifests.dlcs-ida.org/rollcollection';
-SortyConfiguration.mintCanvasIds = true;
+SortyConfiguration.mintCanvasIds = window.MINT_CANVAS_IDS !== undefined ? window.MINT_CANVAS_IDS === 'true' :  true;
 
 function getPath(url) {
   const reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
