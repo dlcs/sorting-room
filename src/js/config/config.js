@@ -3,8 +3,8 @@ export const SortyConfiguration = {};
 /* logic for naming IIIF resources in your CRUD server */
 
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
-// const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
-const presentationServer = 'http://localhost:8000/iiif/idatest01/';
+const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+// const presentationServer = 'http://localhost:8000/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
 SortyConfiguration.enableOmekaImport = true;
