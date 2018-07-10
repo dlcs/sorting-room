@@ -1,5 +1,6 @@
 // Redux
-import { createStore } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
 // Reducers
 import reducers from './reducers/index.js';
@@ -32,7 +33,12 @@ import {
   helpInit,
 } from './components/help.js';
 
+import { loginInit } from './components/login.js';
+
 import sourceListInit from './components/source-list.js';
+
+import { hasValidToken } from './helpers/jwt';
+import { SortyConfiguration } from './config/config';
 
 const $ = require('jquery');
 window.$ = window.jQuery = $;
@@ -41,21 +47,33 @@ require('leaflet');
 require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
 
-// Create the store for the application - hook up redux devtools
-/* eslint-disable no-underscore-dangle */
-const store = createStore(reducers,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-const manifestStore = createStore(loadedManifest,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-/* eslint-enable */
+console.log('hasValidToken', hasValidToken, hasValidToken());
 
-// Pass the store to component initialisers
-sourceListInit(store, manifestStore);
-helpInit(store);
-thumbsInit(store, manifestStore);
-derivedManifestsInit(store, manifestStore);
-classifyToolsInit(store, manifestStore);
-selectionInit(store, manifestStore);
-inputInit(store, manifestStore);
-makeManifestInit(store, manifestStore);
-lightboxInit(store, manifestStore);
+if (!hasValidToken() && window.location.pathname !== '/login.html') {
+  SortyConfiguration.navigate.login();
+} else {
+  // Create the store for the application - hook up redux devtools
+  /* eslint-disable no-underscore-dangle */
+  const store = createStore(reducers,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), compose(
+        applyMiddleware(thunk)
+      ));
+  const manifestStore = createStore(loadedManifest,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), compose(
+      applyMiddleware(thunk)
+    ));
+  /* eslint-enable */
+
+
+  // Pass the store to component initialisers
+  loginInit(store, manifestStore);
+  sourceListInit(store, manifestStore);
+  helpInit(store);
+  thumbsInit(store, manifestStore);
+  derivedManifestsInit(store, manifestStore);
+  classifyToolsInit(store, manifestStore);
+  selectionInit(store, manifestStore);
+  inputInit(store, manifestStore);
+  makeManifestInit(store, manifestStore);
+  lightboxInit(store, manifestStore);
+}

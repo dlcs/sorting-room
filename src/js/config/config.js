@@ -3,7 +3,10 @@ export const SortyConfiguration = {};
 /* logic for naming IIIF resources in your CRUD server */
 
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
-const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+// const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+const presentationServerNew = 'https://presley.glam-dev.org/iiif/';
+const presentationServer = 'https://presley.glam-dev.org/iiif/customer/';
+// const presentationServer = 'http://localhost:8000/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
 SortyConfiguration.enableOmekaImport = true;
@@ -34,12 +37,29 @@ SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, 
 };
 
 SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {
+  return `${presentationServer}collection?collection=${getUriComponent(loadedResource)}`;
+};
+
+SortyConfiguration.getCollectionUri = function getCollectionUri(loadedResource) {
   return `${presentationServer}collection/${getUriComponent(loadedResource)}`;
 };
+
+SortyConfiguration.getCollectionAddUrl = function getCollectionAddUrl() {
+  return `${presentationServer}collection/add`;
+};
+
+SortyConfiguration.getManifestDeleteUrl = function getManifestDeleteUrl() {
+  return `${presentationServer}manifest/delete`;
+};
+
 
 // These are MVP and don't offer a lot of flexibility.
 SortyConfiguration.getManifestUrl = function getManifestUrl(loadedResource, start, end) {
   return `${presentationServer}${getIdentifier(loadedResource, start, end)}/manifest`;
+};
+
+SortyConfiguration.getManifestUrlAdd = function getManifestUrlAdd() {
+  return `${presentationServer}manifest/add`;
 };
 
 SortyConfiguration.getSequenceUrl = function getSequenceUrl(loadedResource, start, end) {
@@ -49,6 +69,24 @@ SortyConfiguration.getSequenceUrl = function getSequenceUrl(loadedResource, star
 SortyConfiguration.getCanvasUrl = function getCanvasUrl(loadedResource, start, end, canvasIndex) {
   return `${presentationServer}${getIdentifier(loadedResource, start, end)}/canvas/c\
 ${canvasIndex}`;
+};
+
+SortyConfiguration.getLoginUrl = function getLoginUrl() {
+  return `${presentationServerNew}login`;
+};
+
+function goTo(url) {
+  window.location.href = url;
+}
+
+SortyConfiguration.navigate = {
+  home: () => {
+    setTimeout(goTo, 1, '/index.html');
+  },
+  login: () => {
+    console.log('changing route');
+    setTimeout(goTo, 1, '/login.html');
+  },
 };
 
 /* application-specific extra stuff to show per canvas */

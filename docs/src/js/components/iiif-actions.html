@@ -29,10 +29,10 @@ IIIFActions.putManifest = (manifest, success, error) =&gt; {
   });
 };
 
-IIIFActions.deleteManifest = (uri, success, error) =&gt; {
+IIIFActions.deleteCollection = (uri, success, error) =&gt; {
   $.ajax({
     url: uri,
-    type: <span class="hljs-string">'DELETE'</span>,
+    type: <span class="hljs-string">'POST'</span>,
     error,
     success,
   });

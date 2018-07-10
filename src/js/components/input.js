@@ -76,7 +76,6 @@ Actions = {
       }
       DOM.$manifestInputFeedback.text(`Loading '${inputState.manifest}'...`);
       store.dispatch(setLoading(true));
-
       IIIFActions.loadManifest(
         inputState.manifest,
         Events.manifestLoadSuccess,
