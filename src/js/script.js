@@ -47,7 +47,6 @@ require('leaflet');
 require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
 
-console.log('hasValidToken', hasValidToken, hasValidToken());
 
 if (!hasValidToken() && window.location.pathname !== '/login.html') {
   SortyConfiguration.navigate.login();

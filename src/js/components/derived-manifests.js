@@ -14,6 +14,7 @@ import { updateThumbsWithStatus } from './thumbs.js';
 import { IIIFActions } from './iiif-actions.js';
 import { getTerm } from '../config/terms.js';
 import { OmekaActions, omekaServiceProfile } from './omeka-actions.js';
+import {getOmekaToken} from "../helpers/oauth";
 
 const $ = require('jquery');
 
@@ -309,20 +310,27 @@ const Events = {
   },
   publish(e) {
     e.preventDefault();
-    const $container = $(this).closest('.classified-manifest');
-    const manifestId = $container.attr('data-id');
-    OmekaActions.pushToOmeka(manifestId)
-    .then(() => {
-      // fulfilled
-      OmekaActions.addOmekaService(manifestId).then(() => {
-        Events.getCreatedManifests();
-      });
-    },
-    () => {
-      // rejected
-      console.log('failed to push to omeka');
+
+    const oldHtml = $(this).html();
+    $(this).html('loading...');
+    getOmekaToken().then(({ accessToken }) => {
+      const $container = $(this).closest('.classified-manifest');
+      const manifestId = $container.attr('data-id');
+      OmekaActions.pushToOmeka(manifestId, accessToken)
+        .then(() => {
+            // fulfilled
+            OmekaActions.addOmekaService(manifestId).then(() => {
+              Events.getCreatedManifests();
+              $(this).html(oldHtml);
+            });
+          },
+          () => {
+            // rejected
+            console.log('failed to push to omeka');
+            // At the end.
+            $(this).html('Failed to push to Omeka');
+          });
     });
-    // console.log(manifestId);
   },
   putError(xhr, textStatus, error) {
     console.log(error);
