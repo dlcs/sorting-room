@@ -10,7 +10,7 @@ const presentationServer = window.PRESENTATION_SERVER_CUSTOMER || 'https://presl
 
 // Omeka configuration options for derived manifests
 SortyConfiguration.enableOmekaImport = window.ENABLE_OMEKA_IMPORT !== undefined ? window.ENABLE_OMEKA_IMPORT === 'true' : true;
-SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'http://localhost:8888/api/iiif-import';
+SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'https://omeka.dlcs-ida.org/api/iiif-import';
 
 // Delete configuration options for derived manifests
 SortyConfiguration.enableDelete = window.ENABLE_DELETE !== undefined ? window.ENABLE_DELETE === 'true' : true;
@@ -19,8 +19,8 @@ SortyConfiguration.sourceCollection = window.SOURCE_COLLECTION || 'https://manif
 SortyConfiguration.mintCanvasIds = window.MINT_CANVAS_IDS !== undefined ? window.MINT_CANVAS_IDS === 'true' :  true;
 
 // Omeka Auth.
-SortyConfiguration.oauthClientId = window.OAUTH_CLIENT_ID || 'local-testing';
-SortyConfiguration.oauthSiteEndpoint = window.OAUTH_SITE_ENDPOINT || 'http://localhost:8888/s/ida';
+SortyConfiguration.oauthClientId = window.OAUTH_CLIENT_ID || 'ida-sorting-room';
+SortyConfiguration.oauthSiteEndpoint = window.OAUTH_SITE_ENDPOINT || 'https://omeka.dlcs-ida.org/s/ida';
 
 function getPath(url) {
   const reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
