@@ -1,4 +1,5 @@
 import { SortyConfiguration } from '../config/config.js';
+import {getUserToken} from "../helpers/jwt";
 const $ = require('jquery');
 
 export const OmekaActions = {};
@@ -6,15 +7,10 @@ export const OmekaActions = {};
 // Used by the omeka service block
 export const omekaServiceProfile = 'https://dlcs.info/omeka/';
 
-OmekaActions.pushToOmeka = (url) => {
-  // Auth data (dummy data for now)
-  const authObj = {
-    clientId: 'test',
-    clientSecret: 'test123',
-  };
+OmekaActions.pushToOmeka = (url, accessToken) => {
 
   // Combine auth and url
-  const data = Object.assign({}, authObj, { resourceUrl: url });
+  const data = { resourceUrl: url };
 
   // API only takes uri encoded data for now...
   let uriEncodedData = [];
@@ -26,6 +22,9 @@ OmekaActions.pushToOmeka = (url) => {
   return $.ajax({
     url: SortyConfiguration.omekaImportEndpoint,
     type: 'POST',
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    },
     crossDomain: true,
     data: uriEncodedData,
   });
