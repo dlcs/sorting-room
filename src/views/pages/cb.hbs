@@ -24,7 +24,7 @@ layout: none
     if (window.opener) {
         var code = getUrlParameter('code');
         var state = getUrlParameter('state');
-        window.opener.postMessage({code: code, state: state}, "http://localhost:3000");
+        window.opener.postMessage({code: code, state: state}, window.origin);
         setTimeout(function() {
             window.close();
         }, 300);
