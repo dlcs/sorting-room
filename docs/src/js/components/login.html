@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/components/login</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/login"><meta name="groc-project-path" content="src/js/components/login.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/login.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { hasPropertyChanged } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/helpers.js'</span>;
+<span class="hljs-keyword">import</span> {receiveLogin, requestLogin} <span class="hljs-keyword">from</span> <span class="hljs-string">'../actions/auth'</span>;
+<span class="hljs-keyword">import</span> {getOmekaToken} <span class="hljs-keyword">from</span> <span class="hljs-string">"../helpers/oauth"</span>;
+<span class="hljs-keyword">import</span> {SortyConfiguration} <span class="hljs-keyword">from</span> <span class="hljs-string">"../config/config"</span>;
+<span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+
+<span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> lastState = <span class="hljs-literal">null</span>;
+
+<span class="hljs-keyword">const</span> DOM = {
+  $loginForm: <span class="hljs-literal">null</span>,
+  $userName: <span class="hljs-literal">null</span>,
+  $password: <span class="hljs-literal">null</span>,
+  $submitButton: <span class="hljs-literal">null</span>,
+  $omekaButton: <span class="hljs-literal">null</span>,
+  init() {
+    DOM.$loginForm = $(<span class="hljs-string">'.c-form'</span>);
+    DOM.$userName = $(<span class="hljs-string">'.c-form-field__item[name="username"]'</span>);
+    DOM.$password = $(<span class="hljs-string">'.c-form-field__item[name="password"]'</span>);
+    DOM.$submitButton = $(<span class="hljs-string">'.c-form-submit[type="submit"]'</span>);
+    DOM.$error = $(<span class="hljs-string">'.c-form__error'</span>);
+    DOM.$omekaButton = $(<span class="hljs-string">'#omeka-login'</span>);
+  },
+};
+
+<span class="hljs-keyword">const</span> Events = {
+  domReady() {
+    DOM.init();
+    Events.init();
+    store.subscribe(Events.storeSubscribe);
+  },
+  init() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>DOM.$loginForm.submit(Events.login);</p></div></div><div class="code"><div class="wrapper">    DOM.$omekaButton.on(<span class="hljs-string">'click'</span>, () =&gt; {
+        getOmekaToken().then(({ accessToken }) =&gt; {
+          store.dispatch(receiveLogin({ token: accessToken }));
+          SortyConfiguration.navigate.home();
+        });
+    });
+  },
+  login(ev) {
+    ev.preventDefault();
+    store.dispatch(
+      requestLogin({
+        username: DOM.$userName.val(),
+        password: DOM.$password.val(),
+      })
+    );
+  },
+  storeSubscribe() {
+    <span class="hljs-keyword">const</span> state = store.getState().auth;
+    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'errorMessage'</span>, state, lastState)) {
+      DOM.$error.text(state.errorMessage);
+    }
+    lastState = state;
+  },
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> loginInit = (globalStore) =&gt; {
+  store = globalStore;
+  $(<span class="hljs-built_in">document</span>).ready(Events.domReady);
+};</div></div></div></div></body></html>

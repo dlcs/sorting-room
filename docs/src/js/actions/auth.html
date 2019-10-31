@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/actions/auth</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/actions/auth"><meta name="groc-project-path" content="src/js/actions/auth.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/actions/auth.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { SortyConfiguration } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/config.js'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> LOGIN_REQUEST = <span class="hljs-string">'LOGIN_REQUEST'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> LOGIN_SUCCESS = <span class="hljs-string">'LOGIN_SUCCESS'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> LOGIN_FAILURE = <span class="hljs-string">'LOGIN_FAILURE'</span>;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> LOGOUT = <span class="hljs-string">'LOGOUT'</span>;
+
+
+<span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loginRequest</span>(<span class="hljs-params">creds</span>) </span>{
+  <span class="hljs-keyword">return</span> {
+    type: LOGIN_REQUEST,
+    creds,
+  };
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">receiveLogin</span>(<span class="hljs-params">data</span>) </span>{
+  <span class="hljs-keyword">return</span> {
+    type: LOGIN_SUCCESS,
+    user: {
+      id_token: data.token,
+    },
+  };
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loginError</span>(<span class="hljs-params">message</span>) </span>{
+  <span class="hljs-keyword">return</span> {
+    type: LOGIN_FAILURE,
+    message,
+  };
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">requestLogin</span>(<span class="hljs-params">creds</span>) </span>{
+  <span class="hljs-keyword">return</span> (<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">requestLoginAsync</span>(<span class="hljs-params">dispatch</span>) </span>{
+    dispatch(loginRequest(creds));
+    <span class="hljs-keyword">return</span> fetch(SortyConfiguration.getLoginUrl(), {
+      method: <span class="hljs-string">'post'</span>,
+      body: <span class="hljs-built_in">JSON</span>.stringify(creds),
+      headers: {
+        <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+      },
+    }).then(response =&gt; {
+      <span class="hljs-keyword">const</span> contentType = response.headers.get(<span class="hljs-string">'content-type'</span>);
+      <span class="hljs-keyword">if</span> (contentType &amp;&amp; contentType.includes(<span class="hljs-string">'application/json'</span>)) {
+        <span class="hljs-keyword">return</span> response.json();
+      }
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'Malformed server response'</span>);
+    }).then(data =&gt; {
+      <span class="hljs-keyword">if</span> (!data.msg) {
+        dispatch(receiveLogin(data));
+        SortyConfiguration.navigate.home();
+        <span class="hljs-keyword">return</span>;
+      }
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(data.msg);
+    })
+    .catch(err =&gt; {
+      dispatch(loginError(err.message));
+    });
+  });
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">logout</span>(<span class="hljs-params"></span>) </span>{
+  SortyConfiguration.navigate.login();
+  <span class="hljs-keyword">return</span> {
+    type: LOGOUT,
+  };
+}</div></div></div></div></body></html>

@@ -71,7 +71,6 @@ DOM = {
       }
       DOM.$manifestInputFeedback.text(<span class="hljs-string">`Loading '<span class="hljs-subst">${inputState.manifest}</span>'...`</span>);
       store.dispatch(setLoading(<span class="hljs-literal">true</span>));
-
       IIIFActions.loadManifest(
         inputState.manifest,
         Events.manifestLoadSuccess,

@@ -26,23 +26,23 @@ let manifestStore = null;
 let lastLocalState = null;
 let lastTitleText = null;
 
-const Config = {
-  deleteManifestModalOptions: {
-    delegate: '.action__delete',
-    items: {
-      src: '#deleteManifestmodal',
-      type: 'inline',
-    },
-    modal: true,
-  },
-};
+// const Config = {
+//   deleteManifestModalOptions: {
+//     delegate: '.action__delete',
+//     items: {
+//       src: '#deleteManifestmodal',
+//       type: 'inline',
+//     },
+//     modal: true,
+//   },
+// };
 
 const DOM = {
   init() {
     DOM.$classifiedMaterial = $('.classified-material');
     DOM.$classifiedTitle = $('.viewer__classified-title');
-    DOM.$deleteModalHeading = $('.manifest-modal--delete .manifest-modal__heading');
-    DOM.$deleteModalStatus = $('.manifest-modal--delete .manifest-modal__deleting-text');
+    // DOM.$deleteModalHeading = $('.manifest-modal--delete .manifest-modal__heading');
+    // DOM.$deleteModalStatus = $('.manifest-modal--delete .manifest-modal__deleting-text');
     DOM.$manifestSelector = $(manifestSelector);
   },
 };
@@ -61,20 +61,22 @@ const buildClassified = (derivedManifestList) => {
         const manifest = derivedManifestList.members[i];
         const label = manifest.label || manifest['@id'];
 
-        const publishToOmekaButton = SortyConfiguration.enableOmekaImport ?
-        `<li class="classified-manifest__actions-item">
-          <a href="#" class="action__publish">
-          <i class="material-icons">publish</i>Publish to Omeka
-          </a>
-        </li>` : '';
+        // const publishToOmekaButton = SortyConfiguration.enableOmekaImport ?
+        // `<li class="classified-manifest__actions-item">
+        //   <a href="#" class="action__publish">
+        //   <i class="material-icons">publish</i>Publish to Omeka
+        //   </a>
+        // </li>` : '';
 
-        const deleteButton = SortyConfiguration.enableDelete ?
-        `<li class="classified-manifest__actions-item">
-          <a href="#" class="action__delete">
-          <i class="material-icons">delete_forever</i>Delete this
-          ${getTerm('derivedManifest', 1)}
-          </a>
-        </li>` : '';
+        // const deleteButton = SortyConfiguration.enableDelete ?
+        // `<li class="classified-manifest__actions-item">
+        //   <a href="#" class="action__delete">
+        //   <i class="material-icons">delete_forever</i>Delete this
+        //   ${getTerm('derivedManifest', 1)}
+        //   </a>
+        // </li>` : '';
+
+
 
         DOM.$classifiedMaterial.append(`
           <div class="classified-manifest" data-id="${manifest['@id']}">
@@ -92,22 +94,20 @@ const buildClassified = (derivedManifestList) => {
             </div>
             <h2 class="classified-manifest__title">
               <span class="classified-manifest__title-text">${label}</span>
-              <button class="classified-manifest__title-edit" title="Edit label">
-                <i class="material-icons">mode_edit</i>
-              </button>
-              <button class="classified-manifest__title-save" title="Save label">
-                <i class="material-icons">save</i>
-              </button>
             </h2>
             <p class="classified-manifest__num">{x} images</p>
             <div class="classified-manifest__actions">
               <ul class="classified-manifest__actions-list">
-                ${publishToOmekaButton}
-                ${deleteButton}
                 <li class="classified-manifest__actions-item">
                   <a href="http://universalviewer.io/?manifest=${manifest['@id']}"
                   class="action__view" target="_blank">
                   <i class="material-icons">open_in_new</i>View in the Universal Viewer
+                  </a>
+                </li>
+                <li class="classified-manifest__actions-item">
+                  <a href="${SortyConfiguration.madocServer}admin/item/${manifest['o:id']}"
+                  class="action__view" target="_blank">
+                  <i class="material-icons">open_in_new</i>Edit in Madoc
                   </a>
                 </li>
               </ul>
@@ -187,13 +187,13 @@ const updateArchivalUnits = function () {
   }
 };
 
-const cancelEdits = (resetText = false) => {
-  const $contentEditableTitleText = $('.classified-manifest__title-text[contenteditable]');
-  const $contentEditableTitle = $('.classified-manifest__title--edit');
-  $contentEditableTitleText.removeAttr('contenteditable');
-  $contentEditableTitle.removeClass('classified-manifest__title--edit');
-  if (resetText) $contentEditableTitleText.html(lastTitleText);
-};
+// const cancelEdits = (resetText = false) => {
+//   const $contentEditableTitleText = $('.classified-manifest__title-text[contenteditable]');
+//   const $contentEditableTitle = $('.classified-manifest__title--edit');
+//   $contentEditableTitleText.removeAttr('contenteditable');
+//   $contentEditableTitle.removeClass('classified-manifest__title--edit');
+//   if (resetText) $contentEditableTitleText.html(lastTitleText);
+// };
 
 const Events = {
   bodyClick(e) {
@@ -202,79 +202,79 @@ const Events = {
       e.target.className !== 'classified-manifest__title-save' &&
       e.target.className !== 'material-icons'
     ) {
-      cancelEdits(true);
+      // cancelEdits(true);
       $('body').off('click', Events.bodyClick);
     }
   },
-  delete(e) {
-    e.preventDefault();
-    // Use a modal here - Are you sure you want to delete?
-    $.magnificPopup.open(Config.deleteManifestModalOptions);
-
-    // Grab manifest URL
-    const $container = $(this).closest('.classified-manifest');
-    const manifestId = $container.attr('data-id');
-
-    // Hook up delete button behaviour (remove any existing click events)
-    const $deleteButton = $('.manifest-modal__delete').off('click');
-    $deleteButton.click(() => {
-      // Show delete indicator
-      $('html').addClass('deleting-manifest');
-
-      $container.addClass('classified-manifest--deleting');
-
-      // Delete the manifest
-      IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
-    });
-  },
-  deleteError(/* xhr, textStatus,  error*/) {
-    // console.log('ERROR DELETING', error);
-    $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
-  },
-  deleteSuccess() {
-    // Hide delete indicator
-    $('html').removeClass('deleting-manifest');
-
-    // Kill the item stack
-    $('.classified-manifest--deleting').remove();
-
-    // Close the modal
-    $.magnificPopup.close();
-
-    // Fetch updated derived manifest data
-    Events.getCreatedManifests();
-  },
+  // delete(e) {
+  //   e.preventDefault();
+  //   // Use a modal here - Are you sure you want to delete?
+  //   $.magnificPopup.open(Config.deleteManifestModalOptions);
+  //
+  //   // Grab manifest URL
+  //   const $container = $(this).closest('.classified-manifest');
+  //   const manifestId = $container.attr('data-id');
+  //
+  //   // Hook up delete button behaviour (remove any existing click events)
+  //   const $deleteButton = $('.manifest-modal__delete').off('click');
+  //   $deleteButton.click(() => {
+  //     // Show delete indicator
+  //     $('html').addClass('deleting-manifest');
+  //
+  //     $container.addClass('classified-manifest--deleting');
+  //
+  //     // Delete the manifest
+  //     IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
+  //   });
+  // },
+  // deleteError(/* xhr, textStatus,  error*/) {
+  //   // console.log('ERROR DELETING', error);
+  //   $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
+  // },
+  // deleteSuccess() {
+  //   // Hide delete indicator
+  //   $('html').removeClass('deleting-manifest');
+  //
+  //   // Kill the item stack
+  //   $('.classified-manifest--deleting').remove();
+  //
+  //   // Close the modal
+  //   $.magnificPopup.close();
+  //
+  //   // Fetch updated derived manifest data
+  //   Events.getCreatedManifests();
+  // },
   domReady() {
     DOM.init();
     // Set terms
-    DOM.$deleteModalHeading.html(`Are you sure you want to delete
-      this ${getTerm('derivedManifest', 0)}?`);
-    DOM.$deleteModalStatus.html(`Deleting ${getTerm('derivedManifest', 0)}`);
+    // DOM.$deleteModalHeading.html(`Are you sure you want to delete
+    //   this ${getTerm('derivedManifest', 0)}?`);
+    // DOM.$deleteModalStatus.html(`Deleting ${getTerm('derivedManifest', 0)}`);
 
     Events.init();
   },
-  editTitleClick() {
-    // Cancel any other edit operations first
-    cancelEdits(true);
-
-    // Make the title editable
-    const $parentTitle = $(this).closest('.classified-manifest__title');
-    $parentTitle.addClass('classified-manifest__title--edit');
-
-    const $editableText = $parentTitle.find('.classified-manifest__title-text');
-
-    lastTitleText = $editableText.text();
-    $editableText.attr('contenteditable', 'true');
-    $editableText.focus();
-    $('body').click(Events.bodyClick);
-  },
-  editTitleKeypress(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      $(this).closest('.classified-manifest').find('.classified-manifest__title-save')
-      .click();
-    }
-  },
+  // editTitleClick() {
+  //   // Cancel any other edit operations first
+  //   cancelEdits(true);
+  //
+  //   // Make the title editable
+  //   const $parentTitle = $(this).closest('.classified-manifest__title');
+  //   $parentTitle.addClass('classified-manifest__title--edit');
+  //
+  //   const $editableText = $parentTitle.find('.classified-manifest__title-text');
+  //
+  //   lastTitleText = $editableText.text();
+  //   $editableText.attr('contenteditable', 'true');
+  //   $editableText.focus();
+  //   $('body').click(Events.bodyClick);
+  // },
+  // editTitleKeypress(e) {
+  //   if (e.key === 'Enter') {
+  //     e.preventDefault();
+  //     $(this).closest('.classified-manifest').find('.classified-manifest__title-save')
+  //     .click();
+  //   }
+  // },
   getCreatedManifests() {
     // get the container in presley
     const collectionId = SortyConfiguration
@@ -285,17 +285,17 @@ const Events = {
         .fail(Events.requestDerivedManifestsFailure);
   },
   init() {
-    DOM.$classifiedMaterial.on('click',
-    '.classified-manifest__title-edit, .classified-manifest__title-text',
-    Events.editTitleClick);
-    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
-    DOM.$classifiedMaterial.on('keypress',
-    '.classified-manifest__title--edit .classified-manifest__title-text',
-    Events.editTitleKeypress
-    );
+    // DOM.$classifiedMaterial.on('click',
+    // '.classified-manifest__title-edit, .classified-manifest__title-text',
+    // Events.editTitleClick);
+    // DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
+    // DOM.$classifiedMaterial.on('keypress',
+    // '.classified-manifest__title--edit .classified-manifest__title-text',
+    // Events.editTitleKeypress
+    // );
     DOM.$classifiedMaterial.on('click', '.classified-manifest', (e) => e.stopPropagation());
-    DOM.$classifiedMaterial.on('click', '.action__publish', Events.publish);
-    DOM.$classifiedMaterial.on('click', '.action__delete', Events.delete);
+    // DOM.$classifiedMaterial.on('click', '.action__publish', Events.publish);
+    // DOM.$classifiedMaterial.on('click', '.action__delete', Events.delete);
     // DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);
   },
   postError(xhr, textStatus, error) {
@@ -308,30 +308,30 @@ const Events = {
   postOmekaServiceError(xhr, textStatus, error) {
     console.log(error);
   },
-  publish(e) {
-    e.preventDefault();
-
-    const oldHtml = $(this).html();
-    $(this).html('loading...');
-    getOmekaToken().then(({ accessToken }) => {
-      const $container = $(this).closest('.classified-manifest');
-      const manifestId = $container.attr('data-id');
-      OmekaActions.pushToOmeka(manifestId, accessToken)
-        .then(() => {
-            // fulfilled
-            OmekaActions.addOmekaService(manifestId).then(() => {
-              Events.getCreatedManifests();
-              $(this).html(oldHtml);
-            });
-          },
-          () => {
-            // rejected
-            console.log('failed to push to omeka');
-            // At the end.
-            $(this).html('Failed to push to Omeka');
-          });
-    });
-  },
+  // publish(e) {
+  //   e.preventDefault();
+  //
+  //   const oldHtml = $(this).html();
+  //   $(this).html('loading...');
+  //   getOmekaToken().then(({ accessToken }) => {
+  //     const $container = $(this).closest('.classified-manifest');
+  //     const manifestId = $container.attr('data-id');
+  //     OmekaActions.pushToOmeka(manifestId, accessToken)
+  //       .then(() => {
+  //           // fulfilled
+  //           OmekaActions.addOmekaService(manifestId).then(() => {
+  //             Events.getCreatedManifests();
+  //             $(this).html(oldHtml);
+  //           });
+  //         },
+  //         () => {
+  //           // rejected
+  //           console.log('failed to push to omeka');
+  //           // At the end.
+  //           $(this).html('Failed to push to Omeka');
+  //         });
+  //   });
+  // },
   putError(xhr, textStatus, error) {
     console.log(error);
   },
@@ -398,35 +398,35 @@ const Events = {
     });
     $(viewManifest).click(Events.viewManifestClick);
   },
-  saveTitleClick() {
-    const $parentTitle = $(this).closest('.classified-manifest__title');
-    const $container = $(this).closest('.classified-manifest');
-    const $editableText = $parentTitle.find('.classified-manifest__title-text');
-    const manifestId = $container.attr('data-id');
-    const titleText = $editableText.text();
-    const derivedManifests = manifestStore.getState().derivedManifestsComplete;
-    let manifestToUpdate = null;
-    for (const dm of derivedManifests) {
-      if (dm['@id'] === manifestId) {
-        manifestToUpdate = dm;
-        break;
-      }
-    }
-    if (manifestToUpdate !== null) {
-      // Update label
-      manifestToUpdate.label = titleText;
-      // Set saving state
-      $container.addClass('classified-manifest--saving-label');
-      // Store new manifest
-      store.dispatch(setCollectionManifest(manifestToUpdate));
-      // RE-PUT
-      IIIFActions.addUpdateManifest(manifestToUpdate, Events.putSuccess, Events.putError);
-    } else {
-      // Cancel edit
-      cancelEdits(true);
-    }
-    $('body').off('click', Events.bodyClick);
-  },
+  // saveTitleClick() {
+  //   const $parentTitle = $(this).closest('.classified-manifest__title');
+  //   const $container = $(this).closest('.classified-manifest');
+  //   const $editableText = $parentTitle.find('.classified-manifest__title-text');
+  //   const manifestId = $container.attr('data-id');
+  //   const titleText = $editableText.text();
+  //   const derivedManifests = manifestStore.getState().derivedManifestsComplete;
+  //   let manifestToUpdate = null;
+  //   for (const dm of derivedManifests) {
+  //     if (dm['@id'] === manifestId) {
+  //       manifestToUpdate = dm;
+  //       break;
+  //     }
+  //   }
+  //   if (manifestToUpdate !== null) {
+  //     // Update label
+  //     manifestToUpdate.label = titleText;
+  //     // Set saving state
+  //     $container.addClass('classified-manifest--saving-label');
+  //     // Store new manifest
+  //     store.dispatch(setCollectionManifest(manifestToUpdate));
+  //     // RE-PUT
+  //     IIIFActions.addUpdateManifest(manifestToUpdate, Events.putSuccess, Events.putError);
+  //   } else {
+  //     // Cancel edit
+  //     cancelEdits(true);
+  //   }
+  //   $('body').off('click', Events.bodyClick);
+  // },
   subscribeActions() {
     const derivedState = manifestStore.getState();
     // console.log('DM - subscribe', lastLocalState, derivedState);

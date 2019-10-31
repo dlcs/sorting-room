@@ -1,5 +1,7 @@
 import { hasPropertyChanged } from '../helpers/helpers.js';
-import { requestLogin } from '../actions/auth';
+import {receiveLogin, requestLogin} from '../actions/auth';
+import {getOmekaToken} from "../helpers/oauth";
+import {SortyConfiguration} from "../config/config";
 const $ = require('jquery');
 
 let store = null;
@@ -10,13 +12,14 @@ const DOM = {
   $userName: null,
   $password: null,
   $submitButton: null,
+  $omekaButton: null,
   init() {
     DOM.$loginForm = $('.c-form');
     DOM.$userName = $('.c-form-field__item[name="username"]');
     DOM.$password = $('.c-form-field__item[name="password"]');
     DOM.$submitButton = $('.c-form-submit[type="submit"]');
     DOM.$error = $('.c-form__error');
-    console.log(DOM);
+    DOM.$omekaButton = $('#omeka-login');
   },
 };
 
@@ -27,7 +30,13 @@ const Events = {
     store.subscribe(Events.storeSubscribe);
   },
   init() {
-    DOM.$loginForm.submit(Events.login);
+    // DOM.$loginForm.submit(Events.login);
+    DOM.$omekaButton.on('click', () => {
+        getOmekaToken().then(({ accessToken }) => {
+          store.dispatch(receiveLogin({ token: accessToken }));
+          SortyConfiguration.navigate.home();
+        });
+    });
   },
   login(ev) {
     ev.preventDefault();

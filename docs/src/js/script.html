@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><title>src/js/script</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="src/js/script"><meta name="groc-project-path" content="src/js/script.js"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/script.js</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Redux</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { createStore } <span class="hljs-keyword">from</span> <span class="hljs-string">'redux'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Reducers</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> reducers <span class="hljs-keyword">from</span> <span class="hljs-string">'./reducers/index.js'</span>;
+<!DOCTYPE html><html lang="en"><head><title>src/js/script</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="src/js/script"><meta name="groc-project-path" content="src/js/script.js"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/script.js</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Redux</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { createStore, compose, applyMiddleware } <span class="hljs-keyword">from</span> <span class="hljs-string">'redux'</span>;
+<span class="hljs-keyword">import</span> thunk <span class="hljs-keyword">from</span> <span class="hljs-string">'redux-thunk'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Reducers</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> reducers <span class="hljs-keyword">from</span> <span class="hljs-string">'./reducers/index.js'</span>;
 <span class="hljs-keyword">import</span> { loadedManifest } <span class="hljs-keyword">from</span> <span class="hljs-string">'./reducers/loaded-manifest.js'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Imports</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { selectionInit } <span class="hljs-keyword">from</span> <span class="hljs-string">'./components/selection.js'</span>;
 
 <span class="hljs-keyword">import</span> classifyToolsInit <span class="hljs-keyword">from</span> <span class="hljs-string">'./components/classify-tools.js'</span>;
@@ -25,23 +26,39 @@
   helpInit,
 } <span class="hljs-keyword">from</span> <span class="hljs-string">'./components/help.js'</span>;
 
+<span class="hljs-keyword">import</span> { loginInit } <span class="hljs-keyword">from</span> <span class="hljs-string">'./components/login.js'</span>;
+
 <span class="hljs-keyword">import</span> sourceListInit <span class="hljs-keyword">from</span> <span class="hljs-string">'./components/source-list.js'</span>;
+
+<span class="hljs-keyword">import</span> { hasValidToken } <span class="hljs-keyword">from</span> <span class="hljs-string">'./helpers/jwt'</span>;
+<span class="hljs-keyword">import</span> { SortyConfiguration } <span class="hljs-keyword">from</span> <span class="hljs-string">'./config/config'</span>;
 
 <span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
 <span class="hljs-built_in">window</span>.$ = <span class="hljs-built_in">window</span>.jQuery = $;
 <span class="hljs-built_in">require</span>(<span class="hljs-string">'./vendor/jquery.unveil.js'</span>);
 <span class="hljs-built_in">require</span>(<span class="hljs-string">'leaflet'</span>);
 <span class="hljs-built_in">require</span>(<span class="hljs-string">'./vendor/leaflet-iiif.js'</span>);
-<span class="hljs-built_in">require</span>(<span class="hljs-string">'magnific-popup'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Create the store for the application - hook up redux devtools
-eslint-disable no-underscore-dangle </p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> store = createStore(reducers,
-  <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__ &amp;&amp; <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__());
-<span class="hljs-keyword">const</span> manifestStore = createStore(loadedManifest,
-  <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__ &amp;&amp; <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__());</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>eslint-enable </p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Pass the store to component initialisers</p></div></div><div class="code"><div class="wrapper">sourceListInit(store, manifestStore);
-helpInit(store);
-thumbsInit(store, manifestStore);
-derivedManifestsInit(store, manifestStore);
-classifyToolsInit(store, manifestStore);
-selectionInit(store, manifestStore);
-inputInit(store, manifestStore);
-makeManifestInit(store, manifestStore);
-lightboxInit(store, manifestStore);</div></div></div></div></body></html>
+<span class="hljs-built_in">require</span>(<span class="hljs-string">'magnific-popup'</span>);
+
+
+<span class="hljs-keyword">if</span> (!hasValidToken() &amp;&amp; <span class="hljs-built_in">window</span>.location.pathname !== SortyConfiguration.path + <span class="hljs-string">'/login.html'</span>) {
+  SortyConfiguration.navigate.login();
+} <span class="hljs-keyword">else</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Create the store for the application - hook up redux devtools
+eslint-disable no-underscore-dangle </p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> store = createStore(reducers,
+    <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__ &amp;&amp; <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__(), compose(
+        applyMiddleware(thunk)
+      ));
+  <span class="hljs-keyword">const</span> manifestStore = createStore(loadedManifest,
+    <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__ &amp;&amp; <span class="hljs-built_in">window</span>.__REDUX_DEVTOOLS_EXTENSION__(), compose(
+      applyMiddleware(thunk)
+    ));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>eslint-enable </p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Pass the store to component initialisers</p></div></div><div class="code"><div class="wrapper">  loginInit(store, manifestStore);
+  sourceListInit(store, manifestStore);
+  helpInit(store);
+  thumbsInit(store, manifestStore);
+  derivedManifestsInit(store, manifestStore);
+  classifyToolsInit(store, manifestStore);
+  selectionInit(store, manifestStore);
+  inputInit(store, manifestStore);
+  makeManifestInit(store, manifestStore);
+  lightboxInit(store, manifestStore);
+}</div></div></div></div></body></html>

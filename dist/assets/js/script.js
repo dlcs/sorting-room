@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v3.3.1
+ * jQuery JavaScript Library v3.4.1
  * https://jquery.com/
  *
  * Includes Sizzle.js
@@ -10,7 +10,7 @@
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2018-01-20T17:24Z
+ * Date: 2019-05-01T21:04Z
  */
 ( function( global, factory ) {
 
@@ -92,20 +92,33 @@ var isWindow = function isWindow( obj ) {
 	var preservedScriptAttributes = {
 		type: true,
 		src: true,
+		nonce: true,
 		noModule: true
 	};
 
-	function DOMEval( code, doc, node ) {
+	function DOMEval( code, node, doc ) {
 		doc = doc || document;
 
-		var i,
+		var i, val,
 			script = doc.createElement( "script" );
 
 		script.text = code;
 		if ( node ) {
 			for ( i in preservedScriptAttributes ) {
-				if ( node[ i ] ) {
-					script[ i ] = node[ i ];
+
+				// Support: Firefox 64+, Edge 18+
+				// Some browsers don't support the "nonce" property on scripts.
+				// On the other hand, just using `getAttribute` is not enough as
+				// the `nonce` attribute is reset to an empty string whenever it
+				// becomes browsing-context connected.
+				// See https://github.com/whatwg/html/issues/2369
+				// See https://html.spec.whatwg.org/#nonce-attributes
+				// The `node.getAttribute` check was added for the sake of
+				// `jQuery.globalEval` so that it can fake a nonce-containing node
+				// via an object.
+				val = node[ i ] || node.getAttribute && node.getAttribute( i );
+				if ( val ) {
+					script.setAttribute( i, val );
 				}
 			}
 		}
@@ -130,7 +143,7 @@ function toType( obj ) {
 
 
 var
-	version = "3.3.1",
+	version = "3.4.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -259,25 +272,28 @@ jQuery.extend = jQuery.fn.extend = function() {
 
 			// Extend the base object
 			for ( name in options ) {
-				src = target[ name ];
 				copy = options[ name ];
 
+				// Prevent Object.prototype pollution
 				// Prevent never-ending loop
-				if ( target === copy ) {
+				if ( name === "__proto__" || target === copy ) {
 					continue;
 				}
 
 				// Recurse if we're merging plain objects or arrays
 				if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
 					( copyIsArray = Array.isArray( copy ) ) ) ) {
+					src = target[ name ];
 
-					if ( copyIsArray ) {
-						copyIsArray = false;
-						clone = src && Array.isArray( src ) ? src : [];
-
+					// Ensure proper type for the source value
+					if ( copyIsArray && !Array.isArray( src ) ) {
+						clone = [];
+					} else if ( !copyIsArray && !jQuery.isPlainObject( src ) ) {
+						clone = {};
 					} else {
-						clone = src && jQuery.isPlainObject( src ) ? src : {};
+						clone = src;
 					}
+					copyIsArray = false;
 
 					// Never move original objects, clone them
 					target[ name ] = jQuery.extend( deep, clone, copy );
@@ -330,9 +346,6 @@ jQuery.extend( {
 	},
 
 	isEmptyObject: function( obj ) {
-
-		/* eslint-disable no-unused-vars */
-		// See https://github.com/eslint/eslint/issues/6125
 		var name;
 
 		for ( name in obj ) {
@@ -342,8 +355,8 @@ jQuery.extend( {
 	},
 
 	// Evaluates a script in a global context
-	globalEval: function( code ) {
-		DOMEval( code );
+	globalEval: function( code, options ) {
+		DOMEval( code, { nonce: options && options.nonce } );
 	},
 
 	each: function( obj, callback ) {
@@ -499,14 +512,14 @@ function isArrayLike( obj ) {
 }
 var Sizzle =
 /*!
- * Sizzle CSS Selector Engine v2.3.3
+ * Sizzle CSS Selector Engine v2.3.4
  * https://sizzlejs.com/
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright JS Foundation and other contributors
  * Released under the MIT license
- * http://jquery.org/license
+ * https://js.foundation/
  *
- * Date: 2016-08-08
+ * Date: 2019-04-08
  */
 (function( window ) {
 
@@ -540,6 +553,7 @@ var i,
 	classCache = createCache(),
 	tokenCache = createCache(),
 	compilerCache = createCache(),
+	nonnativeSelectorCache = createCache(),
 	sortOrder = function( a, b ) {
 		if ( a === b ) {
 			hasDuplicate = true;
@@ -601,8 +615,7 @@ var i,
 
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
-
-	rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"]*?)" + whitespace + "*\\]", "g" ),
+	rdescend = new RegExp( whitespace + "|>" ),
 
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
@@ -623,6 +636,7 @@ var i,
 			whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
 	},
 
+	rhtml = /HTML$/i,
 	rinputs = /^(?:input|select|textarea|button)$/i,
 	rheader = /^h\d$/i,
 
@@ -677,9 +691,9 @@ var i,
 		setDocument();
 	},
 
-	disabledAncestor = addCombinator(
+	inDisabledFieldset = addCombinator(
 		function( elem ) {
-			return elem.disabled === true && ("form" in elem || "label" in elem);
+			return elem.disabled === true && elem.nodeName.toLowerCase() === "fieldset";
 		},
 		{ dir: "parentNode", next: "legend" }
 	);
@@ -792,18 +806,22 @@ function Sizzle( selector, context, results, seed ) {
 
 			// Take advantage of querySelectorAll
 			if ( support.qsa &&
-				!compilerCache[ selector + " " ] &&
-				(!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
+				!nonnativeSelectorCache[ selector + " " ] &&
+				(!rbuggyQSA || !rbuggyQSA.test( selector )) &&
 
-				if ( nodeType !== 1 ) {
-					newContext = context;
-					newSelector = selector;
-
-				// qSA looks outside Element context, which is not what we want
-				// Thanks to Andrew Dupont for this workaround technique
-				// Support: IE <=8
+				// Support: IE 8 only
 				// Exclude object elements
-				} else if ( context.nodeName.toLowerCase() !== "object" ) {
+				(nodeType !== 1 || context.nodeName.toLowerCase() !== "object") ) {
+
+				newSelector = selector;
+				newContext = context;
+
+				// qSA considers elements outside a scoping root when evaluating child or
+				// descendant combinators, which is not what we want.
+				// In such cases, we work around the behavior by prefixing every selector in the
+				// list with an ID selector referencing the scope context.
+				// Thanks to Andrew Dupont for this technique.
+				if ( nodeType === 1 && rdescend.test( selector ) ) {
 
 					// Capture the context ID, setting it first if necessary
 					if ( (nid = context.getAttribute( "id" )) ) {
@@ -825,17 +843,16 @@ function Sizzle( selector, context, results, seed ) {
 						context;
 				}
 
-				if ( newSelector ) {
-					try {
-						push.apply( results,
-							newContext.querySelectorAll( newSelector )
-						);
-						return results;
-					} catch ( qsaError ) {
-					} finally {
-						if ( nid === expando ) {
-							context.removeAttribute( "id" );
-						}
+				try {
+					push.apply( results,
+						newContext.querySelectorAll( newSelector )
+					);
+					return results;
+				} catch ( qsaError ) {
+					nonnativeSelectorCache( selector, true );
+				} finally {
+					if ( nid === expando ) {
+						context.removeAttribute( "id" );
 					}
 				}
 			}
@@ -999,7 +1016,7 @@ function createDisabledPseudo( disabled ) {
 					// Where there is no isDisabled, check manually
 					/* jshint -W018 */
 					elem.isDisabled !== !disabled &&
-						disabledAncestor( elem ) === disabled;
+						inDisabledFieldset( elem ) === disabled;
 			}
 
 			return elem.disabled === disabled;
@@ -1056,10 +1073,13 @@ support = Sizzle.support = {};
  * @returns {Boolean} True iff elem is a non-HTML XML node
  */
 isXML = Sizzle.isXML = function( elem ) {
-	// documentElement is verified for cases where it doesn't yet exist
-	// (such as loading iframes in IE - #4833)
-	var documentElement = elem && (elem.ownerDocument || elem).documentElement;
-	return documentElement ? documentElement.nodeName !== "HTML" : false;
+	var namespace = elem.namespaceURI,
+		docElem = (elem.ownerDocument || elem).documentElement;
+
+	// Support: IE <=8
+	// Assume HTML when documentElement doesn't yet exist, such as inside loading iframes
+	// https://bugs.jquery.com/ticket/4833
+	return !rhtml.test( namespace || docElem && docElem.nodeName || "HTML" );
 };
 
 /**
@@ -1481,11 +1501,8 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		setDocument( elem );
 	}
 
-	// Make sure that attribute selectors are quoted
-	expr = expr.replace( rattributeQuotes, "='$1']" );
-
 	if ( support.matchesSelector && documentIsHTML &&
-		!compilerCache[ expr + " " ] &&
+		!nonnativeSelectorCache[ expr + " " ] &&
 		( !rbuggyMatches || !rbuggyMatches.test( expr ) ) &&
 		( !rbuggyQSA     || !rbuggyQSA.test( expr ) ) ) {
 
@@ -1499,7 +1516,9 @@ Sizzle.matchesSelector = function( elem, expr ) {
 					elem.document && elem.document.nodeType !== 11 ) {
 				return ret;
 			}
-		} catch (e) {}
+		} catch (e) {
+			nonnativeSelectorCache( expr, true );
+		}
 	}
 
 	return Sizzle( expr, document, null, [ elem ] ).length > 0;
@@ -1958,7 +1977,7 @@ Expr = Sizzle.selectors = {
 		"contains": markFunction(function( text ) {
 			text = text.replace( runescape, funescape );
 			return function( elem ) {
-				return ( elem.textContent || elem.innerText || getText( elem ) ).indexOf( text ) > -1;
+				return ( elem.textContent || getText( elem ) ).indexOf( text ) > -1;
 			};
 		}),
 
@@ -2097,7 +2116,11 @@ Expr = Sizzle.selectors = {
 		}),
 
 		"lt": createPositionalPseudo(function( matchIndexes, length, argument ) {
-			var i = argument < 0 ? argument + length : argument;
+			var i = argument < 0 ?
+				argument + length :
+				argument > length ?
+					length :
+					argument;
 			for ( ; --i >= 0; ) {
 				matchIndexes.push( i );
 			}
@@ -3147,18 +3170,18 @@ jQuery.each( {
 		return siblings( elem.firstChild );
 	},
 	contents: function( elem ) {
-        if ( nodeName( elem, "iframe" ) ) {
-            return elem.contentDocument;
-        }
+		if ( typeof elem.contentDocument !== "undefined" ) {
+			return elem.contentDocument;
+		}
 
-        // Support: IE 9 - 11 only, iOS 7 only, Android Browser <=4.3 only
-        // Treat the template element as a regular one in browsers that
-        // don't support it.
-        if ( nodeName( elem, "template" ) ) {
-            elem = elem.content || elem;
-        }
+		// Support: IE 9 - 11 only, iOS 7 only, Android Browser <=4.3 only
+		// Treat the template element as a regular one in browsers that
+		// don't support it.
+		if ( nodeName( elem, "template" ) ) {
+			elem = elem.content || elem;
+		}
 
-        return jQuery.merge( [], elem.childNodes );
+		return jQuery.merge( [], elem.childNodes );
 	}
 }, function( name, fn ) {
 	jQuery.fn[ name ] = function( until, selector ) {
@@ -4467,6 +4490,26 @@ var rcssNum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" );
 
 var cssExpand = [ "Top", "Right", "Bottom", "Left" ];
 
+var documentElement = document.documentElement;
+
+
+
+	var isAttached = function( elem ) {
+			return jQuery.contains( elem.ownerDocument, elem );
+		},
+		composed = { composed: true };
+
+	// Support: IE 9 - 11+, Edge 12 - 18+, iOS 10.0 - 10.2 only
+	// Check attachment across shadow DOM boundaries when possible (gh-3504)
+	// Support: iOS 10.0-10.2 only
+	// Early iOS 10 versions support `attachShadow` but not `getRootNode`,
+	// leading to errors. We need to check for `getRootNode`.
+	if ( documentElement.getRootNode ) {
+		isAttached = function( elem ) {
+			return jQuery.contains( elem.ownerDocument, elem ) ||
+				elem.getRootNode( composed ) === elem.ownerDocument;
+		};
+	}
 var isHiddenWithinTree = function( elem, el ) {
 
 		// isHiddenWithinTree might be called from jQuery#filter function;
@@ -4481,7 +4524,7 @@ var isHiddenWithinTree = function( elem, el ) {
 			// Support: Firefox <=43 - 45
 			// Disconnected elements can have computed display: none, so first confirm that elem is
 			// in the document.
-			jQuery.contains( elem.ownerDocument, elem ) &&
+			isAttached( elem ) &&
 
 			jQuery.css( elem, "display" ) === "none";
 	};
@@ -4523,7 +4566,8 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 		unit = valueParts && valueParts[ 3 ] || ( jQuery.cssNumber[ prop ] ? "" : "px" ),
 
 		// Starting value computation is required for potential unit mismatches
-		initialInUnit = ( jQuery.cssNumber[ prop ] || unit !== "px" && +initial ) &&
+		initialInUnit = elem.nodeType &&
+			( jQuery.cssNumber[ prop ] || unit !== "px" && +initial ) &&
 			rcssNum.exec( jQuery.css( elem, prop ) );
 
 	if ( initialInUnit && initialInUnit[ 3 ] !== unit ) {
@@ -4670,7 +4714,7 @@ jQuery.fn.extend( {
 } );
 var rcheckableType = ( /^(?:checkbox|radio)$/i );
 
-var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
+var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]*)/i );
 
 var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
@@ -4742,7 +4786,7 @@ function setGlobalEval( elems, refElements ) {
 var rhtml = /<|&#?\w+;/;
 
 function buildFragment( elems, context, scripts, selection, ignored ) {
-	var elem, tmp, tag, wrap, contains, j,
+	var elem, tmp, tag, wrap, attached, j,
 		fragment = context.createDocumentFragment(),
 		nodes = [],
 		i = 0,
@@ -4806,13 +4850,13 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 			continue;
 		}
 
-		contains = jQuery.contains( elem.ownerDocument, elem );
+		attached = isAttached( elem );
 
 		// Append to fragment
 		tmp = getAll( fragment.appendChild( elem ), "script" );
 
 		// Preserve script evaluation history
-		if ( contains ) {
+		if ( attached ) {
 			setGlobalEval( tmp );
 		}
 
@@ -4855,8 +4899,6 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 	div.innerHTML = "<textarea>x</textarea>";
 	support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
 } )();
-var documentElement = document.documentElement;
-
 
 
 var
@@ -4872,8 +4914,19 @@ function returnFalse() {
 	return false;
 }
 
+// Support: IE <=9 - 11+
+// focus() and blur() are asynchronous, except when they are no-op.
+// So expect focus to be synchronous when the element is already active,
+// and blur to be synchronous when the element is not already active.
+// (focus and blur are always synchronous in other supported browsers,
+// this just defines when we can count on it).
+function expectSync( elem, type ) {
+	return ( elem === safeActiveElement() ) === ( type === "focus" );
+}
+
 // Support: IE <=9 only
-// See #13393 for more info
+// Accessing document.activeElement can throw unexpectedly
+// https://bugs.jquery.com/ticket/13393
 function safeActiveElement() {
 	try {
 		return document.activeElement;
@@ -5173,9 +5226,10 @@ jQuery.event = {
 			while ( ( handleObj = matched.handlers[ j++ ] ) &&
 				!event.isImmediatePropagationStopped() ) {
 
-				// Triggered event must either 1) have no namespace, or 2) have namespace(s)
-				// a subset or equal to those in the bound event (both can have no namespace).
-				if ( !event.rnamespace || event.rnamespace.test( handleObj.namespace ) ) {
+				// If the event is namespaced, then each handler is only invoked if it is
+				// specially universal or its namespaces are a superset of the event's.
+				if ( !event.rnamespace || handleObj.namespace === false ||
+					event.rnamespace.test( handleObj.namespace ) ) {
 
 					event.handleObj = handleObj;
 					event.data = handleObj.data;
@@ -5299,39 +5353,51 @@ jQuery.event = {
 			// Prevent triggered image.load events from bubbling to window.load
 			noBubble: true
 		},
-		focus: {
-
-			// Fire native event if possible so blur/focus sequence is correct
-			trigger: function() {
-				if ( this !== safeActiveElement() && this.focus ) {
-					this.focus();
-					return false;
-				}
-			},
-			delegateType: "focusin"
-		},
-		blur: {
-			trigger: function() {
-				if ( this === safeActiveElement() && this.blur ) {
-					this.blur();
-					return false;
-				}
-			},
-			delegateType: "focusout"
-		},
 		click: {
 
-			// For checkbox, fire native event so checked state will be right
-			trigger: function() {
-				if ( this.type === "checkbox" && this.click && nodeName( this, "input" ) ) {
-					this.click();
-					return false;
+			// Utilize native event to ensure correct state for checkable inputs
+			setup: function( data ) {
+
+				// For mutual compressibility with _default, replace `this` access with a local var.
+				// `|| data` is dead code meant only to preserve the variable through minification.
+				var el = this || data;
+
+				// Claim the first handler
+				if ( rcheckableType.test( el.type ) &&
+					el.click && nodeName( el, "input" ) ) {
+
+					// dataPriv.set( el, "click", ... )
+					leverageNative( el, "click", returnTrue );
 				}
+
+				// Return false to allow normal processing in the caller
+				return false;
+			},
+			trigger: function( data ) {
+
+				// For mutual compressibility with _default, replace `this` access with a local var.
+				// `|| data` is dead code meant only to preserve the variable through minification.
+				var el = this || data;
+
+				// Force setup before triggering a click
+				if ( rcheckableType.test( el.type ) &&
+					el.click && nodeName( el, "input" ) ) {
+
+					leverageNative( el, "click" );
+				}
+
+				// Return non-false to allow normal event-path propagation
+				return true;
 			},
 
-			// For cross-browser consistency, don't fire native .click() on links
+			// For cross-browser consistency, suppress native .click() on links
+			// Also prevent it if we're currently inside a leveraged native-event stack
 			_default: function( event ) {
-				return nodeName( event.target, "a" );
+				var target = event.target;
+				return rcheckableType.test( target.type ) &&
+					target.click && nodeName( target, "input" ) &&
+					dataPriv.get( target, "click" ) ||
+					nodeName( target, "a" );
 			}
 		},
 
@@ -5347,6 +5413,93 @@ jQuery.event = {
 		}
 	}
 };
+
+// Ensure the presence of an event listener that handles manually-triggered
+// synthetic events by interrupting progress until reinvoked in response to
+// *native* events that it fires directly, ensuring that state changes have
+// already occurred before other listeners are invoked.
+function leverageNative( el, type, expectSync ) {
+
+	// Missing expectSync indicates a trigger call, which must force setup through jQuery.event.add
+	if ( !expectSync ) {
+		if ( dataPriv.get( el, type ) === undefined ) {
+			jQuery.event.add( el, type, returnTrue );
+		}
+		return;
+	}
+
+	// Register the controller as a special universal handler for all event namespaces
+	dataPriv.set( el, type, false );
+	jQuery.event.add( el, type, {
+		namespace: false,
+		handler: function( event ) {
+			var notAsync, result,
+				saved = dataPriv.get( this, type );
+
+			if ( ( event.isTrigger & 1 ) && this[ type ] ) {
+
+				// Interrupt processing of the outer synthetic .trigger()ed event
+				// Saved data should be false in such cases, but might be a leftover capture object
+				// from an async native handler (gh-4350)
+				if ( !saved.length ) {
+
+					// Store arguments for use when handling the inner native event
+					// There will always be at least one argument (an event object), so this array
+					// will not be confused with a leftover capture object.
+					saved = slice.call( arguments );
+					dataPriv.set( this, type, saved );
+
+					// Trigger the native event and capture its result
+					// Support: IE <=9 - 11+
+					// focus() and blur() are asynchronous
+					notAsync = expectSync( this, type );
+					this[ type ]();
+					result = dataPriv.get( this, type );
+					if ( saved !== result || notAsync ) {
+						dataPriv.set( this, type, false );
+					} else {
+						result = {};
+					}
+					if ( saved !== result ) {
+
+						// Cancel the outer synthetic event
+						event.stopImmediatePropagation();
+						event.preventDefault();
+						return result.value;
+					}
+
+				// If this is an inner synthetic event for an event with a bubbling surrogate
+				// (focus or blur), assume that the surrogate already propagated from triggering the
+				// native event and prevent that from happening again here.
+				// This technically gets the ordering wrong w.r.t. to `.trigger()` (in which the
+				// bubbling surrogate propagates *after* the non-bubbling base), but that seems
+				// less bad than duplication.
+				} else if ( ( jQuery.event.special[ type ] || {} ).delegateType ) {
+					event.stopPropagation();
+				}
+
+			// If this is a native event triggered above, everything is now in order
+			// Fire an inner synthetic event with the original arguments
+			} else if ( saved.length ) {
+
+				// ...and capture the result
+				dataPriv.set( this, type, {
+					value: jQuery.event.trigger(
+
+						// Support: IE <=9 - 11+
+						// Extend with the prototype to reset the above stopImmediatePropagation()
+						jQuery.extend( saved[ 0 ], jQuery.Event.prototype ),
+						saved.slice( 1 ),
+						this
+					)
+				} );
+
+				// Abort handling of the native event
+				event.stopImmediatePropagation();
+			}
+		}
+	} );
+}
 
 jQuery.removeEvent = function( elem, type, handle ) {
 
@@ -5460,6 +5613,7 @@ jQuery.each( {
 	shiftKey: true,
 	view: true,
 	"char": true,
+	code: true,
 	charCode: true,
 	key: true,
 	keyCode: true,
@@ -5505,6 +5659,33 @@ jQuery.each( {
 		return event.which;
 	}
 }, jQuery.event.addProp );
+
+jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateType ) {
+	jQuery.event.special[ type ] = {
+
+		// Utilize native event if possible so blur/focus sequence is correct
+		setup: function() {
+
+			// Claim the first handler
+			// dataPriv.set( this, "focus", ... )
+			// dataPriv.set( this, "blur", ... )
+			leverageNative( this, type, expectSync );
+
+			// Return false to allow normal processing in the caller
+			return false;
+		},
+		trigger: function() {
+
+			// Force setup before trigger
+			leverageNative( this, type );
+
+			// Return non-false to allow normal event-path propagation
+			return true;
+		},
+
+		delegateType: delegateType
+	};
+} );
 
 // Create mouseenter/leave events using mouseover/out and event-time checks
 // so that event delegation works in jQuery.
@@ -5756,11 +5937,13 @@ function domManip( collection, args, callback, ignored ) {
 						if ( node.src && ( node.type || "" ).toLowerCase()  !== "module" ) {
 
 							// Optional AJAX dependency, but won't run scripts if not present
-							if ( jQuery._evalUrl ) {
-								jQuery._evalUrl( node.src );
+							if ( jQuery._evalUrl && !node.noModule ) {
+								jQuery._evalUrl( node.src, {
+									nonce: node.nonce || node.getAttribute( "nonce" )
+								} );
 							}
 						} else {
-							DOMEval( node.textContent.replace( rcleanScript, "" ), doc, node );
+							DOMEval( node.textContent.replace( rcleanScript, "" ), node, doc );
 						}
 					}
 				}
@@ -5782,7 +5965,7 @@ function remove( elem, selector, keepData ) {
 		}
 
 		if ( node.parentNode ) {
-			if ( keepData && jQuery.contains( node.ownerDocument, node ) ) {
+			if ( keepData && isAttached( node ) ) {
 				setGlobalEval( getAll( node, "script" ) );
 			}
 			node.parentNode.removeChild( node );
@@ -5800,7 +5983,7 @@ jQuery.extend( {
 	clone: function( elem, dataAndEvents, deepDataAndEvents ) {
 		var i, l, srcElements, destElements,
 			clone = elem.cloneNode( true ),
-			inPage = jQuery.contains( elem.ownerDocument, elem );
+			inPage = isAttached( elem );
 
 		// Fix IE cloning issues
 		if ( !support.noCloneChecked && ( elem.nodeType === 1 || elem.nodeType === 11 ) &&
@@ -6096,8 +6279,10 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 		// Support: IE 9 only
 		// Detect overflow:scroll screwiness (gh-3699)
+		// Support: Chrome <=64
+		// Don't get tricked when zoom affects offsetWidth (gh-4029)
 		div.style.position = "absolute";
-		scrollboxSizeVal = div.offsetWidth === 36 || "absolute";
+		scrollboxSizeVal = roundPixelMeasures( div.offsetWidth / 3 ) === 12;
 
 		documentElement.removeChild( container );
 
@@ -6168,7 +6353,7 @@ function curCSS( elem, name, computed ) {
 	if ( computed ) {
 		ret = computed.getPropertyValue( name ) || computed[ name ];
 
-		if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
+		if ( ret === "" && !isAttached( elem ) ) {
 			ret = jQuery.style( elem, name );
 		}
 
@@ -6224,29 +6409,12 @@ function addGetHookIf( conditionFn, hookFn ) {
 }
 
 
-var
+var cssPrefixes = [ "Webkit", "Moz", "ms" ],
+	emptyStyle = document.createElement( "div" ).style,
+	vendorProps = {};
 
-	// Swappable if display is none or starts with table
-	// except "table", "table-cell", or "table-caption"
-	// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
-	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
-	rcustomProp = /^--/,
-	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
-	cssNormalTransform = {
-		letterSpacing: "0",
-		fontWeight: "400"
-	},
-
-	cssPrefixes = [ "Webkit", "Moz", "ms" ],
-	emptyStyle = document.createElement( "div" ).style;
-
-// Return a css property mapped to a potentially vendor prefixed property
+// Return a vendor-prefixed property or undefined
 function vendorPropName( name ) {
-
-	// Shortcut for names that are not vendor prefixed
-	if ( name in emptyStyle ) {
-		return name;
-	}
 
 	// Check for vendor prefixed names
 	var capName = name[ 0 ].toUpperCase() + name.slice( 1 ),
@@ -6260,15 +6428,32 @@ function vendorPropName( name ) {
 	}
 }
 
-// Return a property mapped along what jQuery.cssProps suggests or to
-// a vendor prefixed property.
+// Return a potentially-mapped jQuery.cssProps or vendor prefixed property
 function finalPropName( name ) {
-	var ret = jQuery.cssProps[ name ];
-	if ( !ret ) {
-		ret = jQuery.cssProps[ name ] = vendorPropName( name ) || name;
+	var final = jQuery.cssProps[ name ] || vendorProps[ name ];
+
+	if ( final ) {
+		return final;
 	}
-	return ret;
+	if ( name in emptyStyle ) {
+		return name;
+	}
+	return vendorProps[ name ] = vendorPropName( name ) || name;
 }
+
+
+var
+
+	// Swappable if display is none or starts with table
+	// except "table", "table-cell", or "table-caption"
+	// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
+	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
+	rcustomProp = /^--/,
+	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
+	cssNormalTransform = {
+		letterSpacing: "0",
+		fontWeight: "400"
+	};
 
 function setPositiveNumber( elem, value, subtract ) {
 
@@ -6341,7 +6526,10 @@ function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computed
 			delta -
 			extra -
 			0.5
-		) );
+
+		// If offsetWidth/offsetHeight is unknown, then we can't determine content-box scroll gutter
+		// Use an explicit zero to avoid NaN (gh-3964)
+		) ) || 0;
 	}
 
 	return delta;
@@ -6351,9 +6539,16 @@ function getWidthOrHeight( elem, dimension, extra ) {
 
 	// Start with computed style
 	var styles = getStyles( elem ),
+
+		// To avoid forcing a reflow, only fetch boxSizing if we need it (gh-4322).
+		// Fake content-box until we know it's needed to know the true value.
+		boxSizingNeeded = !support.boxSizingReliable() || extra,
+		isBorderBox = boxSizingNeeded &&
+			jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+		valueIsBorderBox = isBorderBox,
+
 		val = curCSS( elem, dimension, styles ),
-		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
-		valueIsBorderBox = isBorderBox;
+		offsetProp = "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 );
 
 	// Support: Firefox <=54
 	// Return a confounding non-pixel value or feign ignorance, as appropriate.
@@ -6364,22 +6559,29 @@ function getWidthOrHeight( elem, dimension, extra ) {
 		val = "auto";
 	}
 
-	// Check for style in case a browser which returns unreliable values
-	// for getComputedStyle silently falls back to the reliable elem.style
-	valueIsBorderBox = valueIsBorderBox &&
-		( support.boxSizingReliable() || val === elem.style[ dimension ] );
 
 	// Fall back to offsetWidth/offsetHeight when value is "auto"
 	// This happens for inline elements with no explicit setting (gh-3571)
 	// Support: Android <=4.1 - 4.3 only
 	// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
-	if ( val === "auto" ||
-		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) {
+	// Support: IE 9-11 only
+	// Also use offsetWidth/offsetHeight for when box sizing is unreliable
+	// We use getClientRects() to check for hidden/disconnected.
+	// In those cases, the computed value can be trusted to be border-box
+	if ( ( !support.boxSizingReliable() && isBorderBox ||
+		val === "auto" ||
+		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) &&
+		elem.getClientRects().length ) {
 
-		val = elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ];
+		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
-		// offsetWidth/offsetHeight provide border-box values
-		valueIsBorderBox = true;
+		// Where available, offsetWidth/offsetHeight approximate border box dimensions.
+		// Where not available (e.g., SVG), assume unreliable box-sizing and interpret the
+		// retrieved value as a content box dimension.
+		valueIsBorderBox = offsetProp in elem;
+		if ( valueIsBorderBox ) {
+			val = elem[ offsetProp ];
+		}
 	}
 
 	// Normalize "" and auto
@@ -6425,6 +6627,13 @@ jQuery.extend( {
 		"flexGrow": true,
 		"flexShrink": true,
 		"fontWeight": true,
+		"gridArea": true,
+		"gridColumn": true,
+		"gridColumnEnd": true,
+		"gridColumnStart": true,
+		"gridRow": true,
+		"gridRowEnd": true,
+		"gridRowStart": true,
 		"lineHeight": true,
 		"opacity": true,
 		"order": true,
@@ -6480,7 +6689,9 @@ jQuery.extend( {
 			}
 
 			// If a number was passed in, add the unit (except for certain CSS properties)
-			if ( type === "number" ) {
+			// The isCustomProp check can be removed in jQuery 4.0 when we only auto-append
+			// "px" to a few hardcoded values.
+			if ( type === "number" && !isCustomProp ) {
 				value += ret && ret[ 3 ] || ( jQuery.cssNumber[ origName ] ? "" : "px" );
 			}
 
@@ -6580,18 +6791,29 @@ jQuery.each( [ "height", "width" ], function( i, dimension ) {
 		set: function( elem, value, extra ) {
 			var matches,
 				styles = getStyles( elem ),
-				isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
-				subtract = extra && boxModelAdjustment(
-					elem,
-					dimension,
-					extra,
-					isBorderBox,
-					styles
-				);
+
+				// Only read styles.position if the test has a chance to fail
+				// to avoid forcing a reflow.
+				scrollboxSizeBuggy = !support.scrollboxSize() &&
+					styles.position === "absolute",
+
+				// To avoid forcing a reflow, only fetch boxSizing if we need it (gh-3991)
+				boxSizingNeeded = scrollboxSizeBuggy || extra,
+				isBorderBox = boxSizingNeeded &&
+					jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+				subtract = extra ?
+					boxModelAdjustment(
+						elem,
+						dimension,
+						extra,
+						isBorderBox,
+						styles
+					) :
+					0;
 
 			// Account for unreliable border-box dimensions by comparing offset* to computed and
 			// faking a content-box to get border and padding (gh-3699)
-			if ( isBorderBox && support.scrollboxSize() === styles.position ) {
+			if ( isBorderBox && scrollboxSizeBuggy ) {
 				subtract -= Math.ceil(
 					elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
 					parseFloat( styles[ dimension ] ) -
@@ -6759,9 +6981,9 @@ Tween.propHooks = {
 			// Use .style if available and use plain properties where available.
 			if ( jQuery.fx.step[ tween.prop ] ) {
 				jQuery.fx.step[ tween.prop ]( tween );
-			} else if ( tween.elem.nodeType === 1 &&
-				( tween.elem.style[ jQuery.cssProps[ tween.prop ] ] != null ||
-					jQuery.cssHooks[ tween.prop ] ) ) {
+			} else if ( tween.elem.nodeType === 1 && (
+					jQuery.cssHooks[ tween.prop ] ||
+					tween.elem.style[ finalPropName( tween.prop ) ] != null ) ) {
 				jQuery.style( tween.elem, tween.prop, tween.now + tween.unit );
 			} else {
 				tween.elem[ tween.prop ] = tween.now;
@@ -8468,6 +8690,10 @@ jQuery.param = function( a, traditional ) {
 				encodeURIComponent( value == null ? "" : value );
 		};
 
+	if ( a == null ) {
+		return "";
+	}
+
 	// If an array was passed in, assume that it is an array of form elements.
 	if ( Array.isArray( a ) || ( a.jquery && !jQuery.isPlainObject( a ) ) ) {
 
@@ -8970,12 +9196,14 @@ jQuery.extend( {
 						if ( !responseHeaders ) {
 							responseHeaders = {};
 							while ( ( match = rheaders.exec( responseHeadersString ) ) ) {
-								responseHeaders[ match[ 1 ].toLowerCase() ] = match[ 2 ];
+								responseHeaders[ match[ 1 ].toLowerCase() + " " ] =
+									( responseHeaders[ match[ 1 ].toLowerCase() + " " ] || [] )
+										.concat( match[ 2 ] );
 							}
 						}
-						match = responseHeaders[ key.toLowerCase() ];
+						match = responseHeaders[ key.toLowerCase() + " " ];
 					}
-					return match == null ? null : match;
+					return match == null ? null : match.join( ", " );
 				},
 
 				// Raw string
@@ -9364,7 +9592,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 } );
 
 
-jQuery._evalUrl = function( url ) {
+jQuery._evalUrl = function( url, options ) {
 	return jQuery.ajax( {
 		url: url,
 
@@ -9374,7 +9602,16 @@ jQuery._evalUrl = function( url ) {
 		cache: true,
 		async: false,
 		global: false,
-		"throws": true
+
+		// Only evaluate the response if it is successful (gh-4126)
+		// dataFilter is not invoked for failure responses, so using it instead
+		// of the default converter is kludgy but it works.
+		converters: {
+			"text script": function() {}
+		},
+		dataFilter: function( response ) {
+			jQuery.globalEval( response, options );
+		}
 	} );
 };
 
@@ -9657,24 +9894,21 @@ jQuery.ajaxPrefilter( "script", function( s ) {
 // Bind script tag hack transport
 jQuery.ajaxTransport( "script", function( s ) {
 
-	// This transport only deals with cross domain requests
-	if ( s.crossDomain ) {
+	// This transport only deals with cross domain or forced-by-attrs requests
+	if ( s.crossDomain || s.scriptAttrs ) {
 		var script, callback;
 		return {
 			send: function( _, complete ) {
-				script = jQuery( "<script>" ).prop( {
-					charset: s.scriptCharset,
-					src: s.url
-				} ).on(
-					"load error",
-					callback = function( evt ) {
+				script = jQuery( "<script>" )
+					.attr( s.scriptAttrs || {} )
+					.prop( { charset: s.scriptCharset, src: s.url } )
+					.on( "load error", callback = function( evt ) {
 						script.remove();
 						callback = null;
 						if ( evt ) {
 							complete( evt.type === "error" ? 404 : 200, evt.type );
 						}
-					}
-				);
+					} );
 
 				// Use native DOM manipulation to avoid our domManip AJAX trickery
 				document.head.appendChild( script[ 0 ] );
@@ -10366,8 +10600,8 @@ return jQuery;
 
 },{}],2:[function(require,module,exports){
 /* @preserve
- * Leaflet 1.3.1, a JS library for interactive maps. http://leafletjs.com
- * (c) 2010-2017 Vladimir Agafonkin, (c) 2010-2011 CloudMade
+ * Leaflet 1.5.1+build.2e3e0ff, a JS library for interactive maps. http://leafletjs.com
+ * (c) 2010-2018 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
 (function (global, factory) {
@@ -10376,7 +10610,7 @@ return jQuery;
 	(factory((global.L = {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.3.1";
+var version = "1.5.1+build.2e3e0ffb";
 
 /*
  * @namespace Util
@@ -10494,8 +10728,8 @@ function falseFn() { return false; }
 // @function formatNum(num: Number, digits?: Number): Number
 // Returns the number `num` rounded to `digits` decimals, or to 6 decimals by default.
 function formatNum(num, digits) {
-	var pow = Math.pow(10, (digits === undefined ? 6 : digits));
-	return Math.round(num * pow) / pow;
+	digits = (digits === undefined ? 6 : digits);
+	return +(Math.round(num + ('e+' + digits)) + ('e-' + digits));
 }
 
 // @function trim(str: String): String
@@ -10835,7 +11069,7 @@ var Events = {
 	 *
 	 * @alternative
 	 * @method off: this
-	 * Removes all listeners to all events on the object.
+	 * Removes all listeners to all events on the object. This includes implicitly attached events.
 	 */
 	off: function (types, fn, context) {
 
@@ -11727,7 +11961,7 @@ function toLatLngBounds(a, b) {
  * map.panTo(L.latLng(50, 30));
  * ```
  *
- * Note that `LatLng` does not inherit from Leafet's `Class` object,
+ * Note that `LatLng` does not inherit from Leaflet's `Class` object,
  * which means new classes can't inherit from it, and new methods
  * can't be added to it with the `include` function.
  */
@@ -12015,9 +12249,11 @@ var Earth = extend({}, CRS, {
  * a sphere. Used by the `EPSG:3857` CRS.
  */
 
+var earthRadius = 6378137;
+
 var SphericalMercator = {
 
-	R: 6378137,
+	R: earthRadius,
 	MAX_LATITUDE: 85.0511287798,
 
 	project: function (latlng) {
@@ -12040,7 +12276,7 @@ var SphericalMercator = {
 	},
 
 	bounds: (function () {
-		var d = 6378137 * Math.PI;
+		var d = earthRadius * Math.PI;
 		return new Bounds([-d, -d], [d, d]);
 	})()
 };
@@ -12289,7 +12525,7 @@ var mobileOpera = mobile && opera;
 var mobileGecko = mobile && gecko;
 
 // @property retina: Boolean
-// `true` for browsers on a high-resolution "retina" screen.
+// `true` for browsers on a high-resolution "retina" screen or on any screen when browser's display zoom is more than 100%.
 var retina = (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
 
 
@@ -12538,6 +12774,7 @@ function addDoubleTapListener(obj, handler, id) {
 				touch$$1 = newTouch;
 			}
 			touch$$1.type = 'dblclick';
+			touch$$1.button = 0;
 			handler(touch$$1);
 			last = null;
 		}
@@ -12572,6 +12809,384 @@ function removeDoubleTapListener(obj, id) {
 
 	return this;
 }
+
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+
+// @property TRANSFORM: String
+// Vendor-prefixed transform style name (e.g. `'webkitTransform'` for WebKit).
+var TRANSFORM = testProp(
+	['transform', 'webkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
+
+// webkitTransition comes first because some browser versions that drop vendor prefix don't do
+// the same for the transitionend event, in particular the Android 4.1 stock browser
+
+// @property TRANSITION: String
+// Vendor-prefixed transition style name.
+var TRANSITION = testProp(
+	['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
+
+// @property TRANSITION_END: String
+// Vendor-prefixed transitionend event name.
+var TRANSITION_END =
+	TRANSITION === 'webkitTransition' || TRANSITION === 'OTransition' ? TRANSITION + 'End' : 'transitionend';
+
+
+// @function get(id: String|HTMLElement): HTMLElement
+// Returns an element given its DOM id, or returns the element itself
+// if it was passed directly.
+function get(id) {
+	return typeof id === 'string' ? document.getElementById(id) : id;
+}
+
+// @function getStyle(el: HTMLElement, styleAttrib: String): String
+// Returns the value for a certain style attribute on an element,
+// including computed values or values set through CSS.
+function getStyle(el, style) {
+	var value = el.style[style] || (el.currentStyle && el.currentStyle[style]);
+
+	if ((!value || value === 'auto') && document.defaultView) {
+		var css = document.defaultView.getComputedStyle(el, null);
+		value = css ? css[style] : null;
+	}
+	return value === 'auto' ? null : value;
+}
+
+// @function create(tagName: String, className?: String, container?: HTMLElement): HTMLElement
+// Creates an HTML element with `tagName`, sets its class to `className`, and optionally appends it to `container` element.
+function create$1(tagName, className, container) {
+	var el = document.createElement(tagName);
+	el.className = className || '';
+
+	if (container) {
+		container.appendChild(el);
+	}
+	return el;
+}
+
+// @function remove(el: HTMLElement)
+// Removes `el` from its parent element
+function remove(el) {
+	var parent = el.parentNode;
+	if (parent) {
+		parent.removeChild(el);
+	}
+}
+
+// @function empty(el: HTMLElement)
+// Removes all of `el`'s children elements from `el`
+function empty(el) {
+	while (el.firstChild) {
+		el.removeChild(el.firstChild);
+	}
+}
+
+// @function toFront(el: HTMLElement)
+// Makes `el` the last child of its parent, so it renders in front of the other children.
+function toFront(el) {
+	var parent = el.parentNode;
+	if (parent && parent.lastChild !== el) {
+		parent.appendChild(el);
+	}
+}
+
+// @function toBack(el: HTMLElement)
+// Makes `el` the first child of its parent, so it renders behind the other children.
+function toBack(el) {
+	var parent = el.parentNode;
+	if (parent && parent.firstChild !== el) {
+		parent.insertBefore(el, parent.firstChild);
+	}
+}
+
+// @function hasClass(el: HTMLElement, name: String): Boolean
+// Returns `true` if the element's class attribute contains `name`.
+function hasClass(el, name) {
+	if (el.classList !== undefined) {
+		return el.classList.contains(name);
+	}
+	var className = getClass(el);
+	return className.length > 0 && new RegExp('(^|\\s)' + name + '(\\s|$)').test(className);
+}
+
+// @function addClass(el: HTMLElement, name: String)
+// Adds `name` to the element's class attribute.
+function addClass(el, name) {
+	if (el.classList !== undefined) {
+		var classes = splitWords(name);
+		for (var i = 0, len = classes.length; i < len; i++) {
+			el.classList.add(classes[i]);
+		}
+	} else if (!hasClass(el, name)) {
+		var className = getClass(el);
+		setClass(el, (className ? className + ' ' : '') + name);
+	}
+}
+
+// @function removeClass(el: HTMLElement, name: String)
+// Removes `name` from the element's class attribute.
+function removeClass(el, name) {
+	if (el.classList !== undefined) {
+		el.classList.remove(name);
+	} else {
+		setClass(el, trim((' ' + getClass(el) + ' ').replace(' ' + name + ' ', ' ')));
+	}
+}
+
+// @function setClass(el: HTMLElement, name: String)
+// Sets the element's class.
+function setClass(el, name) {
+	if (el.className.baseVal === undefined) {
+		el.className = name;
+	} else {
+		// in case of SVG element
+		el.className.baseVal = name;
+	}
+}
+
+// @function getClass(el: HTMLElement): String
+// Returns the element's class.
+function getClass(el) {
+	// Check if the element is an SVGElementInstance and use the correspondingElement instead
+	// (Required for linked SVG elements in IE11.)
+	if (el.correspondingElement) {
+		el = el.correspondingElement;
+	}
+	return el.className.baseVal === undefined ? el.className : el.className.baseVal;
+}
+
+// @function setOpacity(el: HTMLElement, opacity: Number)
+// Set the opacity of an element (including old IE support).
+// `opacity` must be a number from `0` to `1`.
+function setOpacity(el, value) {
+	if ('opacity' in el.style) {
+		el.style.opacity = value;
+	} else if ('filter' in el.style) {
+		_setOpacityIE(el, value);
+	}
+}
+
+function _setOpacityIE(el, value) {
+	var filter = false,
+	    filterName = 'DXImageTransform.Microsoft.Alpha';
+
+	// filters collection throws an error if we try to retrieve a filter that doesn't exist
+	try {
+		filter = el.filters.item(filterName);
+	} catch (e) {
+		// don't set opacity to 1 if we haven't already set an opacity,
+		// it isn't needed and breaks transparent pngs.
+		if (value === 1) { return; }
+	}
+
+	value = Math.round(value * 100);
+
+	if (filter) {
+		filter.Enabled = (value !== 100);
+		filter.Opacity = value;
+	} else {
+		el.style.filter += ' progid:' + filterName + '(opacity=' + value + ')';
+	}
+}
+
+// @function testProp(props: String[]): String|false
+// Goes through the array of style names and returns the first name
+// that is a valid style name for an element. If no such name is found,
+// it returns false. Useful for vendor-prefixed styles like `transform`.
+function testProp(props) {
+	var style = document.documentElement.style;
+
+	for (var i = 0; i < props.length; i++) {
+		if (props[i] in style) {
+			return props[i];
+		}
+	}
+	return false;
+}
+
+// @function setTransform(el: HTMLElement, offset: Point, scale?: Number)
+// Resets the 3D CSS transform of `el` so it is translated by `offset` pixels
+// and optionally scaled by `scale`. Does not have an effect if the
+// browser doesn't support 3D CSS transforms.
+function setTransform(el, offset, scale) {
+	var pos = offset || new Point(0, 0);
+
+	el.style[TRANSFORM] =
+		(ie3d ?
+			'translate(' + pos.x + 'px,' + pos.y + 'px)' :
+			'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') +
+		(scale ? ' scale(' + scale + ')' : '');
+}
+
+// @function setPosition(el: HTMLElement, position: Point)
+// Sets the position of `el` to coordinates specified by `position`,
+// using CSS translate or top/left positioning depending on the browser
+// (used by Leaflet internally to position its layers).
+function setPosition(el, point) {
+
+	/*eslint-disable */
+	el._leaflet_pos = point;
+	/* eslint-enable */
+
+	if (any3d) {
+		setTransform(el, point);
+	} else {
+		el.style.left = point.x + 'px';
+		el.style.top = point.y + 'px';
+	}
+}
+
+// @function getPosition(el: HTMLElement): Point
+// Returns the coordinates of an element previously positioned with setPosition.
+function getPosition(el) {
+	// this method is only used for elements previously positioned using setPosition,
+	// so it's safe to cache the position for performance
+
+	return el._leaflet_pos || new Point(0, 0);
+}
+
+// @function disableTextSelection()
+// Prevents the user from generating `selectstart` DOM events, usually generated
+// when the user drags the mouse through a page with text. Used internally
+// by Leaflet to override the behaviour of any click-and-drag interaction on
+// the map. Affects drag interactions on the whole document.
+
+// @function enableTextSelection()
+// Cancels the effects of a previous [`L.DomUtil.disableTextSelection`](#domutil-disabletextselection).
+var disableTextSelection;
+var enableTextSelection;
+var _userSelect;
+if ('onselectstart' in document) {
+	disableTextSelection = function () {
+		on(window, 'selectstart', preventDefault);
+	};
+	enableTextSelection = function () {
+		off(window, 'selectstart', preventDefault);
+	};
+} else {
+	var userSelectProperty = testProp(
+		['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+
+	disableTextSelection = function () {
+		if (userSelectProperty) {
+			var style = document.documentElement.style;
+			_userSelect = style[userSelectProperty];
+			style[userSelectProperty] = 'none';
+		}
+	};
+	enableTextSelection = function () {
+		if (userSelectProperty) {
+			document.documentElement.style[userSelectProperty] = _userSelect;
+			_userSelect = undefined;
+		}
+	};
+}
+
+// @function disableImageDrag()
+// As [`L.DomUtil.disableTextSelection`](#domutil-disabletextselection), but
+// for `dragstart` DOM events, usually generated when the user drags an image.
+function disableImageDrag() {
+	on(window, 'dragstart', preventDefault);
+}
+
+// @function enableImageDrag()
+// Cancels the effects of a previous [`L.DomUtil.disableImageDrag`](#domutil-disabletextselection).
+function enableImageDrag() {
+	off(window, 'dragstart', preventDefault);
+}
+
+var _outlineElement;
+var _outlineStyle;
+// @function preventOutline(el: HTMLElement)
+// Makes the [outline](https://developer.mozilla.org/docs/Web/CSS/outline)
+// of the element `el` invisible. Used internally by Leaflet to prevent
+// focusable elements from displaying an outline when the user performs a
+// drag interaction on them.
+function preventOutline(element) {
+	while (element.tabIndex === -1) {
+		element = element.parentNode;
+	}
+	if (!element.style) { return; }
+	restoreOutline();
+	_outlineElement = element;
+	_outlineStyle = element.style.outline;
+	element.style.outline = 'none';
+	on(window, 'keydown', restoreOutline);
+}
+
+// @function restoreOutline()
+// Cancels the effects of a previous [`L.DomUtil.preventOutline`]().
+function restoreOutline() {
+	if (!_outlineElement) { return; }
+	_outlineElement.style.outline = _outlineStyle;
+	_outlineElement = undefined;
+	_outlineStyle = undefined;
+	off(window, 'keydown', restoreOutline);
+}
+
+// @function getSizedParentNode(el: HTMLElement): HTMLElement
+// Finds the closest parent node which size (width and height) is not null.
+function getSizedParentNode(element) {
+	do {
+		element = element.parentNode;
+	} while ((!element.offsetWidth || !element.offsetHeight) && element !== document.body);
+	return element;
+}
+
+// @function getScale(el: HTMLElement): Object
+// Computes the CSS scale currently applied on the element.
+// Returns an object with `x` and `y` members as horizontal and vertical scales respectively,
+// and `boundingClientRect` as the result of [`getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect).
+function getScale(element) {
+	var rect = element.getBoundingClientRect(); // Read-only in old browsers.
+
+	return {
+		x: rect.width / element.offsetWidth || 1,
+		y: rect.height / element.offsetHeight || 1,
+		boundingClientRect: rect
+	};
+}
+
+
+var DomUtil = (Object.freeze || Object)({
+	TRANSFORM: TRANSFORM,
+	TRANSITION: TRANSITION,
+	TRANSITION_END: TRANSITION_END,
+	get: get,
+	getStyle: getStyle,
+	create: create$1,
+	remove: remove,
+	empty: empty,
+	toFront: toFront,
+	toBack: toBack,
+	hasClass: hasClass,
+	addClass: addClass,
+	removeClass: removeClass,
+	setClass: setClass,
+	getClass: getClass,
+	setOpacity: setOpacity,
+	testProp: testProp,
+	setTransform: setTransform,
+	setPosition: setPosition,
+	getPosition: getPosition,
+	disableTextSelection: disableTextSelection,
+	enableTextSelection: enableTextSelection,
+	disableImageDrag: disableImageDrag,
+	enableImageDrag: enableImageDrag,
+	preventOutline: preventOutline,
+	restoreOutline: restoreOutline,
+	getSizedParentNode: getSizedParentNode,
+	getScale: getScale
+});
 
 /*
  * @namespace DomEvent
@@ -12783,19 +13398,21 @@ function stop(e) {
 
 // @function getMousePosition(ev: DOMEvent, container?: HTMLElement): Point
 // Gets normalized mouse position from a DOM event relative to the
-// `container` or to the whole page if not specified.
+// `container` (border excluded) or to the whole page if not specified.
 function getMousePosition(e, container) {
 	if (!container) {
 		return new Point(e.clientX, e.clientY);
 	}
 
-	var rect = container.getBoundingClientRect();
+	var scale = getScale(container),
+	    offset = scale.boundingClientRect; // left and top  values are in page scale (like the event clientX/Y)
 
-	var scaleX = rect.width / container.offsetWidth || 1;
-	var scaleY = rect.height / container.offsetHeight || 1;
 	return new Point(
-		e.clientX / scaleX - rect.left - container.clientLeft,
-		e.clientY / scaleY - rect.top - container.clientTop);
+		// offset.left/top values are in page scale (like clientX/Y),
+		// whereas clientLeft/Top (border width) values are the original values (before CSS scale applies).
+		(e.clientX - offset.left) / scale.x - container.clientLeft,
+		(e.clientY - offset.top) / scale.y - container.clientTop
+	);
 }
 
 // Chrome on Win scrolls double the pixels as in other platforms (see #4538),
@@ -12891,354 +13508,6 @@ var DomEvent = (Object.freeze || Object)({
 	isExternalTarget: isExternalTarget,
 	addListener: on,
 	removeListener: off
-});
-
-/*
- * @namespace DomUtil
- *
- * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
- * tree, used by Leaflet internally.
- *
- * Most functions expecting or returning a `HTMLElement` also work for
- * SVG elements. The only difference is that classes refer to CSS classes
- * in HTML and SVG classes in SVG.
- */
-
-
-// @property TRANSFORM: String
-// Vendor-prefixed transform style name (e.g. `'webkitTransform'` for WebKit).
-var TRANSFORM = testProp(
-	['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
-
-// webkitTransition comes first because some browser versions that drop vendor prefix don't do
-// the same for the transitionend event, in particular the Android 4.1 stock browser
-
-// @property TRANSITION: String
-// Vendor-prefixed transition style name.
-var TRANSITION = testProp(
-	['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
-
-// @property TRANSITION_END: String
-// Vendor-prefixed transitionend event name.
-var TRANSITION_END =
-	TRANSITION === 'webkitTransition' || TRANSITION === 'OTransition' ? TRANSITION + 'End' : 'transitionend';
-
-
-// @function get(id: String|HTMLElement): HTMLElement
-// Returns an element given its DOM id, or returns the element itself
-// if it was passed directly.
-function get(id) {
-	return typeof id === 'string' ? document.getElementById(id) : id;
-}
-
-// @function getStyle(el: HTMLElement, styleAttrib: String): String
-// Returns the value for a certain style attribute on an element,
-// including computed values or values set through CSS.
-function getStyle(el, style) {
-	var value = el.style[style] || (el.currentStyle && el.currentStyle[style]);
-
-	if ((!value || value === 'auto') && document.defaultView) {
-		var css = document.defaultView.getComputedStyle(el, null);
-		value = css ? css[style] : null;
-	}
-	return value === 'auto' ? null : value;
-}
-
-// @function create(tagName: String, className?: String, container?: HTMLElement): HTMLElement
-// Creates an HTML element with `tagName`, sets its class to `className`, and optionally appends it to `container` element.
-function create$1(tagName, className, container) {
-	var el = document.createElement(tagName);
-	el.className = className || '';
-
-	if (container) {
-		container.appendChild(el);
-	}
-	return el;
-}
-
-// @function remove(el: HTMLElement)
-// Removes `el` from its parent element
-function remove(el) {
-	var parent = el.parentNode;
-	if (parent) {
-		parent.removeChild(el);
-	}
-}
-
-// @function empty(el: HTMLElement)
-// Removes all of `el`'s children elements from `el`
-function empty(el) {
-	while (el.firstChild) {
-		el.removeChild(el.firstChild);
-	}
-}
-
-// @function toFront(el: HTMLElement)
-// Makes `el` the last child of its parent, so it renders in front of the other children.
-function toFront(el) {
-	var parent = el.parentNode;
-	if (parent.lastChild !== el) {
-		parent.appendChild(el);
-	}
-}
-
-// @function toBack(el: HTMLElement)
-// Makes `el` the first child of its parent, so it renders behind the other children.
-function toBack(el) {
-	var parent = el.parentNode;
-	if (parent.firstChild !== el) {
-		parent.insertBefore(el, parent.firstChild);
-	}
-}
-
-// @function hasClass(el: HTMLElement, name: String): Boolean
-// Returns `true` if the element's class attribute contains `name`.
-function hasClass(el, name) {
-	if (el.classList !== undefined) {
-		return el.classList.contains(name);
-	}
-	var className = getClass(el);
-	return className.length > 0 && new RegExp('(^|\\s)' + name + '(\\s|$)').test(className);
-}
-
-// @function addClass(el: HTMLElement, name: String)
-// Adds `name` to the element's class attribute.
-function addClass(el, name) {
-	if (el.classList !== undefined) {
-		var classes = splitWords(name);
-		for (var i = 0, len = classes.length; i < len; i++) {
-			el.classList.add(classes[i]);
-		}
-	} else if (!hasClass(el, name)) {
-		var className = getClass(el);
-		setClass(el, (className ? className + ' ' : '') + name);
-	}
-}
-
-// @function removeClass(el: HTMLElement, name: String)
-// Removes `name` from the element's class attribute.
-function removeClass(el, name) {
-	if (el.classList !== undefined) {
-		el.classList.remove(name);
-	} else {
-		setClass(el, trim((' ' + getClass(el) + ' ').replace(' ' + name + ' ', ' ')));
-	}
-}
-
-// @function setClass(el: HTMLElement, name: String)
-// Sets the element's class.
-function setClass(el, name) {
-	if (el.className.baseVal === undefined) {
-		el.className = name;
-	} else {
-		// in case of SVG element
-		el.className.baseVal = name;
-	}
-}
-
-// @function getClass(el: HTMLElement): String
-// Returns the element's class.
-function getClass(el) {
-	return el.className.baseVal === undefined ? el.className : el.className.baseVal;
-}
-
-// @function setOpacity(el: HTMLElement, opacity: Number)
-// Set the opacity of an element (including old IE support).
-// `opacity` must be a number from `0` to `1`.
-function setOpacity(el, value) {
-	if ('opacity' in el.style) {
-		el.style.opacity = value;
-	} else if ('filter' in el.style) {
-		_setOpacityIE(el, value);
-	}
-}
-
-function _setOpacityIE(el, value) {
-	var filter = false,
-	    filterName = 'DXImageTransform.Microsoft.Alpha';
-
-	// filters collection throws an error if we try to retrieve a filter that doesn't exist
-	try {
-		filter = el.filters.item(filterName);
-	} catch (e) {
-		// don't set opacity to 1 if we haven't already set an opacity,
-		// it isn't needed and breaks transparent pngs.
-		if (value === 1) { return; }
-	}
-
-	value = Math.round(value * 100);
-
-	if (filter) {
-		filter.Enabled = (value !== 100);
-		filter.Opacity = value;
-	} else {
-		el.style.filter += ' progid:' + filterName + '(opacity=' + value + ')';
-	}
-}
-
-// @function testProp(props: String[]): String|false
-// Goes through the array of style names and returns the first name
-// that is a valid style name for an element. If no such name is found,
-// it returns false. Useful for vendor-prefixed styles like `transform`.
-function testProp(props) {
-	var style = document.documentElement.style;
-
-	for (var i = 0; i < props.length; i++) {
-		if (props[i] in style) {
-			return props[i];
-		}
-	}
-	return false;
-}
-
-// @function setTransform(el: HTMLElement, offset: Point, scale?: Number)
-// Resets the 3D CSS transform of `el` so it is translated by `offset` pixels
-// and optionally scaled by `scale`. Does not have an effect if the
-// browser doesn't support 3D CSS transforms.
-function setTransform(el, offset, scale) {
-	var pos = offset || new Point(0, 0);
-
-	el.style[TRANSFORM] =
-		(ie3d ?
-			'translate(' + pos.x + 'px,' + pos.y + 'px)' :
-			'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') +
-		(scale ? ' scale(' + scale + ')' : '');
-}
-
-// @function setPosition(el: HTMLElement, position: Point)
-// Sets the position of `el` to coordinates specified by `position`,
-// using CSS translate or top/left positioning depending on the browser
-// (used by Leaflet internally to position its layers).
-function setPosition(el, point) {
-
-	/*eslint-disable */
-	el._leaflet_pos = point;
-	/* eslint-enable */
-
-	if (any3d) {
-		setTransform(el, point);
-	} else {
-		el.style.left = point.x + 'px';
-		el.style.top = point.y + 'px';
-	}
-}
-
-// @function getPosition(el: HTMLElement): Point
-// Returns the coordinates of an element previously positioned with setPosition.
-function getPosition(el) {
-	// this method is only used for elements previously positioned using setPosition,
-	// so it's safe to cache the position for performance
-
-	return el._leaflet_pos || new Point(0, 0);
-}
-
-// @function disableTextSelection()
-// Prevents the user from generating `selectstart` DOM events, usually generated
-// when the user drags the mouse through a page with text. Used internally
-// by Leaflet to override the behaviour of any click-and-drag interaction on
-// the map. Affects drag interactions on the whole document.
-
-// @function enableTextSelection()
-// Cancels the effects of a previous [`L.DomUtil.disableTextSelection`](#domutil-disabletextselection).
-var disableTextSelection;
-var enableTextSelection;
-var _userSelect;
-if ('onselectstart' in document) {
-	disableTextSelection = function () {
-		on(window, 'selectstart', preventDefault);
-	};
-	enableTextSelection = function () {
-		off(window, 'selectstart', preventDefault);
-	};
-} else {
-	var userSelectProperty = testProp(
-		['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
-
-	disableTextSelection = function () {
-		if (userSelectProperty) {
-			var style = document.documentElement.style;
-			_userSelect = style[userSelectProperty];
-			style[userSelectProperty] = 'none';
-		}
-	};
-	enableTextSelection = function () {
-		if (userSelectProperty) {
-			document.documentElement.style[userSelectProperty] = _userSelect;
-			_userSelect = undefined;
-		}
-	};
-}
-
-// @function disableImageDrag()
-// As [`L.DomUtil.disableTextSelection`](#domutil-disabletextselection), but
-// for `dragstart` DOM events, usually generated when the user drags an image.
-function disableImageDrag() {
-	on(window, 'dragstart', preventDefault);
-}
-
-// @function enableImageDrag()
-// Cancels the effects of a previous [`L.DomUtil.disableImageDrag`](#domutil-disabletextselection).
-function enableImageDrag() {
-	off(window, 'dragstart', preventDefault);
-}
-
-var _outlineElement;
-var _outlineStyle;
-// @function preventOutline(el: HTMLElement)
-// Makes the [outline](https://developer.mozilla.org/docs/Web/CSS/outline)
-// of the element `el` invisible. Used internally by Leaflet to prevent
-// focusable elements from displaying an outline when the user performs a
-// drag interaction on them.
-function preventOutline(element) {
-	while (element.tabIndex === -1) {
-		element = element.parentNode;
-	}
-	if (!element.style) { return; }
-	restoreOutline();
-	_outlineElement = element;
-	_outlineStyle = element.style.outline;
-	element.style.outline = 'none';
-	on(window, 'keydown', restoreOutline);
-}
-
-// @function restoreOutline()
-// Cancels the effects of a previous [`L.DomUtil.preventOutline`]().
-function restoreOutline() {
-	if (!_outlineElement) { return; }
-	_outlineElement.style.outline = _outlineStyle;
-	_outlineElement = undefined;
-	_outlineStyle = undefined;
-	off(window, 'keydown', restoreOutline);
-}
-
-
-var DomUtil = (Object.freeze || Object)({
-	TRANSFORM: TRANSFORM,
-	TRANSITION: TRANSITION,
-	TRANSITION_END: TRANSITION_END,
-	get: get,
-	getStyle: getStyle,
-	create: create$1,
-	remove: remove,
-	empty: empty,
-	toFront: toFront,
-	toBack: toBack,
-	hasClass: hasClass,
-	addClass: addClass,
-	removeClass: removeClass,
-	setClass: setClass,
-	getClass: getClass,
-	setOpacity: setOpacity,
-	testProp: testProp,
-	setTransform: setTransform,
-	setPosition: setPosition,
-	getPosition: getPosition,
-	disableTextSelection: disableTextSelection,
-	enableTextSelection: enableTextSelection,
-	disableImageDrag: disableImageDrag,
-	enableImageDrag: enableImageDrag,
-	preventOutline: preventOutline,
-	restoreOutline: restoreOutline
 });
 
 /*
@@ -13453,6 +13722,13 @@ var Map = Evented.extend({
 	initialize: function (id, options) { // (HTMLElement or String, Object)
 		options = setOptions(this, options);
 
+		// Make sure to assign internal flags at the beginning,
+		// to avoid inconsistent state in some edge cases.
+		this._handlers = [];
+		this._layers = {};
+		this._zoomBoundLayers = {};
+		this._sizeChanged = true;
+
 		this._initContainer(id);
 		this._initLayout();
 
@@ -13472,11 +13748,6 @@ var Map = Evented.extend({
 		if (options.center && options.zoom !== undefined) {
 			this.setView(toLatLng(options.center), options.zoom, {reset: true});
 		}
-
-		this._handlers = [];
-		this._layers = {};
-		this._zoomBoundLayers = {};
-		this._sizeChanged = true;
 
 		this.callInitHooks();
 
@@ -13836,6 +14107,51 @@ var Map = Evented.extend({
 		return this;
 	},
 
+	// @method panInside(latlng: LatLng, options?: options): this
+	// Pans the map the minimum amount to make the `latlng` visible. Use
+	// `padding`, `paddingTopLeft` and `paddingTopRight` options to fit
+	// the display to more restricted bounds, like [`fitBounds`](#map-fitbounds).
+	// If `latlng` is already within the (optionally padded) display bounds,
+	// the map will not be panned.
+	panInside: function (latlng, options) {
+		options = options || {};
+
+		var paddingTL = toPoint(options.paddingTopLeft || options.padding || [0, 0]),
+		    paddingBR = toPoint(options.paddingBottomRight || options.padding || [0, 0]),
+		    center = this.getCenter(),
+		    pixelCenter = this.project(center),
+		    pixelPoint = this.project(latlng),
+		    pixelBounds = this.getPixelBounds(),
+		    halfPixelBounds = pixelBounds.getSize().divideBy(2),
+		    paddedBounds = toBounds([pixelBounds.min.add(paddingTL), pixelBounds.max.subtract(paddingBR)]);
+
+		if (!paddedBounds.contains(pixelPoint)) {
+			this._enforcingBounds = true;
+			var diff = pixelCenter.subtract(pixelPoint),
+			    newCenter = toPoint(pixelPoint.x + diff.x, pixelPoint.y + diff.y);
+
+			if (pixelPoint.x < paddedBounds.min.x || pixelPoint.x > paddedBounds.max.x) {
+				newCenter.x = pixelCenter.x - diff.x;
+				if (diff.x > 0) {
+					newCenter.x += halfPixelBounds.x - paddingTL.x;
+				} else {
+					newCenter.x -= halfPixelBounds.x - paddingBR.x;
+				}
+			}
+			if (pixelPoint.y < paddedBounds.min.y || pixelPoint.y > paddedBounds.max.y) {
+				newCenter.y = pixelCenter.y - diff.y;
+				if (diff.y > 0) {
+					newCenter.y += halfPixelBounds.y - paddingTL.y;
+				} else {
+					newCenter.y -= halfPixelBounds.y - paddingBR.y;
+				}
+			}
+			this.panTo(this.unproject(newCenter), options);
+			this._enforcingBounds = false;
+		}
+		return this;
+	},
+
 	// @method invalidateSize(options: Zoom/pan options): this
 	// Checks if the map container size changed and updates the map if so —
 	// call it after you've changed the map size dynamically, also animating
@@ -13983,7 +14299,7 @@ var Map = Evented.extend({
 		var lat = pos.coords.latitude,
 		    lng = pos.coords.longitude,
 		    latlng = new LatLng(lat, lng),
-		    bounds = latlng.toBounds(pos.coords.accuracy),
+		    bounds = latlng.toBounds(pos.coords.accuracy * 2),
 		    options = this._locateOptions;
 
 		if (options.setView) {
@@ -14058,6 +14374,10 @@ var Map = Evented.extend({
 
 		if (this._clearControlPos) {
 			this._clearControlPos();
+		}
+		if (this._resizeRequest) {
+			cancelAnimFrame(this._resizeRequest);
+			this._resizeRequest = null;
 		}
 
 		this._clearHandlers();
@@ -14143,7 +14463,7 @@ var Map = Evented.extend({
 			this.options.maxZoom;
 	},
 
-	// @method getBoundsZoom(bounds: LatLngBounds, inside?: Boolean): Number
+	// @method getBoundsZoom(bounds: LatLngBounds, inside?: Boolean, padding?: Point): Number
 	// Returns the maximum zoom level on which the given bounds fit to the map
 	// view in its entirety. If `inside` (optional) is set to `true`, the method
 	// instead returns the minimum zoom level on which the map view fits into
@@ -14592,9 +14912,15 @@ var Map = Evented.extend({
 		// this event. Also fired on mobile when the user holds a single touch
 		// for a second (also called long press).
 		// @event keypress: KeyboardEvent
-		// Fired when the user presses a key from the keyboard while the map is focused.
+		// Fired when the user presses a key from the keyboard that produces a character value while the map is focused.
+		// @event keydown: KeyboardEvent
+		// Fired when the user presses a key from the keyboard while the map is focused. Unlike the `keypress` event,
+		// the `keydown` event is fired for keys that produce a character value and for keys
+		// that do not produce a character value.
+		// @event keyup: KeyboardEvent
+		// Fired when the user releases a key from the keyboard while the map is focused.
 		onOff(this._container, 'click dblclick mousedown mouseup ' +
-			'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
+			'mouseover mouseout mousemove contextmenu keypress keydown keyup', this._handleDOMEvent, this);
 
 		if (this.options.trackResize) {
 			onOff(window, 'resize', this._onResize, this);
@@ -14658,7 +14984,7 @@ var Map = Evented.extend({
 
 		var type = e.type;
 
-		if (type === 'mousedown' || type === 'keypress') {
+		if (type === 'mousedown' || type === 'keypress' || type === 'keyup' || type === 'keydown') {
 			// prevents outline when clicking on keyboard-focusable element
 			preventOutline(e.target || e.srcElement);
 		}
@@ -14697,7 +15023,7 @@ var Map = Evented.extend({
 			originalEvent: e
 		};
 
-		if (e.type !== 'keypress') {
+		if (e.type !== 'keypress' && e.type !== 'keydown' && e.type !== 'keyup') {
 			var isMarker = target.getLatLng && (!target._radius || target._radius <= 10);
 			data.containerPoint = isMarker ?
 				this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
@@ -14950,7 +15276,7 @@ var Map = Evented.extend({
 		}
 
 		// @event zoomanim: ZoomAnimEvent
-		// Fired on every frame of a zoom animation
+		// Fired at least once per zoom animation. For continuous zoom, like pinch zooming, fired once per frame during zoom.
 		this.fire('zoomanim', {
 			center: center,
 			zoom: zoom,
@@ -15068,6 +15394,8 @@ var Control = Class.extend({
 			corner.appendChild(container);
 		}
 
+		this._map.on('unload', this.remove, this);
+
 		return this;
 	},
 
@@ -15084,6 +15412,7 @@ var Control = Class.extend({
 			this.onRemove(this._map);
 		}
 
+		this._map.off('unload', this.remove, this);
 		this._map = null;
 
 		return this;
@@ -15306,13 +15635,13 @@ var Layers = Control.extend({
 	// Expand the control container if collapsed.
 	expand: function () {
 		addClass(this._container, 'leaflet-control-layers-expanded');
-		this._form.style.height = null;
+		this._section.style.height = null;
 		var acceptableHeight = this._map.getSize().y - (this._container.offsetTop + 50);
-		if (acceptableHeight < this._form.clientHeight) {
-			addClass(this._form, 'leaflet-control-layers-scrollbar');
-			this._form.style.height = acceptableHeight + 'px';
+		if (acceptableHeight < this._section.clientHeight) {
+			addClass(this._section, 'leaflet-control-layers-scrollbar');
+			this._section.style.height = acceptableHeight + 'px';
 		} else {
-			removeClass(this._form, 'leaflet-control-layers-scrollbar');
+			removeClass(this._section, 'leaflet-control-layers-scrollbar');
 		}
 		this._checkDisabledLayers();
 		return this;
@@ -15336,7 +15665,7 @@ var Layers = Control.extend({
 		disableClickPropagation(container);
 		disableScrollPropagation(container);
 
-		var form = this._form = create$1('form', className + '-list');
+		var section = this._section = create$1('section', className + '-list');
 
 		if (collapsed) {
 			this._map.on('click', this.collapse, this);
@@ -15364,11 +15693,11 @@ var Layers = Control.extend({
 			this.expand();
 		}
 
-		this._baseLayersList = create$1('div', className + '-base', form);
-		this._separator = create$1('div', className + '-separator', form);
-		this._overlaysList = create$1('div', className + '-overlays', form);
+		this._baseLayersList = create$1('div', className + '-base', section);
+		this._separator = create$1('div', className + '-separator', section);
+		this._overlaysList = create$1('div', className + '-overlays', section);
 
-		container.appendChild(form);
+		container.appendChild(section);
 	},
 
 	_getLayer: function (id) {
@@ -15481,7 +15810,7 @@ var Layers = Control.extend({
 			input.className = 'leaflet-control-layers-selector';
 			input.defaultChecked = checked;
 		} else {
-			input = this._createRadioElement('leaflet-base-layers', checked);
+			input = this._createRadioElement('leaflet-base-layers_' + stamp(this), checked);
 		}
 
 		this._layerControlInputs.push(input);
@@ -15705,6 +16034,10 @@ Map.mergeOptions({
 
 Map.addInitHook(function () {
 	if (this.options.zoomControl) {
+		// @section Controls
+		// @property zoomControl: Control.Zoom
+		// The default zoom control (only available if the
+		// [`zoomControl` option](#map-zoomcontrol) was `true` when creating the map).
 		this.zoomControl = new Zoom();
 		this.addControl(this.zoomControl);
 	}
@@ -15862,7 +16195,7 @@ var Attribution = Control.extend({
 
 		// @option prefix: String = 'Leaflet'
 		// The HTML text shown before the attributions. Pass `false` to disable.
-		prefix: '<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'
+		prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'
 	},
 
 	initialize: function (options) {
@@ -16144,9 +16477,13 @@ var Draggable = Evented.extend({
 		// Fired when a drag is about to start.
 		this.fire('down');
 
-		var first = e.touches ? e.touches[0] : e;
+		var first = e.touches ? e.touches[0] : e,
+		    sizedParent = getSizedParentNode(this._element);
 
 		this._startPoint = new Point(first.clientX, first.clientY);
+
+		// Cache the scale, so that we can continuously compensate for it during drag (_onMove).
+		this._parentScale = getScale(sizedParent);
 
 		on(document, MOVE[e.type], this._onMove, this);
 		on(document, END[e.type], this._onUp, this);
@@ -16166,11 +16503,16 @@ var Draggable = Evented.extend({
 		}
 
 		var first = (e.touches && e.touches.length === 1 ? e.touches[0] : e),
-		    newPoint = new Point(first.clientX, first.clientY),
-		    offset = newPoint.subtract(this._startPoint);
+		    offset = new Point(first.clientX, first.clientY)._subtract(this._startPoint);
 
 		if (!offset.x && !offset.y) { return; }
 		if (Math.abs(offset.x) + Math.abs(offset.y) < this.options.clickTolerance) { return; }
+
+		// We assume that the parent container's position, border and scale do not change for the duration of the drag.
+		// Therefore there is no need to account for the position and border (they are eliminated by the subtraction)
+		// and we can use the cached value for the scale.
+		offset.x /= this._parentScale.x;
+		offset.y /= this._parentScale.y;
 
 		preventDefault(e);
 
@@ -16598,7 +16940,7 @@ var LonLat = {
  * @namespace Projection
  * @projection L.Projection.Mercator
  *
- * Elliptical Mercator projection — more complex than Spherical Mercator. Takes into account that Earth is a geoid, not a perfect sphere. Used by the EPSG:3395 CRS.
+ * Elliptical Mercator projection — more complex than Spherical Mercator. Assumes that Earth is an ellipsoid. Used by the EPSG:3395 CRS.
  */
 
 var Mercator = {
@@ -16758,7 +17100,7 @@ CRS.Simple = Simple;
  * @example
  *
  * ```js
- * var layer = L.Marker(latlng).addTo(map);
+ * var layer = L.marker(latlng).addTo(map);
  * layer.addTo(map);
  * layer.remove();
  * ```
@@ -16780,7 +17122,7 @@ var Layer = Evented.extend({
 		pane: 'overlayPane',
 
 		// @option attribution: String = null
-		// String to be shown in the attribution control, describes the layer data, e.g. "© Mapbox".
+		// String to be shown in the attribution control, e.g. "© OpenStreetMap contributors". It describes the layer data and is often a legal obligation towards copyright holders and tile providers.
 		attribution: null,
 
 		bubblingMouseEvents: true
@@ -17341,7 +17683,7 @@ var Icon = Class.extend({
 
 	options: {
 		popupAnchor: [0, 0],
-		tooltipAnchor: [0, 0],
+		tooltipAnchor: [0, 0]
 	},
 
 	initialize: function (options) {
@@ -17540,7 +17882,7 @@ var MarkerDrag = Handler.extend({
 		    map = marker._map,
 		    speed = this._marker.options.autoPanSpeed,
 		    padding = this._marker.options.autoPanPadding,
-		    iconPos = L.DomUtil.getPosition(marker._icon),
+		    iconPos = getPosition(marker._icon),
 		    bounds = map.getPixelBounds(),
 		    origin = map.getPixelOrigin();
 
@@ -17564,7 +17906,7 @@ var MarkerDrag = Handler.extend({
 			this._draggable._newPos._add(movement);
 			this._draggable._startPos._add(movement);
 
-			L.DomUtil.setPosition(marker._icon, this._draggable._newPos);
+			setPosition(marker._icon, this._draggable._newPos);
 			this._onDrag(e);
 
 			this._panRequest = requestAnimFrame(this._adjustPan.bind(this, e));
@@ -17596,7 +17938,7 @@ var MarkerDrag = Handler.extend({
 	_onDrag: function (e) {
 		var marker = this._marker,
 		    shadow = marker._shadow,
-		iconPos = getPosition(marker._icon),
+		    iconPos = getPosition(marker._icon),
 		    latlng = marker._map.layerPointToLatLng(iconPos);
 
 		// update shadow position
@@ -17657,22 +17999,6 @@ var Marker = Layer.extend({
 		// Option inherited from "Interactive layer" abstract class
 		interactive: true,
 
-		// @option draggable: Boolean = false
-		// Whether the marker is draggable with mouse/touch or not.
-		draggable: false,
-
-		// @option autoPan: Boolean = false
-		// Set it to `true` if you want the map to do panning animation when marker hits the edges.
-		autoPan: false,
-
-		// @option autoPanPadding: Point = Point(50, 50)
-		// Equivalent of setting both top left and bottom right autopan padding to the same value.
-		autoPanPadding: [50, 50],
-
-		// @option autoPanSpeed: Number = 10
-		// Number of pixels the map should move by.
-		autoPanSpeed: 10,
-
 		// @option keyboard: Boolean = true
 		// Whether the marker can be tabbed to with a keyboard and clicked by pressing enter.
 		keyboard: true,
@@ -17705,10 +18031,32 @@ var Marker = Layer.extend({
 		// `Map pane` where the markers icon will be added.
 		pane: 'markerPane',
 
+		// @option pane: String = 'shadowPane'
+		// `Map pane` where the markers shadow will be added.
+		shadowPane: 'shadowPane',
+
 		// @option bubblingMouseEvents: Boolean = false
 		// When `true`, a mouse event on this marker will trigger the same event on the map
 		// (unless [`L.DomEvent.stopPropagation`](#domevent-stoppropagation) is used).
-		bubblingMouseEvents: false
+		bubblingMouseEvents: false,
+
+		// @section Draggable marker options
+		// @option draggable: Boolean = false
+		// Whether the marker is draggable with mouse/touch or not.
+		draggable: false,
+
+		// @option autoPan: Boolean = false
+		// Whether to pan the map when dragging this marker near its edge or not.
+		autoPan: false,
+
+		// @option autoPanPadding: Point = Point(50, 50)
+		// Distance (in pixels to the left/right and to the top/bottom) of the
+		// map edge to start panning the map.
+		autoPanPadding: [50, 50],
+
+		// @option autoPanSpeed: Number = 10
+		// Number of pixels the map should pan by.
+		autoPanSpeed: 10
 	},
 
 	/* @section
@@ -17777,6 +18125,12 @@ var Marker = Layer.extend({
 	setZIndexOffset: function (offset) {
 		this.options.zIndexOffset = offset;
 		return this.update();
+	},
+
+	// @method getIcon: Icon
+	// Returns the current icon used by the marker
+	getIcon: function () {
+		return this.options.icon;
 	},
 
 	// @method setIcon(icon: Icon): this
@@ -17874,7 +18228,7 @@ var Marker = Layer.extend({
 		}
 		this._initInteraction();
 		if (newShadow && addShadow) {
-			this.getPane('shadowPane').appendChild(this._shadow);
+			this.getPane(options.shadowPane).appendChild(this._shadow);
 		}
 	},
 
@@ -17958,7 +18312,9 @@ var Marker = Layer.extend({
 	_updateOpacity: function () {
 		var opacity = this.options.opacity;
 
-		setOpacity(this._icon, opacity);
+		if (this._icon) {
+			setOpacity(this._icon, opacity);
+		}
 
 		if (this._shadow) {
 			setOpacity(this._shadow, opacity);
@@ -18095,6 +18451,9 @@ var Path = Layer.extend({
 		setOptions(this, style);
 		if (this._renderer) {
 			this._renderer._updateStyle(this);
+			if (this.options.stroke && style.hasOwnProperty('weight')) {
+				this._updateBounds();
+			}
 		}
 		return this;
 	},
@@ -18417,7 +18776,7 @@ var Polyline = Path.extend({
 		return !this._latlngs.length;
 	},
 
-	// @method closestLayerPoint: Point
+	// @method closestLayerPoint(p: Point): Point
 	// Returns the point closest to `p` on the Polyline.
 	closestLayerPoint: function (p) {
 		var minDistance = Infinity,
@@ -18536,14 +18895,19 @@ var Polyline = Path.extend({
 		this._rings = [];
 		this._projectLatlngs(this._latlngs, this._rings, pxBounds);
 
+		if (this._bounds.isValid() && pxBounds.isValid()) {
+			this._rawPxBounds = pxBounds;
+			this._updateBounds();
+		}
+	},
+
+	_updateBounds: function () {
 		var w = this._clickTolerance(),
 		    p = new Point(w, w);
-
-		if (this._bounds.isValid() && pxBounds.isValid()) {
-			pxBounds.min._subtract(p);
-			pxBounds.max._add(p);
-			this._pxBounds = pxBounds;
-		}
+		this._pxBounds = new Bounds([
+			this._rawPxBounds.min.subtract(p),
+			this._rawPxBounds.max.add(p)
+		]);
 	},
 
 	// recursively turns latlngs into a set of rings with projected coordinates
@@ -18810,7 +19174,7 @@ var Polygon = Polyline.extend({
 		var inside = false,
 		    part, p1, p2, i, j, k, len, len2;
 
-		if (!this._pxBounds.contains(p)) { return false; }
+		if (!this._pxBounds || !this._pxBounds.contains(p)) { return false; }
 
 		// ray casting algorithm for detecting if point is in polygon
 		for (i = 0, len = this._parts.length; i < len; i++) {
@@ -18973,10 +19337,10 @@ var GeoJSON = FeatureGroup.extend({
 	},
 
 	_setLayerStyle: function (layer, style) {
-		if (typeof style === 'function') {
-			style = style(layer.feature);
-		}
 		if (layer.setStyle) {
+			if (typeof style === 'function') {
+				style = style(layer.feature);
+			}
 			layer.setStyle(style);
 		}
 	}
@@ -19126,19 +19490,25 @@ var PointToGeoJSON = {
 };
 
 // @namespace Marker
-// @method toGeoJSON(): Object
+// @method toGeoJSON(precision?: Number): Object
+// `precision` is the number of decimal places for coordinates.
+// The default value is 6 places.
 // Returns a [`GeoJSON`](http://en.wikipedia.org/wiki/GeoJSON) representation of the marker (as a GeoJSON `Point` Feature).
 Marker.include(PointToGeoJSON);
 
 // @namespace CircleMarker
-// @method toGeoJSON(): Object
+// @method toGeoJSON(precision?: Number): Object
+// `precision` is the number of decimal places for coordinates.
+// The default value is 6 places.
 // Returns a [`GeoJSON`](http://en.wikipedia.org/wiki/GeoJSON) representation of the circle marker (as a GeoJSON `Point` Feature).
 Circle.include(PointToGeoJSON);
 CircleMarker.include(PointToGeoJSON);
 
 
 // @namespace Polyline
-// @method toGeoJSON(): Object
+// @method toGeoJSON(precision?: Number): Object
+// `precision` is the number of decimal places for coordinates.
+// The default value is 6 places.
 // Returns a [`GeoJSON`](http://en.wikipedia.org/wiki/GeoJSON) representation of the polyline (as a GeoJSON `LineString` or `MultiLineString` Feature).
 Polyline.include({
 	toGeoJSON: function (precision) {
@@ -19154,7 +19524,9 @@ Polyline.include({
 });
 
 // @namespace Polygon
-// @method toGeoJSON(): Object
+// @method toGeoJSON(precision?: Number): Object
+// `precision` is the number of decimal places for coordinates.
+// The default value is 6 places.
 // Returns a [`GeoJSON`](http://en.wikipedia.org/wiki/GeoJSON) representation of the polygon (as a GeoJSON `Polygon` or `MultiPolygon` Feature).
 Polygon.include({
 	toGeoJSON: function (precision) {
@@ -19190,7 +19562,9 @@ LayerGroup.include({
 		});
 	},
 
-	// @method toGeoJSON(): Object
+	// @method toGeoJSON(precision?: Number): Object
+	// `precision` is the number of decimal places for coordinates.
+	// The default value is 6 places.
 	// Returns a [`GeoJSON`](http://en.wikipedia.org/wiki/GeoJSON) representation of the layer group (as a GeoJSON `FeatureCollection`, `GeometryCollection`, or `MultiPoint`).
 	toGeoJSON: function (precision) {
 
@@ -19237,7 +19611,7 @@ LayerGroup.include({
 // @namespace GeoJSON
 // @factory L.geoJSON(geojson?: Object, options?: GeoJSON options)
 // Creates a GeoJSON layer. Optionally accepts an object in
-// [GeoJSON format](http://geojson.org/geojson-spec.html) to display on the map
+// [GeoJSON format](https://tools.ietf.org/html/rfc7946) to display on the map
 // (you can alternatively add it later with `addData` method) and an `options` object.
 function geoJSON(geojson, options) {
 	return new GeoJSON(geojson, options);
@@ -19279,8 +19653,10 @@ var ImageOverlay = Layer.extend({
 		// If `true`, the image overlay will emit [mouse events](#interactive-layer) when clicked or hovered.
 		interactive: false,
 
-		// @option crossOrigin: Boolean = false
-		// If true, the image will have its crossOrigin attribute set to ''. This is needed if you want to access image pixel data.
+		// @option crossOrigin: Boolean|String = false
+		// Whether the crossOrigin attribute will be added to the image.
+		// If a String is provided, the image will have its crossOrigin attribute set to the String provided. This is needed if you want to access image pixel data.
+		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for valid String values.
 		crossOrigin: false,
 
 		// @option errorOverlayUrl: String = ''
@@ -19288,12 +19664,12 @@ var ImageOverlay = Layer.extend({
 		errorOverlayUrl: '',
 
 		// @option zIndex: Number = 1
-		// The explicit [zIndex](https://developer.mozilla.org/docs/Web/CSS/CSS_Positioning/Understanding_z_index) of the tile layer.
+		// The explicit [zIndex](https://developer.mozilla.org/docs/Web/CSS/CSS_Positioning/Understanding_z_index) of the overlay layer.
 		zIndex: 1,
 
 		// @option className: String = ''
 		// A custom class name to assign to the image. Empty by default.
-		className: '',
+		className: ''
 	},
 
 	initialize: function (url, bounds, options) { // (String, LatLngBounds, Object)
@@ -19399,7 +19775,7 @@ var ImageOverlay = Layer.extend({
 		return events;
 	},
 
-	// @method: setZIndex(value: Number) : this
+	// @method setZIndex(value: Number): this
 	// Changes the [zIndex](#imageoverlay-zindex) of the image overlay.
 	setZIndex: function (value) {
 		this.options.zIndex = value;
@@ -19436,8 +19812,8 @@ var ImageOverlay = Layer.extend({
 		img.onload = bind(this.fire, this, 'load');
 		img.onerror = bind(this._overlayOnError, this, 'error');
 
-		if (this.options.crossOrigin) {
-			img.crossOrigin = '';
+		if (this.options.crossOrigin || this.options.crossOrigin === '') {
+			img.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
 		}
 
 		if (this.options.zIndex) {
@@ -19485,7 +19861,7 @@ var ImageOverlay = Layer.extend({
 
 	_overlayOnError: function () {
 		// @event error: Event
-		// Fired when the ImageOverlay layer has loaded its image
+		// Fired when the ImageOverlay layer fails to load its image
 		this.fire('error');
 
 		var errorUrl = this.options.errorOverlayUrl;
@@ -19518,7 +19894,7 @@ var imageOverlay = function (url, bounds, options) {
  * ```js
  * var videoUrl = 'https://www.mapbox.com/bites/00188/patricia_nasa.webm',
  * 	videoBounds = [[ 32, -130], [ 13, -100]];
- * L.VideoOverlay(videoUrl, videoBounds ).addTo(map);
+ * L.videoOverlay(videoUrl, videoBounds ).addTo(map);
  * ```
  */
 
@@ -19533,7 +19909,12 @@ var VideoOverlay = ImageOverlay.extend({
 
 		// @option loop: Boolean = true
 		// Whether the video will loop back to the beginning when played.
-		loop: true
+		loop: true,
+
+		// @option keepAspectRatio: Boolean = true
+		// Whether the video will save aspect ratio after the projection.
+		// Relevant for supported browsers. Browser compatibility- https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit
+		keepAspectRatio: true
 	},
 
 	_initImage: function () {
@@ -19563,6 +19944,7 @@ var VideoOverlay = ImageOverlay.extend({
 
 		if (!isArray(this._url)) { this._url = [this._url]; }
 
+		if (!this.options.keepAspectRatio && vid.style.hasOwnProperty('objectFit')) { vid.style['objectFit'] = 'fill'; }
 		vid.autoplay = !!this.options.autoplay;
 		vid.loop = !!this.options.loop;
 		for (var i = 0; i < this._url.length; i++) {
@@ -19584,6 +19966,49 @@ var VideoOverlay = ImageOverlay.extend({
 
 function videoOverlay(video, bounds, options) {
 	return new VideoOverlay(video, bounds, options);
+}
+
+/*
+ * @class SVGOverlay
+ * @aka L.SVGOverlay
+ * @inherits ImageOverlay
+ *
+ * Used to load, display and provide DOM access to an SVG file over specific bounds of the map. Extends `ImageOverlay`.
+ *
+ * An SVG overlay uses the [`<svg>`](https://developer.mozilla.org/docs/Web/SVG/Element/svg) element.
+ *
+ * @example
+ *
+ * ```js
+ * var element = '<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="https://mdn.mozillademos.org/files/6457/mdn_logo_only_color.png" height="200" width="200"/></svg>',
+ * 		 elementBounds = [ [ 32, -130 ], [ 13, -100 ] ];
+ * L.svgOverlay(element, elementBounds).addTo(map);
+ * ```
+ */
+
+var SVGOverlay = ImageOverlay.extend({
+	_initImage: function () {
+		var el = this._image = this._url;
+
+		addClass(el, 'leaflet-image-layer');
+		if (this._zoomAnimated) { addClass(el, 'leaflet-zoom-animated'); }
+
+		el.onselectstart = falseFn;
+		el.onmousemove = falseFn;
+	}
+
+	// @method getElement(): SVGElement
+	// Returns the instance of [`SVGElement`](https://developer.mozilla.org/docs/Web/API/SVGElement)
+	// used by this overlay.
+});
+
+
+// @factory L.svgOverlay(svg: String|SVGElement, bounds: LatLngBounds, options?: SVGOverlay options)
+// Instantiates an image overlay object given an SVG element and the geographical bounds it is tied to.
+// A viewBox attribute is required on the SVG element to zoom in and out properly.
+
+function svgOverlay(el, bounds, options) {
+	return new SVGOverlay(el, bounds, options);
 }
 
 /*
@@ -19738,6 +20163,38 @@ var DivOverlay = Layer.extend({
 			toBack(this._container);
 		}
 		return this;
+	},
+
+	_prepareOpen: function (parent, layer, latlng) {
+		if (!(layer instanceof Layer)) {
+			latlng = layer;
+			layer = parent;
+		}
+
+		if (layer instanceof FeatureGroup) {
+			for (var id in parent._layers) {
+				layer = parent._layers[id];
+				break;
+			}
+		}
+
+		if (!latlng) {
+			if (layer.getCenter) {
+				latlng = layer.getCenter();
+			} else if (layer.getLatLng) {
+				latlng = layer.getLatLng();
+			} else {
+				throw new Error('Unable to get source layer LatLng.');
+			}
+		}
+
+		// set overlay source to this layer
+		this._source = layer;
+
+		// update the overlay (content, layout, ect...)
+		this.update();
+
+		return latlng;
 	},
 
 	_updateContent: function () {
@@ -20011,7 +20468,8 @@ var Popup = DivOverlay.extend({
 	},
 
 	_adjustPan: function () {
-		if (!this.options.autoPan || (this._map._panAnim && this._map._panAnim._inProgress)) { return; }
+		if (!this.options.autoPan) { return; }
+		if (this._map._panAnim) { this._map._panAnim.stop(); }
 
 		var map = this._map,
 		    marginBottom = parseInt(getStyle(this._container, 'marginBottom'), 10) || 0,
@@ -20193,28 +20651,8 @@ Layer.include({
 	// @method openPopup(latlng?: LatLng): this
 	// Opens the bound popup at the specified `latlng` or at the default popup anchor if no `latlng` is passed.
 	openPopup: function (layer, latlng) {
-		if (!(layer instanceof Layer)) {
-			latlng = layer;
-			layer = this;
-		}
-
-		if (layer instanceof FeatureGroup) {
-			for (var id in this._layers) {
-				layer = this._layers[id];
-				break;
-			}
-		}
-
-		if (!latlng) {
-			latlng = layer.getCenter ? layer.getCenter() : layer.getLatLng();
-		}
-
 		if (this._popup && this._map) {
-			// set popup source to this layer
-			this._popup._source = layer;
-
-			// update the popup (content, layout, ect...)
-			this._popup.update();
+			latlng = this._popup._prepareOpen(this, layer, latlng);
 
 			// open the popup on the map
 			this._map.openPopup(this._popup, latlng);
@@ -20611,29 +21049,8 @@ Layer.include({
 	// @method openTooltip(latlng?: LatLng): this
 	// Opens the bound tooltip at the specified `latlng` or at the default tooltip anchor if no `latlng` is passed.
 	openTooltip: function (layer, latlng) {
-		if (!(layer instanceof Layer)) {
-			latlng = layer;
-			layer = this;
-		}
-
-		if (layer instanceof FeatureGroup) {
-			for (var id in this._layers) {
-				layer = this._layers[id];
-				break;
-			}
-		}
-
-		if (!latlng) {
-			latlng = layer.getCenter ? layer.getCenter() : layer.getLatLng();
-		}
-
 		if (this._tooltip && this._map) {
-
-			// set tooltip source to this layer
-			this._tooltip._source = layer;
-
-			// update the tooltip (content, layout, ect...)
-			this._tooltip.update();
+			latlng = this._tooltip._prepareOpen(this, layer, latlng);
 
 			// open the tooltip on the map
 			this._map.openTooltip(this._tooltip, latlng);
@@ -20744,8 +21161,9 @@ var DivIcon = Icon.extend({
 		// iconAnchor: (Point),
 		// popupAnchor: (Point),
 
-		// @option html: String = ''
-		// Custom HTML code to put inside the div element, empty by default.
+		// @option html: String|HTMLElement = ''
+		// Custom HTML code to put inside the div element, empty by default. Alternatively,
+		// an instance of `HTMLElement`.
 		html: false,
 
 		// @option bgPos: Point = [0, 0]
@@ -20759,7 +21177,12 @@ var DivIcon = Icon.extend({
 		var div = (oldIcon && oldIcon.tagName === 'DIV') ? oldIcon : document.createElement('div'),
 		    options = this.options;
 
-		div.innerHTML = options.html !== false ? options.html : '';
+		if (options.html instanceof Element) {
+			empty(div);
+			div.appendChild(options.html);
+		} else {
+			div.innerHTML = options.html !== false ? options.html : '';
+		}
 
 		if (options.bgPos) {
 			var bgPos = toPoint(options.bgPos);
@@ -21545,12 +21968,6 @@ var GridLayer = Layer.extend({
 		var tile = this._tiles[key];
 		if (!tile) { return; }
 
-		// Cancels any pending http requests associated with the tile
-		// unless we're on Android's stock browser,
-		// see https://github.com/Leaflet/Leaflet/issues/137
-		if (!androidStock) {
-			tile.el.setAttribute('src', emptyImageUrl);
-		}
 		remove(tile.el);
 
 		delete this._tiles[key];
@@ -21619,8 +22036,6 @@ var GridLayer = Layer.extend({
 	},
 
 	_tileReady: function (coords, err, tile) {
-		if (!this._map) { return; }
-
 		if (err) {
 			// @event tileerror: TileErrorEvent
 			// Fired when there is an error loading a tile.
@@ -21710,12 +22125,12 @@ function gridLayer(options) {
  * @class TileLayer
  * @inherits GridLayer
  * @aka L.TileLayer
- * Used to load and display tile layers on the map. Extends `GridLayer`.
+ * Used to load and display tile layers on the map. Note that most tile servers require attribution, which you can set under `Layer`. Extends `GridLayer`.
  *
  * @example
  *
  * ```js
- * L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map);
+ * L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar', attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'}).addTo(map);
  * ```
  *
  * @section URL template
@@ -21774,8 +22189,10 @@ var TileLayer = GridLayer.extend({
 		// If `true` and user is on a retina display, it will request four tiles of half the specified size and a bigger zoom level in place of one to utilize the high resolution.
 		detectRetina: false,
 
-		// @option crossOrigin: Boolean = false
-		// If true, all tiles will have their crossOrigin attribute set to ''. This is needed if you want to access tile pixel data.
+		// @option crossOrigin: Boolean|String = false
+		// Whether the crossOrigin attribute will be added to the tiles.
+		// If a String is provided, all tiles will have their crossOrigin attribute set to the String provided. This is needed if you want to access tile pixel data.
+		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for valid String values.
 		crossOrigin: false
 	},
 
@@ -21813,7 +22230,13 @@ var TileLayer = GridLayer.extend({
 
 	// @method setUrl(url: String, noRedraw?: Boolean): this
 	// Updates the layer's URL template and redraws it (unless `noRedraw` is set to `true`).
+	// If the URL does not change, the layer will not be redrawn unless
+	// the noRedraw parameter is set to false.
 	setUrl: function (url, noRedraw) {
+		if (this._url === url && noRedraw === undefined) {
+			noRedraw = true;
+		}
+
 		this._url = url;
 
 		if (!noRedraw) {
@@ -21832,8 +22255,8 @@ var TileLayer = GridLayer.extend({
 		on(tile, 'load', bind(this._tileOnLoad, this, done, tile));
 		on(tile, 'error', bind(this._tileOnError, this, done, tile));
 
-		if (this.options.crossOrigin) {
-			tile.crossOrigin = '';
+		if (this.options.crossOrigin || this.options.crossOrigin === '') {
+			tile.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
 		}
 
 		/*
@@ -21934,6 +22357,28 @@ var TileLayer = GridLayer.extend({
 				}
 			}
 		}
+	},
+
+	_removeTile: function (key) {
+		var tile = this._tiles[key];
+		if (!tile) { return; }
+
+		// Cancels any pending http requests associated with the tile
+		// unless we're on Android's stock browser,
+		// see https://github.com/Leaflet/Leaflet/issues/137
+		if (!androidStock) {
+			tile.el.setAttribute('src', emptyImageUrl);
+		}
+
+		return GridLayer.prototype._removeTile.call(this, key);
+	},
+
+	_tileReady: function (coords, err, tile) {
+		if (!this._map || (tile && tile.getAttribute('src') === emptyImageUrl)) {
+			return;
+		}
+
+		return GridLayer.prototype._tileReady.call(this, coords, err, tile);
 	}
 });
 
@@ -22050,7 +22495,7 @@ var TileLayerWMS = TileLayer.extend({
 		    bbox = (this._wmsVersion >= 1.3 && this._crs === EPSG4326 ?
 		    [min.y, min.x, max.y, max.x] :
 		    [min.x, min.y, max.x, max.y]).join(','),
-		url = L.TileLayer.prototype.getTileUrl.call(this, coords);
+		    url = TileLayer.prototype.getTileUrl.call(this, coords);
 		return url +
 			getParamString(this.wmsParams, url, this.options.uppercase) +
 			(this.options.uppercase ? '&BBOX=' : '&bbox=') + bbox;
@@ -22276,6 +22721,7 @@ var Canvas = Renderer.extend({
 	},
 
 	_destroyContainer: function () {
+		cancelAnimFrame(this._redrawRequest);
 		delete this._ctx;
 		remove(this._container);
 		off(this._container);
@@ -22296,8 +22742,6 @@ var Canvas = Renderer.extend({
 
 	_update: function () {
 		if (this._map._animatingZoom && this._bounds) { return; }
-
-		this._drawnLayers = {};
 
 		Renderer.prototype._update.call(this);
 
@@ -22370,7 +22814,7 @@ var Canvas = Renderer.extend({
 
 		delete layer._order;
 
-		delete this._layers[L.stamp(layer)];
+		delete this._layers[stamp(layer)];
 
 		this._requestRedraw(layer);
 	},
@@ -22392,14 +22836,20 @@ var Canvas = Renderer.extend({
 	},
 
 	_updateDashArray: function (layer) {
-		if (layer.options.dashArray) {
-			var parts = layer.options.dashArray.split(','),
+		if (typeof layer.options.dashArray === 'string') {
+			var parts = layer.options.dashArray.split(/[, ]+/),
 			    dashArray = [],
+			    dashValue,
 			    i;
 			for (i = 0; i < parts.length; i++) {
-				dashArray.push(Number(parts[i]));
+				dashValue = Number(parts[i]);
+				// Ignore dash array containing invalid lengths
+				if (isNaN(dashValue)) { return; }
+				dashArray.push(dashValue);
 			}
 			layer.options._dashArray = dashArray;
+		} else {
+			layer.options._dashArray = layer.options.dashArray;
 		}
 	},
 
@@ -22477,8 +22927,6 @@ var Canvas = Renderer.extend({
 
 		if (!len) { return; }
 
-		this._drawnLayers[layer._leaflet_id] = layer;
-
 		ctx.beginPath();
 
 		for (i = 0; i < len; i++) {
@@ -22504,8 +22952,6 @@ var Canvas = Renderer.extend({
 		    ctx = this._ctx,
 		    r = Math.max(Math.round(layer._radius), 1),
 		    s = (Math.max(Math.round(layer._radiusY), 1) || r) / r;
-
-		this._drawnLayers[layer._leaflet_id] = layer;
 
 		if (s !== 1) {
 			ctx.save();
@@ -22611,6 +23057,9 @@ var Canvas = Renderer.extend({
 
 	_bringToFront: function (layer) {
 		var order = layer._order;
+
+		if (!order) { return; }
+
 		var next = order.next;
 		var prev = order.prev;
 
@@ -22639,6 +23088,9 @@ var Canvas = Renderer.extend({
 
 	_bringToBack: function (layer) {
 		var order = layer._order;
+
+		if (!order) { return; }
+
 		var next = order.next;
 		var prev = order.prev;
 
@@ -22694,7 +23146,6 @@ var vmlCreate = (function () {
 /*
  * @class SVG
  *
- * Although SVG is not available on IE7 and IE8, these browsers support [VML](https://en.wikipedia.org/wiki/Vector_Markup_Language), and the SVG renderer will fall back to VML in this case.
  *
  * VML was deprecated in 2012, which means VML functionality exists only for backwards compatibility
  * with old versions of Internet Explorer.
@@ -23036,10 +23487,7 @@ Map.include({
 		var renderer = layer.options.renderer || this._getPaneRenderer(layer.options.pane) || this.options.renderer || this._renderer;
 
 		if (!renderer) {
-			// @namespace Map; @option preferCanvas: Boolean = false
-			// Whether `Path`s should be rendered on a `Canvas` renderer.
-			// By default, all `Path`s are rendered in a `SVG` renderer.
-			renderer = this._renderer = (this.options.preferCanvas && canvas$1()) || svg$1();
+			renderer = this._renderer = this._createRenderer();
 		}
 
 		if (!this.hasLayer(renderer)) {
@@ -23055,10 +23503,17 @@ Map.include({
 
 		var renderer = this._paneRenderers[name];
 		if (renderer === undefined) {
-			renderer = (SVG && svg$1({pane: name})) || (Canvas && canvas$1({pane: name}));
+			renderer = this._createRenderer({pane: name});
 			this._paneRenderers[name] = renderer;
 		}
 		return renderer;
+	},
+
+	_createRenderer: function (options) {
+		// @namespace Map; @option preferCanvas: Boolean = false
+		// Whether `Path`s should be rendered on a `Canvas` renderer.
+		// By default, all `Path`s are rendered in a `SVG` renderer.
+		return (this.options.preferCanvas && canvas$1(options)) || svg$1(options);
 	}
 });
 
@@ -23693,20 +24148,18 @@ var Keyboard = Handler.extend({
 		    offset;
 
 		if (key in this._panKeys) {
+			if (!map._panAnim || !map._panAnim._inProgress) {
+				offset = this._panKeys[key];
+				if (e.shiftKey) {
+					offset = toPoint(offset).multiplyBy(3);
+				}
 
-			if (map._panAnim && map._panAnim._inProgress) { return; }
+				map.panBy(offset);
 
-			offset = this._panKeys[key];
-			if (e.shiftKey) {
-				offset = toPoint(offset).multiplyBy(3);
+				if (map.options.maxBounds) {
+					map.panInsideBounds(map.options.maxBounds);
+				}
 			}
-
-			map.panBy(offset);
-
-			if (map.options.maxBounds) {
-				map.panInsideBounds(map.options.maxBounds);
-			}
-
 		} else if (key in this._zoomKeys) {
 			map.setZoom(map.getZoom() + (e.shiftKey ? 3 : 1) * this._zoomKeys[key]);
 
@@ -24074,21 +24527,9 @@ Map.ScrollWheelZoom = ScrollWheelZoom;
 Map.Tap = Tap;
 Map.TouchZoom = TouchZoom;
 
-// misc
-
-var oldL = window.L;
-function noConflict() {
-	window.L = oldL;
-	return this;
-}
-
-// Always export us to window global (see #2364)
-window.L = exports;
-
 Object.freeze = freeze;
 
 exports.version = version;
-exports.noConflict = noConflict;
 exports.Control = Control;
 exports.control = control;
 exports.Browser = Browser;
@@ -24131,6 +24572,8 @@ exports.ImageOverlay = ImageOverlay;
 exports.imageOverlay = imageOverlay;
 exports.VideoOverlay = VideoOverlay;
 exports.videoOverlay = videoOverlay;
+exports.SVGOverlay = SVGOverlay;
+exports.svgOverlay = svgOverlay;
 exports.DivOverlay = DivOverlay;
 exports.Popup = Popup;
 exports.popup = popup;
@@ -24164,6 +24607,15 @@ exports.Rectangle = Rectangle;
 exports.rectangle = rectangle;
 exports.Map = Map;
 exports.map = createMap;
+
+var oldL = window.L;
+exports.noConflict = function() {
+	window.L = oldL;
+	return this;
+}
+
+// Always export us to window global (see #2364)
+window.L = exports;
 
 })));
 
@@ -26468,6 +26920,30 @@ process.umask = function() { return 0; };
 'use strict';
 
 exports.__esModule = true;
+function createThunkMiddleware(extraArgument) {
+  return function (_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+    return function (next) {
+      return function (action) {
+        if (typeof action === 'function') {
+          return action(dispatch, getState, extraArgument);
+        }
+
+        return next(action);
+      };
+    };
+  };
+}
+
+var thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+
+exports['default'] = thunk;
+},{}],16:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -26523,7 +26999,7 @@ function applyMiddleware() {
     };
   };
 }
-},{"./compose":18}],16:[function(require,module,exports){
+},{"./compose":19}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -26575,7 +27051,7 @@ function bindActionCreators(actionCreators, dispatch) {
   }
   return boundActionCreators;
 }
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -26721,7 +27197,7 @@ function combineReducers(reducers) {
   };
 }
 }).call(this,require('_process'))
-},{"./createStore":19,"./utils/warning":21,"_process":14,"lodash/isPlainObject":12}],18:[function(require,module,exports){
+},{"./createStore":20,"./utils/warning":22,"_process":14,"lodash/isPlainObject":12}],19:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -26758,7 +27234,7 @@ function compose() {
     };
   });
 }
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -27020,7 +27496,7 @@ var ActionTypes = exports.ActionTypes = {
     replaceReducer: replaceReducer
   }, _ref2[_symbolObservable2['default']] = observable, _ref2;
 }
-},{"lodash/isPlainObject":12,"symbol-observable":22}],20:[function(require,module,exports){
+},{"lodash/isPlainObject":12,"symbol-observable":23}],21:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -27069,7 +27545,7 @@ exports.bindActionCreators = _bindActionCreators2['default'];
 exports.applyMiddleware = _applyMiddleware2['default'];
 exports.compose = _compose2['default'];
 }).call(this,require('_process'))
-},{"./applyMiddleware":15,"./bindActionCreators":16,"./combineReducers":17,"./compose":18,"./createStore":19,"./utils/warning":21,"_process":14}],21:[function(require,module,exports){
+},{"./applyMiddleware":16,"./bindActionCreators":17,"./combineReducers":18,"./compose":19,"./createStore":20,"./utils/warning":22,"_process":14}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -27095,7 +27571,7 @@ function warning(message) {
   } catch (e) {}
   /* eslint-enable no-empty */
 }
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -27127,7 +27603,7 @@ if (typeof self !== 'undefined') {
 var result = (0, _ponyfill2['default'])(root);
 exports['default'] = result;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill.js":23}],23:[function(require,module,exports){
+},{"./ponyfill.js":24}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27151,7 +27627,85 @@ function symbolObservablePonyfill(root) {
 
 	return result;
 };
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LOGOUT = exports.LOGIN_FAILURE = exports.LOGIN_SUCCESS = exports.LOGIN_REQUEST = undefined;
+exports.loginRequest = loginRequest;
+exports.receiveLogin = receiveLogin;
+exports.loginError = loginError;
+exports.requestLogin = requestLogin;
+exports.logout = logout;
+
+var _config = require('../config/config.js');
+
+var LOGIN_REQUEST = exports.LOGIN_REQUEST = 'LOGIN_REQUEST';
+var LOGIN_SUCCESS = exports.LOGIN_SUCCESS = 'LOGIN_SUCCESS';
+var LOGIN_FAILURE = exports.LOGIN_FAILURE = 'LOGIN_FAILURE';
+var LOGOUT = exports.LOGOUT = 'LOGOUT';
+
+function loginRequest(creds) {
+  return {
+    type: LOGIN_REQUEST,
+    creds: creds
+  };
+}
+
+function receiveLogin(data) {
+  return {
+    type: LOGIN_SUCCESS,
+    user: {
+      id_token: data.token
+    }
+  };
+}
+
+function loginError(message) {
+  return {
+    type: LOGIN_FAILURE,
+    message: message
+  };
+}
+
+function requestLogin(creds) {
+  return function requestLoginAsync(dispatch) {
+    dispatch(loginRequest(creds));
+    return fetch(_config.SortyConfiguration.getLoginUrl(), {
+      method: 'post',
+      body: JSON.stringify(creds),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function (response) {
+      var contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return response.json();
+      }
+      throw new TypeError('Malformed server response');
+    }).then(function (data) {
+      if (!data.msg) {
+        dispatch(receiveLogin(data));
+        _config.SortyConfiguration.navigate.home();
+        return;
+      }
+      throw new Error(data.msg);
+    }).catch(function (err) {
+      dispatch(loginError(err.message));
+    });
+  };
+}
+
+function logout() {
+  _config.SortyConfiguration.navigate.login();
+  return {
+    type: LOGOUT
+  };
+}
+
+},{"../config/config.js":44}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27230,7 +27784,7 @@ var setThumbSizes = exports.setThumbSizes = function setThumbSizes(thumbSizes) {
   };
 };
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27293,7 +27847,7 @@ var setCollectionManifest = exports.setCollectionManifest = function setCollecti
   };
 };
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27308,7 +27862,7 @@ var setSourceManifests = exports.setSourceManifests = function setSourceManifest
   };
 };
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27370,7 +27924,7 @@ var toggleHelpVisible = exports.toggleHelpVisible = function toggleHelpVisible()
   };
 };
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27494,7 +28048,7 @@ exports.default = Init;
 
 $(document).ready(Events.domReady);
 
-},{"../config/terms.js":42,"../helpers/helpers.js":43,"./workspace.js":40,"jquery":1}],29:[function(require,module,exports){
+},{"../config/terms.js":45,"../helpers/helpers.js":46,"./workspace.js":43,"jquery":1}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27518,6 +28072,8 @@ var _terms = require('../config/terms.js');
 
 var _omekaActions = require('./omeka-actions.js');
 
+var _oauth = require('../helpers/oauth');
+
 var $ = require('jquery');
 
 var manifestSelector = '.manifest-select__dropdown';
@@ -27528,23 +28084,23 @@ var manifestStore = null;
 var lastLocalState = null;
 var lastTitleText = null;
 
-var Config = {
-  deleteManifestModalOptions: {
-    delegate: '.action__delete',
-    items: {
-      src: '#deleteManifestmodal',
-      type: 'inline'
-    },
-    modal: true
-  }
-};
+// const Config = {
+//   deleteManifestModalOptions: {
+//     delegate: '.action__delete',
+//     items: {
+//       src: '#deleteManifestmodal',
+//       type: 'inline',
+//     },
+//     modal: true,
+//   },
+// };
 
 var DOM = {
   init: function init() {
     DOM.$classifiedMaterial = $('.classified-material');
     DOM.$classifiedTitle = $('.viewer__classified-title');
-    DOM.$deleteModalHeading = $('.manifest-modal--delete .manifest-modal__heading');
-    DOM.$deleteModalStatus = $('.manifest-modal--delete .manifest-modal__deleting-text');
+    // DOM.$deleteModalHeading = $('.manifest-modal--delete .manifest-modal__heading');
+    // DOM.$deleteModalStatus = $('.manifest-modal--delete .manifest-modal__deleting-text');
     DOM.$manifestSelector = $(manifestSelector);
   }
 };
@@ -27562,11 +28118,23 @@ var buildClassified = function buildClassified(derivedManifestList) {
         var manifest = derivedManifestList.members[i];
         var label = manifest.label || manifest['@id'];
 
-        var publishToOmekaButton = _config.SortyConfiguration.enableOmekaImport ? '<li class="classified-manifest__actions-item">\n          <a href="#" class="action__publish">\n          <i class="material-icons">publish</i>Publish to Omeka\n          </a>\n        </li>' : '';
+        // const publishToOmekaButton = SortyConfiguration.enableOmekaImport ?
+        // `<li class="classified-manifest__actions-item">
+        //   <a href="#" class="action__publish">
+        //   <i class="material-icons">publish</i>Publish to Omeka
+        //   </a>
+        // </li>` : '';
 
-        var deleteButton = _config.SortyConfiguration.enableDelete ? '<li class="classified-manifest__actions-item">\n          <a href="#" class="action__delete">\n          <i class="material-icons">delete_forever</i>Delete this\n          ' + (0, _terms.getTerm)('derivedManifest', 1) + '\n          </a>\n        </li>' : '';
+        // const deleteButton = SortyConfiguration.enableDelete ?
+        // `<li class="classified-manifest__actions-item">
+        //   <a href="#" class="action__delete">
+        //   <i class="material-icons">delete_forever</i>Delete this
+        //   ${getTerm('derivedManifest', 1)}
+        //   </a>
+        // </li>` : '';
 
-        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <div class="classified-manifest__front classified-manifest__front--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second classified-manifest__second--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third classified-manifest__third--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n              <button class="classified-manifest__title-edit" title="Edit label">\n                <i class="material-icons">mode_edit</i>\n              </button>\n              <button class="classified-manifest__title-save" title="Save label">\n                <i class="material-icons">save</i>\n              </button>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__actions">\n              <ul class="classified-manifest__actions-list">\n                ' + publishToOmekaButton + '\n                ' + deleteButton + '\n                <li class="classified-manifest__actions-item">\n                  <a href="http://universalviewer.io/?manifest=' + manifest['@id'] + '"\n                  class="action__view" target="_blank">\n                  <i class="material-icons">open_in_new</i>View in the Universal Viewer\n                  </a>\n                </li>\n              </ul>\n            </div>\n          </div>');
+
+        DOM.$classifiedMaterial.append('\n          <div class="classified-manifest" data-id="' + manifest['@id'] + '">\n            <div class="classified-manifest__front classified-manifest__front--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__second classified-manifest__second--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <div class="classified-manifest__third classified-manifest__third--placeholder">\n              <img src="' + placeholder + '"               height="' + preferredHeight + '" width="' + preferredWidth + '" />\n            </div>\n            <h2 class="classified-manifest__title">\n              <span class="classified-manifest__title-text">' + label + '</span>\n            </h2>\n            <p class="classified-manifest__num">{x} images</p>\n            <div class="classified-manifest__actions">\n              <ul class="classified-manifest__actions-list">\n                <li class="classified-manifest__actions-item">\n                  <a href="http://universalviewer.io/?manifest=' + manifest['@id'] + '"\n                  class="action__view" target="_blank">\n                  <i class="material-icons">open_in_new</i>View in the Universal Viewer\n                  </a>\n                </li>\n                <li class="classified-manifest__actions-item">\n                  <a href="' + _config.SortyConfiguration.madocServer + 'admin/item/' + manifest['o:id'] + '"\n                  class="action__view" target="_blank">\n                  <i class="material-icons">open_in_new</i>Edit in Madoc\n                  </a>\n                </li>\n              </ul>\n            </div>\n          </div>');
       }
     }
   }
@@ -27676,105 +28244,112 @@ var updateArchivalUnits = function updateArchivalUnits() {
   }
 };
 
-var cancelEdits = function cancelEdits() {
-  var resetText = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-  var $contentEditableTitleText = $('.classified-manifest__title-text[contenteditable]');
-  var $contentEditableTitle = $('.classified-manifest__title--edit');
-  $contentEditableTitleText.removeAttr('contenteditable');
-  $contentEditableTitle.removeClass('classified-manifest__title--edit');
-  if (resetText) $contentEditableTitleText.html(lastTitleText);
-};
+// const cancelEdits = (resetText = false) => {
+//   const $contentEditableTitleText = $('.classified-manifest__title-text[contenteditable]');
+//   const $contentEditableTitle = $('.classified-manifest__title--edit');
+//   $contentEditableTitleText.removeAttr('contenteditable');
+//   $contentEditableTitle.removeClass('classified-manifest__title--edit');
+//   if (resetText) $contentEditableTitleText.html(lastTitleText);
+// };
 
 var Events = {
   bodyClick: function bodyClick(e) {
     if (e.target.className !== 'classified-manifest__title-edit' && e.target.className !== 'classified-manifest__title-save' && e.target.className !== 'material-icons') {
-      cancelEdits(true);
+      // cancelEdits(true);
       $('body').off('click', Events.bodyClick);
     }
   },
-  delete: function _delete(e) {
-    e.preventDefault();
-    // Use a modal here - Are you sure you want to delete?
-    $.magnificPopup.open(Config.deleteManifestModalOptions);
 
-    // Grab manifest URL
-    var $container = $(this).closest('.classified-manifest');
-    var manifestId = $container.attr('data-id');
-
-    // Hook up delete button behaviour (remove any existing click events)
-    var $deleteButton = $('.manifest-modal__delete').off('click');
-    $deleteButton.click(function () {
-      // Show delete indicator
-      $('html').addClass('deleting-manifest');
-
-      $container.addClass('classified-manifest--deleting');
-
-      // Delete the manifest
-      _iiifActions.IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
-    });
-  },
-  deleteError: function deleteError(xhr, textStatus, error) {
-    console.log('ERROR DELETING', error);
-    $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
-  },
-  deleteSuccess: function deleteSuccess() {
-    // Hide delete indicator
-    $('html').removeClass('deleting-manifest');
-
-    // Kill the item stack
-    $('.classified-manifest--deleting').remove();
-
-    // Close the modal
-    $.magnificPopup.close();
-
-    // Fetch updated derived manifest data
-    Events.getCreatedManifests();
-  },
+  // delete(e) {
+  //   e.preventDefault();
+  //   // Use a modal here - Are you sure you want to delete?
+  //   $.magnificPopup.open(Config.deleteManifestModalOptions);
+  //
+  //   // Grab manifest URL
+  //   const $container = $(this).closest('.classified-manifest');
+  //   const manifestId = $container.attr('data-id');
+  //
+  //   // Hook up delete button behaviour (remove any existing click events)
+  //   const $deleteButton = $('.manifest-modal__delete').off('click');
+  //   $deleteButton.click(() => {
+  //     // Show delete indicator
+  //     $('html').addClass('deleting-manifest');
+  //
+  //     $container.addClass('classified-manifest--deleting');
+  //
+  //     // Delete the manifest
+  //     IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
+  //   });
+  // },
+  // deleteError(/* xhr, textStatus,  error*/) {
+  //   // console.log('ERROR DELETING', error);
+  //   $('.classified-manifest--deleting').removeClass('classified-manifest--deleting');
+  // },
+  // deleteSuccess() {
+  //   // Hide delete indicator
+  //   $('html').removeClass('deleting-manifest');
+  //
+  //   // Kill the item stack
+  //   $('.classified-manifest--deleting').remove();
+  //
+  //   // Close the modal
+  //   $.magnificPopup.close();
+  //
+  //   // Fetch updated derived manifest data
+  //   Events.getCreatedManifests();
+  // },
   domReady: function domReady() {
     DOM.init();
     // Set terms
-    DOM.$deleteModalHeading.html('Are you sure you want to delete\n      this ' + (0, _terms.getTerm)('derivedManifest', 0) + '?');
-    DOM.$deleteModalStatus.html('Deleting ' + (0, _terms.getTerm)('derivedManifest', 0));
+    // DOM.$deleteModalHeading.html(`Are you sure you want to delete
+    //   this ${getTerm('derivedManifest', 0)}?`);
+    // DOM.$deleteModalStatus.html(`Deleting ${getTerm('derivedManifest', 0)}`);
 
     Events.init();
   },
-  editTitleClick: function editTitleClick() {
-    // Cancel any other edit operations first
-    cancelEdits(true);
 
-    // Make the title editable
-    var $parentTitle = $(this).closest('.classified-manifest__title');
-    $parentTitle.addClass('classified-manifest__title--edit');
-
-    var $editableText = $parentTitle.find('.classified-manifest__title-text');
-
-    lastTitleText = $editableText.text();
-    $editableText.attr('contenteditable', 'true');
-    $editableText.focus();
-    $('body').click(Events.bodyClick);
-  },
-  editTitleKeypress: function editTitleKeypress(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      $(this).closest('.classified-manifest').find('.classified-manifest__title-save').click();
-    }
-  },
+  // editTitleClick() {
+  //   // Cancel any other edit operations first
+  //   cancelEdits(true);
+  //
+  //   // Make the title editable
+  //   const $parentTitle = $(this).closest('.classified-manifest__title');
+  //   $parentTitle.addClass('classified-manifest__title--edit');
+  //
+  //   const $editableText = $parentTitle.find('.classified-manifest__title-text');
+  //
+  //   lastTitleText = $editableText.text();
+  //   $editableText.attr('contenteditable', 'true');
+  //   $editableText.focus();
+  //   $('body').click(Events.bodyClick);
+  // },
+  // editTitleKeypress(e) {
+  //   if (e.key === 'Enter') {
+  //     e.preventDefault();
+  //     $(this).closest('.classified-manifest').find('.classified-manifest__title-save')
+  //     .click();
+  //   }
+  // },
   getCreatedManifests: function getCreatedManifests() {
     // get the container in presley
-    var collectionId = _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest);
-
+    var collectionId = _config.SortyConfiguration.getCollectionUri(manifestStore.getState().manifest);
+    console.log('delivered-manifests.Events.getCreatedManifests', collectionId);
     $.getJSON(collectionId).done(Events.requestDerivedManifestsSuccess).fail(Events.requestDerivedManifestsFailure);
   },
   init: function init() {
-    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-edit, .classified-manifest__title-text', Events.editTitleClick);
-    DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
-    DOM.$classifiedMaterial.on('keypress', '.classified-manifest__title--edit .classified-manifest__title-text', Events.editTitleKeypress);
+    // DOM.$classifiedMaterial.on('click',
+    // '.classified-manifest__title-edit, .classified-manifest__title-text',
+    // Events.editTitleClick);
+    // DOM.$classifiedMaterial.on('click', '.classified-manifest__title-save', Events.saveTitleClick);
+    // DOM.$classifiedMaterial.on('keypress',
+    // '.classified-manifest__title--edit .classified-manifest__title-text',
+    // Events.editTitleKeypress
+    // );
     DOM.$classifiedMaterial.on('click', '.classified-manifest', function (e) {
       return e.stopPropagation();
     });
-    DOM.$classifiedMaterial.on('click', '.action__publish', Events.publish);
-    DOM.$classifiedMaterial.on('click', '.action__delete', Events.delete);
+    // DOM.$classifiedMaterial.on('click', '.action__publish', Events.publish);
+    // DOM.$classifiedMaterial.on('click', '.action__delete', Events.delete);
     // DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);
   },
   postError: function postError(xhr, textStatus, error) {
@@ -27787,39 +28362,50 @@ var Events = {
   postOmekaServiceError: function postOmekaServiceError(xhr, textStatus, error) {
     console.log(error);
   },
-  publish: function publish(e) {
-    e.preventDefault();
-    var $container = $(this).closest('.classified-manifest');
-    var manifestId = $container.attr('data-id');
-    _omekaActions.OmekaActions.pushToOmeka(manifestId).then(function () {
-      // fulfilled
-      _omekaActions.OmekaActions.addOmekaService(manifestId).then(function () {
-        Events.getCreatedManifests();
-      });
-    }, function () {
-      // rejected
-      console.log('failed to push to omeka');
-    });
-    // console.log(manifestId);
-  },
+
+  // publish(e) {
+  //   e.preventDefault();
+  //
+  //   const oldHtml = $(this).html();
+  //   $(this).html('loading...');
+  //   getOmekaToken().then(({ accessToken }) => {
+  //     const $container = $(this).closest('.classified-manifest');
+  //     const manifestId = $container.attr('data-id');
+  //     OmekaActions.pushToOmeka(manifestId, accessToken)
+  //       .then(() => {
+  //           // fulfilled
+  //           OmekaActions.addOmekaService(manifestId).then(() => {
+  //             Events.getCreatedManifests();
+  //             $(this).html(oldHtml);
+  //           });
+  //         },
+  //         () => {
+  //           // rejected
+  //           console.log('failed to push to omeka');
+  //           // At the end.
+  //           $(this).html('Failed to push to Omeka');
+  //         });
+  //   });
+  // },
   putError: function putError(xhr, textStatus, error) {
-    alert(error);
+    console.log(error);
   },
   putSuccess: function putSuccess() {
     var manifest = store.getState().selectedCollection.collectionManifest;
     var newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
-    _iiifActions.IIIFActions.postManifest(manifest, _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest), Events.postSuccess, Events.postError);
+    _iiifActions.IIIFActions.postCollection(manifest, _config.SortyConfiguration.getCollectionUri(manifestStore.getState().manifest), _config.SortyConfiguration.getCollectionAddUrl(), Events.postSuccess, Events.postError);
   },
   requestDerivedManifestsFailure: function requestDerivedManifestsFailure() {
     manifestStore.dispatch((0, _loadedManifest.resetDerivedManifests)());
     // If there's no derived manifest - just show the list
+    console.log('requestDerivedManifestsFailure');
     $('html').addClass('manifest-loaded');
   },
   requestDerivedManifestsSuccess: function requestDerivedManifestsSuccess(collection) {
     // IIIF.wrap(collection);
-    // console.log('Request derived manifests success', collection);
+    console.log('requestDerivedManifestsSuccess', collection);
     manifestStore.dispatch((0, _loadedManifest.setDerivedManifests)(collection));
     // console.log('RDMS', collection);
     var promises = [];
@@ -27930,57 +28516,36 @@ var Events = {
     });
     $(viewManifest).click(Events.viewManifestClick);
   },
-  saveTitleClick: function saveTitleClick() {
-    var $parentTitle = $(this).closest('.classified-manifest__title');
-    var $container = $(this).closest('.classified-manifest');
-    var $editableText = $parentTitle.find('.classified-manifest__title-text');
-    var manifestId = $container.attr('data-id');
-    var titleText = $editableText.text();
-    var derivedManifests = manifestStore.getState().derivedManifestsComplete;
-    var manifestToUpdate = null;
-    var _iteratorNormalCompletion6 = true;
-    var _didIteratorError6 = false;
-    var _iteratorError6 = undefined;
 
-    try {
-      for (var _iterator6 = derivedManifests[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-        var dm = _step6.value;
-
-        if (dm['@id'] === manifestId) {
-          manifestToUpdate = dm;
-          break;
-        }
-      }
-    } catch (err) {
-      _didIteratorError6 = true;
-      _iteratorError6 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion6 && _iterator6.return) {
-          _iterator6.return();
-        }
-      } finally {
-        if (_didIteratorError6) {
-          throw _iteratorError6;
-        }
-      }
-    }
-
-    if (manifestToUpdate !== null) {
-      // Update label
-      manifestToUpdate.label = titleText;
-      // Set saving state
-      $container.addClass('classified-manifest--saving-label');
-      // Store new manifest
-      store.dispatch((0, _selectedCollection.setCollectionManifest)(manifestToUpdate));
-      // RE-PUT
-      _iiifActions.IIIFActions.putManifest(manifestToUpdate, Events.putSuccess, Events.putError);
-    } else {
-      // Cancel edit
-      cancelEdits(true);
-    }
-    $('body').off('click', Events.bodyClick);
-  },
+  // saveTitleClick() {
+  //   const $parentTitle = $(this).closest('.classified-manifest__title');
+  //   const $container = $(this).closest('.classified-manifest');
+  //   const $editableText = $parentTitle.find('.classified-manifest__title-text');
+  //   const manifestId = $container.attr('data-id');
+  //   const titleText = $editableText.text();
+  //   const derivedManifests = manifestStore.getState().derivedManifestsComplete;
+  //   let manifestToUpdate = null;
+  //   for (const dm of derivedManifests) {
+  //     if (dm['@id'] === manifestId) {
+  //       manifestToUpdate = dm;
+  //       break;
+  //     }
+  //   }
+  //   if (manifestToUpdate !== null) {
+  //     // Update label
+  //     manifestToUpdate.label = titleText;
+  //     // Set saving state
+  //     $container.addClass('classified-manifest--saving-label');
+  //     // Store new manifest
+  //     store.dispatch(setCollectionManifest(manifestToUpdate));
+  //     // RE-PUT
+  //     IIIFActions.addUpdateManifest(manifestToUpdate, Events.putSuccess, Events.putError);
+  //   } else {
+  //     // Cancel edit
+  //     cancelEdits(true);
+  //   }
+  //   $('body').off('click', Events.bodyClick);
+  // },
   subscribeActions: function subscribeActions() {
     var derivedState = manifestStore.getState();
     // console.log('DM - subscribe', lastLocalState, derivedState);
@@ -28015,7 +28580,7 @@ var derivedManifestsInit = exports.derivedManifestsInit = function derivedManife
   manifestStore.subscribe(Events.subscribeActions);
 };
 
-},{"../actions/loaded-manifest.js":24,"../actions/selected-collection.js":25,"../config/config.js":41,"../config/terms.js":42,"../helpers/helpers.js":43,"./iiif-actions.js":31,"./omeka-actions.js":35,"./thumbs.js":39,"jquery":1}],30:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":26,"../actions/selected-collection.js":27,"../config/config.js":44,"../config/terms.js":45,"../helpers/helpers.js":46,"../helpers/oauth":49,"./iiif-actions.js":33,"./omeka-actions.js":38,"./thumbs.js":42,"jquery":1}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28075,63 +28640,117 @@ var helpInit = exports.helpInit = function helpInit(globalStore) {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":27,"../helpers/helpers.js":43,"jquery":1}],31:[function(require,module,exports){
+},{"../actions/ui.js":29,"../helpers/helpers.js":46,"jquery":1}],33:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var $ = require('jquery');
+exports.IIIFActions = undefined;
 
+var _config = require('../config/config');
+
+var _jwt = require('../helpers/jwt');
+
+var $ = require('jquery');
 var IIIFActions = exports.IIIFActions = {};
 
-IIIFActions.postManifest = function (manifest, url, success, error) {
+IIIFActions.postCollection = function (manifest, collectionURI, url, success, error) {
   var newManifestInstance = Object.assign({}, manifest);
-  newManifestInstance.sequences = null;
-  newManifestInstance.service = null;
+  console.log('IIIFActions.postCollection url', url);
+  var toPost = {
+    '@id': newManifestInstance['@id'],
+    '@type': newManifestInstance['@type'],
+    'label': newManifestInstance['label']
+  };
+
+  debugger;
   $.ajax({
     url: url,
     type: 'POST',
     contentType: 'application/json; charset=utf-8',
-    data: JSON.stringify(newManifestInstance),
+    data: JSON.stringify({
+      '@id': collectionURI,
+      collection_data: toPost
+    }),
+    beforeSend: function beforeSend(xhr) {
+      // xhr.setRequestHeader('Authorization', 'Bearer ' + getUserToken());
+    },
     dataType: 'json',
     error: error,
     success: success
   });
 };
 
-IIIFActions.putManifest = function (manifest, success, error) {
+IIIFActions.addManifestToCollection = function (collectionUrl, label, canvasIds) {
+  var url = collectionUrl + '/manifest';
+  var body = { label: label, canvasIds: canvasIds };
+
+  return new Promise(function (resolve, reject) {
+    $.ajax({
+      url: url,
+      type: 'POST',
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify(body),
+      beforeSend: function beforeSend(xhr) {
+        console.log((0, _jwt.getUserToken)());
+        xhr.setRequestHeader('Authorization', 'Bearer ' + (0, _jwt.getUserToken)());
+      },
+      dataType: 'json',
+      error: reject,
+      success: resolve
+    });
+  });
+};
+
+IIIFActions.addUpdateManifest = function (manifest, success, error) {
+  console.log('IIIFActions.addUpdateManifest url', _config.SortyConfiguration.getManifestUrlAdd());
+  debugger;
   $.ajax({
-    url: manifest['@id'],
-    type: 'PUT',
+    url: _config.SortyConfiguration.getManifestUrlAdd(),
+    type: 'POST',
     contentType: 'application/json; charset=utf-8',
     data: JSON.stringify(manifest),
+    beforeSend: function beforeSend(xhr) {
+      // xhr.setRequestHeader('Authorization', 'Bearer ' + getUserToken());
+    },
     dataType: 'json',
     error: error,
     success: success
   });
 };
-
-IIIFActions.deleteManifest = function (uri, success, error) {
-  $.ajax({
-    url: uri,
-    type: 'DELETE',
-    error: error,
-    success: success
-  });
-};
+//
+// IIIFActions.deleteManifest = (uri, success, error) => {
+//   console.log('IIIFActions.deleteManifest uri', uri);
+//   // TODO: url is temporary, John and I agreed that the
+//   // manifest parameter will be in the POST payload (JSON)
+//   debugger;
+//   $.ajax({
+//     url: `${SortyConfiguration.getManifestDeleteUrl()}?manifest=${uri}`,
+//     type: 'POST',
+//     beforeSend: function(xhr) {
+//       // xhr.setRequestHeader('Authorization', 'Bearer ' + getUserToken());
+//     },
+//     error,
+//     success,
+//   });
+// };
 
 IIIFActions.loadManifest = function (url, success, error) {
+  console.log('IIIFActions.loadManifest url', url);
   $.ajax({
     dataType: 'json',
     url: url,
     cache: true,
+    beforeSend: function beforeSend(xhr) {
+      // xhr.setRequestHeader('Authorization', 'Bearer ' + getUserToken());
+    },
     error: error,
     success: success
   });
 };
 
-},{"jquery":1}],32:[function(require,module,exports){
+},{"../config/config":44,"../helpers/jwt":48,"jquery":1}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28215,7 +28834,6 @@ Actions = {
       }
       DOM.$manifestInputFeedback.text('Loading \'' + inputState.manifest + '\'...');
       store.dispatch((0, _ui.setLoading)(true));
-
       _iiifActions.IIIFActions.loadManifest(inputState.manifest, Events.manifestLoadSuccess, Events.manifestLoadError);
     }
   },
@@ -28297,7 +28915,7 @@ var inputInit = exports.inputInit = function inputInit(globalStore, globalManife
   $(document).ready(Events.domReady);
 };
 
-},{"../actions/loaded-manifest.js":24,"../actions/selected-collection.js":25,"../actions/ui.js":27,"../helpers/helpers.js":43,"../helpers/iiif.js":44,"./derived-manifests.js":29,"./iiif-actions.js":31,"./thumbs.js":39,"jquery":1}],33:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":26,"../actions/selected-collection.js":27,"../actions/ui.js":29,"../helpers/helpers.js":46,"../helpers/iiif.js":47,"./derived-manifests.js":31,"./iiif-actions.js":33,"./thumbs.js":42,"jquery":1}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28489,7 +29107,82 @@ var attachLightboxBehaviour = exports.attachLightboxBehaviour = function attachL
   attachMagnific();
 };
 
-},{"../actions/selected-collection.js":25,"../actions/ui.js":27,"../helpers/helpers.js":43,"jquery":1,"leaflet":2}],34:[function(require,module,exports){
+},{"../actions/selected-collection.js":27,"../actions/ui.js":29,"../helpers/helpers.js":46,"jquery":1,"leaflet":2}],36:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.loginInit = undefined;
+
+var _helpers = require('../helpers/helpers.js');
+
+var _auth = require('../actions/auth');
+
+var _oauth = require('../helpers/oauth');
+
+var _config = require('../config/config');
+
+var $ = require('jquery');
+
+var store = null;
+var lastState = null;
+
+var DOM = {
+  $loginForm: null,
+  $userName: null,
+  $password: null,
+  $submitButton: null,
+  $omekaButton: null,
+  init: function init() {
+    DOM.$loginForm = $('.c-form');
+    DOM.$userName = $('.c-form-field__item[name="username"]');
+    DOM.$password = $('.c-form-field__item[name="password"]');
+    DOM.$submitButton = $('.c-form-submit[type="submit"]');
+    DOM.$error = $('.c-form__error');
+    DOM.$omekaButton = $('#omeka-login');
+  }
+};
+
+var Events = {
+  domReady: function domReady() {
+    DOM.init();
+    Events.init();
+    store.subscribe(Events.storeSubscribe);
+  },
+  init: function init() {
+    // DOM.$loginForm.submit(Events.login);
+    DOM.$omekaButton.on('click', function () {
+      (0, _oauth.getOmekaToken)().then(function (_ref) {
+        var accessToken = _ref.accessToken;
+
+        store.dispatch((0, _auth.receiveLogin)({ token: accessToken }));
+        _config.SortyConfiguration.navigate.home();
+      });
+    });
+  },
+  login: function login(ev) {
+    ev.preventDefault();
+    store.dispatch((0, _auth.requestLogin)({
+      username: DOM.$userName.val(),
+      password: DOM.$password.val()
+    }));
+  },
+  storeSubscribe: function storeSubscribe() {
+    var state = store.getState().auth;
+    if ((0, _helpers.hasPropertyChanged)('errorMessage', state, lastState)) {
+      DOM.$error.text(state.errorMessage);
+    }
+    lastState = state;
+  }
+};
+
+var loginInit = exports.loginInit = function loginInit(globalStore) {
+  store = globalStore;
+  $(document).ready(Events.domReady);
+};
+
+},{"../actions/auth":25,"../config/config":44,"../helpers/helpers.js":46,"../helpers/oauth":49,"jquery":1}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28614,86 +29307,25 @@ var Events = {
 
     setSavingState(true);
 
-    var newManifest = $.extend(true, {}, Config.manifestTemplate);
-    _iiif.IIIF.wrap(newManifest);
+    var label = DOM.$manifestModalInput.val();
+    var canvasIds = selectedImages.map(function (idx) {
+      return canvases[idx];
+    }).map(function (canvas) {
+      return canvas['@id'];
+    });
+    var collectionUrl = _config.SortyConfiguration.getCollectionUri(manifest);
 
-    store.dispatch((0, _selectedCollection.setCollectionName)(DOM.$manifestModalInput.val()));
+    _iiifActions.IIIFActions.addManifestToCollection(collectionUrl, label, canvasIds).then(function (resp) {
+      store.dispatch((0, _selectedCollection.setCollectionManifest)(resp));
+      Events.postSuccess();
+    }).catch(function (err) {
 
-    newManifest.id = _config.SortyConfiguration.getManifestUrl(manifest, s, e);
-    newManifest.label = DOM.$manifestModalInput.val();
-    newManifest.sequences[0].id = _config.SortyConfiguration.getSequenceUrl(manifest, s, e);
-
-    // TODO: mintCanvasIds should be more flexible than a global config.
-    if (_config.SortyConfiguration.mintCanvasIds) {
-      var canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
-      _iiif.IIIF.wrap(canvasMapService);
-      canvasMapService.id = newManifest.id + '/canvasmap';
-      newManifest.service = canvasMapService;
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = selectedImages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var cvsIdx = _step.value;
-
-          var sourceCanvas = canvases[cvsIdx];
-          var newCanvas = $.extend(true, {}, sourceCanvas);
-          _iiif.IIIF.wrap(newCanvas);
-          newCanvas.id = _config.SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-          canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-          newManifest.sequences[0].canvases.push(newCanvas);
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-    } else {
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = selectedImages[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var _cvsIdx = _step2.value;
-
-          var _sourceCanvas = canvases[_cvsIdx];
-          newManifest.sequences[0].canvases.push(_sourceCanvas);
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
-    }
-
-    // Store new manifest
-    store.dispatch((0, _selectedCollection.setCollectionManifest)(newManifest));
-
-    // PUTs the manifest
-    _iiifActions.IIIFActions.putManifest(newManifest, Events.putSuccess, Events.putError);
+      console.log(err);
+    });
   },
   postManifest: function postManifest(newManifest) {
-    _iiifActions.IIIFActions.postManifest(newManifest, _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest), Events.postComplete, Events.postError);
+    throw new Error('is this called?');
+    _iiifActions.IIIFActions.postCollection(newManifest, _config.SortyConfiguration.getCollectionUri(manifestStore.getState().manifest), _config.SortyConfiguration.getCollectionAddUrl(), Events.postComplete, Events.postError);
   },
   postError: function postError(xhr, textStatus, error) {
     alert(error);
@@ -28750,7 +29382,7 @@ var Events = {
     var newManifestInstance = Object.assign({}, manifest);
     newManifestInstance.sequences = null;
     newManifestInstance.service = null;
-    _iiifActions.IIIFActions.postManifest(manifest, _config.SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest), Events.postSuccess, Events.postError);
+    _iiifActions.IIIFActions.postCollection(manifest, _config.SortyConfiguration.getCollectionUri(manifestStore.getState().manifest), _config.SortyConfiguration.getCollectionAddUrl(), Events.postSuccess, Events.postError);
   },
   savedMakeSetClick: function savedMakeSetClick(e) {
     e.preventDefault();
@@ -28769,7 +29401,7 @@ var makeManifestInit = exports.makeManifestInit = function makeManifestInit(glob
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":24,"../actions/selected-collection.js":25,"../components/derived-manifests.js":29,"../components/workspace.js":40,"../config/config.js":41,"../config/terms.js":42,"../helpers/iiif.js":44,"./iiif-actions.js":31,"jquery":1}],35:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":26,"../actions/selected-collection.js":27,"../components/derived-manifests.js":31,"../components/workspace.js":43,"../config/config.js":44,"../config/terms.js":45,"../helpers/iiif.js":47,"./iiif-actions.js":33,"jquery":1}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28779,6 +29411,8 @@ exports.omekaServiceProfile = exports.OmekaActions = undefined;
 
 var _config = require('../config/config.js');
 
+var _jwt = require('../helpers/jwt');
+
 var $ = require('jquery');
 
 var OmekaActions = exports.OmekaActions = {};
@@ -28786,72 +29420,57 @@ var OmekaActions = exports.OmekaActions = {};
 // Used by the omeka service block
 var omekaServiceProfile = exports.omekaServiceProfile = 'https://dlcs.info/omeka/';
 
-OmekaActions.pushToOmeka = function (url) {
-  // Auth data (dummy data for now)
-  var authObj = {
-    clientId: 'test',
-    clientSecret: 'test123'
-  };
+// OmekaActions.pushToOmeka = (url, accessToken) => {
+//
+//   // Combine auth and url
+//   const data = { resourceUrl: url };
+//
+//   // API only takes uri encoded data for now...
+//   let uriEncodedData = [];
+//   for (const key of Object.keys(data)) {
+//     uriEncodedData.push(`${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`);
+//   }
+//   uriEncodedData = uriEncodedData.join('&');
+//
+//   return $.ajax({
+//     url: SortyConfiguration.omekaImportEndpoint,
+//     type: 'POST',
+//     beforeSend: function(xhr) {
+//       xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+//     },
+//     crossDomain: true,
+//     data: uriEncodedData,
+//   });
+// };
 
-  // Combine auth and url
-  var data = Object.assign({}, authObj, { resourceUrl: url });
+// OmekaActions.addOmekaService = (manifestUrl) => {
+//   console.log('addOmekaService called', manifestUrl);
+//
+//   // Placeholder service values - to replace
+//   const omekaServiceContext = 'https://dlcs.info/omeka/context.json';
+//   const omekaServiceId = 'omekaId';
+//   const serviceUrl = `${manifestUrl}/iiif/services/`;
+//   const envelope = `
+//   {
+//    "@id": "${manifestUrl}",
+//    "@type": "sc:Manifest",
+//    "service": {
+//      "@context": "${omekaServiceContext}",
+//      "@id": "${omekaServiceId}",
+//      "profile": "${omekaServiceProfile}"
+//    }
+//   }`;
+//   return $.ajax({
+//     url: serviceUrl,
+//     type: 'POST',
+//     crossDomain: true,
+//     contentType: 'application/json; charset=utf-8',
+//     dataType: 'json',
+//     data: envelope,
+//   });
+// };
 
-  // API only takes uri encoded data for now...
-  var uriEncodedData = [];
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = Object.keys(data)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var key = _step.value;
-
-      uriEncodedData.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  uriEncodedData = uriEncodedData.join('&');
-
-  return $.ajax({
-    url: _config.SortyConfiguration.omekaImportEndpoint,
-    type: 'POST',
-    crossDomain: true,
-    data: uriEncodedData
-  });
-};
-
-OmekaActions.addOmekaService = function (manifestUrl) {
-  console.log('addOmekaService called', manifestUrl);
-
-  // Placeholder service values - to replace
-  var omekaServiceContext = 'https://dlcs.info/omeka/context.json';
-  var omekaServiceId = 'omekaId';
-  var serviceUrl = manifestUrl + '/iiif/services/';
-  var envelope = '\n  {\n   "@id": "' + manifestUrl + '",\n   "@type": "sc:Manifest",\n   "service": {\n     "@context": "' + omekaServiceContext + '",\n     "@id": "' + omekaServiceId + '",\n     "profile": "' + omekaServiceProfile + '"\n   }\n  }';
-  return $.ajax({
-    url: serviceUrl,
-    type: 'POST',
-    crossDomain: true,
-    contentType: 'application/json; charset=utf-8',
-    dataType: 'json',
-    data: envelope
-  });
-};
-
-},{"../config/config.js":41,"jquery":1}],36:[function(require,module,exports){
+},{"../config/config.js":44,"../helpers/jwt":48,"jquery":1}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28964,7 +29583,7 @@ var selectionInit = exports.selectionInit = function selectionInit(globalStore, 
   manifestStore.subscribe(Events.manifestStoreSubscribe);
 };
 
-},{"../actions/selected-collection.js":25,"../helpers/helpers.js":43,"./lightbox":33,"jquery":1}],37:[function(require,module,exports){
+},{"../actions/selected-collection.js":27,"../helpers/helpers.js":46,"./lightbox":35,"jquery":1}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29007,14 +29626,14 @@ var DOM = {
 
 var storeCollectionData = function storeCollectionData(data) {
   // Try and add to localStorage with a timestamp
-  try {
-    localStorage.setItem('collectionData', JSON.stringify({
-      raw: data,
-      timestamp: new Date()
-    }));
-  } catch (e) {
-    console.log(e, 'localStorage not supported for setItem');
-  }
+  // try {
+  //   localStorage.setItem('collectionData', JSON.stringify({
+  //     raw: data,
+  //     timestamp: new Date(),
+  //   }));
+  // } catch (e) {
+  //   console.log(e, 'localStorage not supported for setItem');
+  // }
   store.dispatch((0, _sourceList.setSourceManifests)(data));
 };
 
@@ -29090,7 +29709,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":24,"../actions/source-list.js":26,"../config/config.js":41,"../helpers/helpers.js":43,"./input.js":32,"jquery":1}],38:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":26,"../actions/source-list.js":28,"../config/config.js":44,"../helpers/helpers.js":46,"./input.js":34,"jquery":1}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29176,7 +29795,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"../actions/ui.js":27,"../helpers/helpers.js":43,"./thumbs.js":39,"jquery":1}],39:[function(require,module,exports){
+},{"../actions/ui.js":29,"../helpers/helpers.js":46,"./thumbs.js":42,"jquery":1}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29512,7 +30131,7 @@ var thumbsInit = exports.thumbsInit = function thumbsInit(globalStore, globalMan
 
 $(document).ready(Events.domReady);
 
-},{"../actions/loaded-manifest.js":24,"../actions/ui.js":27,"../config/config.js":41,"../helpers/helpers.js":43,"./selection.js":36,"./thumb-size-selector.js":38,"jquery":1}],40:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":26,"../actions/ui.js":29,"../config/config.js":44,"../helpers/helpers.js":46,"./selection.js":39,"./thumb-size-selector.js":41,"jquery":1}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29548,7 +30167,7 @@ var Events = {
 
 $(document).ready(Events.domReady);
 
-},{"./lightbox.js":33,"jquery":1}],41:[function(require,module,exports){
+},{"./lightbox.js":35,"jquery":1}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29559,17 +30178,29 @@ var SortyConfiguration = exports.SortyConfiguration = {};
 /* logic for naming IIIF resources in your CRUD server */
 
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
-var presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+// const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
+// const presentationServerNew = window.PRESENTATION_SERVER_ROOT || 'https://localhost:8888/ERROR/';
+var presentationServer = window.PRESENTATION_SERVER_CUSTOMER || '/presley';
+// const presentationServer = 'http://localhost:8000/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
-SortyConfiguration.enableOmekaImport = true;
-SortyConfiguration.omekaImportEndpoint = 'https://omeka.dlcs-ida.org/api/iiif-import';
+SortyConfiguration.enableOmekaImport = window.ENABLE_OMEKA_IMPORT !== undefined ? window.ENABLE_OMEKA_IMPORT === 'true' : false;
+// SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'https://localhost:8888/ERROR/';
+SortyConfiguration.madocServer = window.MADOC_SERVER || '/';
+
+SortyConfiguration.path = window.MADOC_SERVER || '/sorting-room';
 
 // Delete configuration options for derived manifests
-SortyConfiguration.enableDelete = true;
+// SortyConfiguration.enableDelete = window.ENABLE_DELETE !== undefined ? window.ENABLE_DELETE === 'true' : false;
 
-SortyConfiguration.sourceCollection = 'https://manifests.dlcs-ida.org/rollcollection';
-SortyConfiguration.mintCanvasIds = true;
+SortyConfiguration.sourceCollection = window.SOURCE_COLLECTION || '/presley/collection';
+// SortyConfiguration.mintCanvasIds = window.MINT_CANVAS_IDS !== undefined ? window.MINT_CANVAS_IDS === 'true' :  true;
+
+// Omeka Auth.
+SortyConfiguration.oauthClientId = window.OAUTH_CLIENT_ID || 'same-origin';
+SortyConfiguration.oauthSiteEndpoint = window.OAUTH_SITE_ENDPOINT || '/s/default';
+// SortyConfiguration.oauthCallback = window.OAUTH_CALLBACK || location.origin + '/cb.html';
+SortyConfiguration.oauthCallback = window.OAUTH_CALLBACK || '/sorting-room/cb.html';
 
 function getPath(url) {
   var reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
@@ -29577,8 +30208,8 @@ function getPath(url) {
 }
 
 function getUriComponent(str) {
-  // for demo purposes! Not safe for general URL patterns
-  return getPath(str).replace(/\//g, '_');
+  // Specific for Omeka integration.
+  return getPath(str).split('/manifest/')[1];
 }
 
 function getIdentifier(loadedResource, start, end) {
@@ -29589,21 +30220,52 @@ SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, 
   return getPath(loadedResource).replace(/\//g, ' ') + ' canvases ' + start + '-' + end;
 };
 
-SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {
-  return presentationServer + 'collection/' + getUriComponent(loadedResource);
+SortyConfiguration.getCollectionUri = function getCollectionUri(loadedResource) {
+  return presentationServer + '/collection/' + getUriComponent(loadedResource);
 };
+
+// SortyConfiguration.getCollectionAddUrl = function getCollectionAddUrl() {
+//   return `${presentationServer}/collection/add`;
+// };
+
+// SortyConfiguration.getManifestDeleteUrl = function getManifestDeleteUrl() {
+//   return `${presentationServer}/manifest/delete`;
+// };
+
 
 // These are MVP and don't offer a lot of flexibility.
 SortyConfiguration.getManifestUrl = function getManifestUrl(loadedResource, start, end) {
-  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/manifest';
+  return presentationServer + '/' + getIdentifier(loadedResource, start, end) + '/manifest';
+};
+
+SortyConfiguration.getManifestUrlAdd = function getManifestUrlAdd() {
+  return presentationServer + '/manifest/add';
 };
 
 SortyConfiguration.getSequenceUrl = function getSequenceUrl(loadedResource, start, end) {
-  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/sequence/s0';
+  return presentationServer + '/' + getIdentifier(loadedResource, start, end) + '/sequence/s0';
 };
 
 SortyConfiguration.getCanvasUrl = function getCanvasUrl(loadedResource, start, end, canvasIndex) {
-  return '' + presentationServer + getIdentifier(loadedResource, start, end) + '/canvas/c' + canvasIndex;
+  return presentationServer + '/' + getIdentifier(loadedResource, start, end) + '/canvas/c' + canvasIndex;
+};
+
+SortyConfiguration.getLoginUrl = function getLoginUrl() {
+  return 'https://presley.glam-dev.org/iiif/login';
+};
+
+function goTo(url) {
+  window.location.href = '' + SortyConfiguration.path + url;
+}
+
+SortyConfiguration.navigate = {
+  home: function home() {
+    setTimeout(goTo, 1, '/index.html');
+  },
+  login: function login() {
+    console.log('changing route');
+    setTimeout(goTo, 1, '/login.html');
+  }
 };
 
 /* application-specific extra stuff to show per canvas */
@@ -29641,7 +30303,7 @@ SortyConfiguration.getCanvasDecorations = function getCanvasDecorations(canvas) 
   };
 };
 
-},{}],42:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29653,7 +30315,7 @@ var getTerm = exports.getTerm = function getTerm(name, count) {
   return count > 1 ? terms.get(name + 'Plural') : terms.get(name + 'Singular');
 };
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29674,7 +30336,7 @@ var hasPropertyChangedNonZero = exports.hasPropertyChangedNonZero = function has
   return false;
 };
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30045,7 +30707,161 @@ IIIF.getAuthServices = function getAuthServices(info) {
   return svcInfo;
 };
 
-},{}],45:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+function parseJwt(token) {
+  return token;
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace('-', '+').replace('_', '/');
+  return JSON.parse(window.atob(base64));
+}
+
+function isStillValid(token) {
+  return true;
+  var expEpoch = parseJwt(token).exp * 1000;
+  var epoch = new Date().getTime();
+  return epoch < expEpoch;
+}
+
+function getUserToken() {
+  return localStorage.getItem('id_token');
+}
+
+function hasValidToken() {
+  var token = getUserToken();
+  return !!(token && isStillValid(token));
+}
+
+function setUserToken(token) {
+  localStorage.setItem('id_token', token);
+}
+
+function removeUserToken() {
+  localStorage.removeItem('id_token');
+}
+
+exports.parseJwt = parseJwt;
+exports.isStillValid = isStillValid;
+exports.getUserToken = getUserToken;
+exports.hasValidToken = hasValidToken;
+exports.setUserToken = setUserToken;
+exports.removeUserToken = removeUserToken;
+
+},{}],49:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getOmekaToken = undefined;
+
+var _config = require('../config/config');
+
+var omekaAuthEndpoint = _config.SortyConfiguration.oauthSiteEndpoint;
+var clientId = _config.SortyConfiguration.oauthClientId;
+var redirect = _config.SortyConfiguration.oauthCallback;
+var omekaTokenStore = { current: null, expires: null, hasExpired: true };
+
+function getOmekaToken() {
+  if (!omekaTokenStore.hasExpired) {
+    return Promise.resolve({ accessToken: omekaTokenStore.current, expires: omekaTokenStore.expires });
+  }
+
+  return new Promise(function (resolve, reject) {
+    var state = new Date().getTime();
+    var authLogin = omekaAuthEndpoint + '/auth?response_type=code&client_id=' + clientId + '&redirect_uri=' + redirect + '&scope=import-iiif&state=' + state;
+    window.open(authLogin, 'callback');
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.state.toString() === state.toString() && e.data.code) {
+        $.ajax(omekaAuthEndpoint + '/auth/token', {
+          type: 'POST',
+          crossDomain: true,
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          data: JSON.stringify({
+            grant_type: 'authorization_code',
+            code: e.data.code,
+            client_id: clientId
+          }),
+          success: function success(_ref) {
+            var access_token = _ref.access_token,
+                expires_in = _ref.expires_in;
+
+            omekaTokenStore.current = access_token;
+            omekaTokenStore.hasExpired = false;
+            omekaTokenStore.expires = new Promise(function (r) {
+              return setTimeout(function () {
+                omekaTokenStore.hasExpired = true;
+                r();
+              }, expires_in * 1000);
+            });
+            resolve({ accessToken: omekaTokenStore.current, expires: omekaTokenStore.expires });
+          },
+          error: reject
+        });
+      } else {
+        reject();
+      }
+    });
+  });
+}
+
+exports.getOmekaToken = getOmekaToken;
+
+},{"../config/config":44}],50:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.auth = undefined;
+
+var _auth = require('../actions/auth');
+
+var _jwt = require('../helpers/jwt');
+
+var auth = exports.auth = function auth() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    isFetching: false,
+    isAuthenticated: (0, _jwt.hasValidToken)()
+  };
+  var action = arguments[1];
+
+  switch (action.type) {
+    case _auth.LOGIN_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+        isAuthenticated: false
+      });
+    case _auth.LOGIN_SUCCESS:
+      (0, _jwt.setUserToken)(action.user.id_token);
+      return Object.assign({}, state, {
+        isFetching: false,
+        isAuthenticated: true,
+        errorMessage: undefined
+      });
+    case _auth.LOGIN_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        isAuthenticated: false,
+        errorMessage: action.message
+      });
+    case _auth.LOGOUT:
+      (0, _jwt.removeUserToken)();
+      return Object.assign({}, state, {
+        isFetching: false,
+        isAuthenticated: false
+      });
+    default:
+      return state;
+  }
+};
+
+},{"../actions/auth":25,"../helpers/jwt":48}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30060,15 +30876,18 @@ var _sourceList = require('./source-list.js');
 
 var _ui = require('./ui.js');
 
+var _auth = require('./auth.js');
+
+// import { loadedManifest } from './loaded-manifest.js';
 exports.default = (0, _redux.combineReducers)({
   // loadedManifest,
   selectedCollection: _selectedCollection.selectedCollection,
   sourceList: _sourceList.sourceList,
-  ui: _ui.ui
+  ui: _ui.ui,
+  auth: _auth.auth
 });
-// import { loadedManifest } from './loaded-manifest.js';
 
-},{"./selected-collection.js":47,"./source-list.js":48,"./ui.js":49,"redux":20}],46:[function(require,module,exports){
+},{"./auth.js":50,"./selected-collection.js":53,"./source-list.js":54,"./ui.js":55,"redux":21}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30147,7 +30966,7 @@ var loadedManifest = exports.loadedManifest = function loadedManifest() {
   }
 };
 
-},{"../actions/loaded-manifest.js":24}],47:[function(require,module,exports){
+},{"../actions/loaded-manifest.js":26}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30239,7 +31058,7 @@ var selectedCollection = exports.selectedCollection = function selectedCollectio
   }
 };
 
-},{"../actions/selected-collection.js":25}],48:[function(require,module,exports){
+},{"../actions/selected-collection.js":27}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30267,7 +31086,7 @@ var sourceList = exports.sourceList = function sourceList() {
   }
 };
 
-},{"../actions/source-list.js":26}],49:[function(require,module,exports){
+},{"../actions/source-list.js":28}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30330,10 +31149,14 @@ var ui = exports.ui = function ui() {
   }
 };
 
-},{"../actions/ui.js":27}],50:[function(require,module,exports){
+},{"../actions/ui.js":29}],56:[function(require,module,exports){
 'use strict';
 
 var _redux = require('redux');
+
+var _reduxThunk = require('redux-thunk');
+
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
 var _index = require('./reducers/index.js');
 
@@ -30361,17 +31184,25 @@ var _lightbox = require('./components/lightbox.js');
 
 var _help = require('./components/help.js');
 
+var _login = require('./components/login.js');
+
 var _sourceList = require('./components/source-list.js');
 
 var _sourceList2 = _interopRequireDefault(_sourceList);
 
+var _jwt = require('./helpers/jwt');
+
+var _config = require('./config/config');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var $ = require('jquery');
 
 // Imports
 
 
 // Reducers
-var $ = require('jquery'); // Redux
+// Redux
 
 window.$ = window.jQuery = $;
 require('./vendor/jquery.unveil.js');
@@ -30379,24 +31210,29 @@ require('leaflet');
 require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
 
-// Create the store for the application - hook up redux devtools
-/* eslint-disable no-underscore-dangle */
-var store = (0, _redux.createStore)(_index2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-/* eslint-enable */
+if (!(0, _jwt.hasValidToken)() && window.location.pathname !== _config.SortyConfiguration.path + '/login.html') {
+  _config.SortyConfiguration.navigate.login();
+} else {
+  // Create the store for the application - hook up redux devtools
+  /* eslint-disable no-underscore-dangle */
+  var store = (0, _redux.createStore)(_index2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), (0, _redux.compose)((0, _redux.applyMiddleware)(_reduxThunk2.default)));
+  var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), (0, _redux.compose)((0, _redux.applyMiddleware)(_reduxThunk2.default)));
+  /* eslint-enable */
 
-// Pass the store to component initialisers
-(0, _sourceList2.default)(store, manifestStore);
-(0, _help.helpInit)(store);
-(0, _thumbs.thumbsInit)(store, manifestStore);
-(0, _derivedManifests.derivedManifestsInit)(store, manifestStore);
-(0, _classifyTools2.default)(store, manifestStore);
-(0, _selection.selectionInit)(store, manifestStore);
-(0, _input.inputInit)(store, manifestStore);
-(0, _makeManifestModal.makeManifestInit)(store, manifestStore);
-(0, _lightbox.lightboxInit)(store, manifestStore);
+  // Pass the store to component initialisers
+  (0, _login.loginInit)(store, manifestStore);
+  (0, _sourceList2.default)(store, manifestStore);
+  (0, _help.helpInit)(store);
+  (0, _thumbs.thumbsInit)(store, manifestStore);
+  (0, _derivedManifests.derivedManifestsInit)(store, manifestStore);
+  (0, _classifyTools2.default)(store, manifestStore);
+  (0, _selection.selectionInit)(store, manifestStore);
+  (0, _input.inputInit)(store, manifestStore);
+  (0, _makeManifestModal.makeManifestInit)(store, manifestStore);
+  (0, _lightbox.lightboxInit)(store, manifestStore);
+}
 
-},{"./components/classify-tools.js":28,"./components/derived-manifests.js":29,"./components/help.js":30,"./components/input.js":32,"./components/lightbox.js":33,"./components/make-manifest-modal.js":34,"./components/selection.js":36,"./components/source-list.js":37,"./components/thumbs.js":39,"./components/workspace.js":40,"./reducers/index.js":45,"./reducers/loaded-manifest.js":46,"./vendor/jquery.unveil.js":51,"./vendor/leaflet-iiif.js":52,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":20}],51:[function(require,module,exports){
+},{"./components/classify-tools.js":30,"./components/derived-manifests.js":31,"./components/help.js":32,"./components/input.js":34,"./components/lightbox.js":35,"./components/login.js":36,"./components/make-manifest-modal.js":37,"./components/selection.js":39,"./components/source-list.js":40,"./components/thumbs.js":42,"./components/workspace.js":43,"./config/config":44,"./helpers/jwt":48,"./reducers/index.js":51,"./reducers/loaded-manifest.js":52,"./vendor/jquery.unveil.js":57,"./vendor/leaflet-iiif.js":58,"jquery":1,"leaflet":2,"magnific-popup":13,"redux":21,"redux-thunk":15}],57:[function(require,module,exports){
 "use strict";
 
 /**
@@ -30454,7 +31290,7 @@ var manifestStore = (0, _redux.createStore)(_loadedManifest.loadedManifest, wind
   };
 })(window.jQuery || window.Zepto);
 
-},{}],52:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -30697,4 +31533,4 @@ L.tileLayer.iiif = function (url, options) {
   return new L.TileLayer.Iiif(url, options);
 };
 
-},{}]},{},[50]);
+},{}]},{},[56]);

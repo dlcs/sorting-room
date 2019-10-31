@@ -1,48 +1,91 @@
 <!DOCTYPE html><html lang="en"><head><title>src/js/components/iiif-actions</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/components/iiif-actions"><meta name="groc-project-path" content="src/js/components/iiif-actions.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/components/iiif-actions.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
+<span class="hljs-keyword">import</span> { SortyConfiguration } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/config'</span>;
+<span class="hljs-keyword">import</span> { getUserToken } <span class="hljs-keyword">from</span> <span class="hljs-string">'../helpers/jwt'</span>;
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> IIIFActions = {};
 
-IIIFActions.postManifest = (manifest, url, success, error) =&gt; {
+IIIFActions.postCollection = (manifest, collectionURI, url, success, error) =&gt; {
   <span class="hljs-keyword">const</span> newManifestInstance = <span class="hljs-built_in">Object</span>.assign({}, manifest);
-  newManifestInstance.sequences = <span class="hljs-literal">null</span>;
-  newManifestInstance.service = <span class="hljs-literal">null</span>;
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'IIIFActions.postCollection url'</span>, url);
+  <span class="hljs-keyword">var</span> toPost = {
+    <span class="hljs-string">'@id'</span>:newManifestInstance[<span class="hljs-string">'@id'</span>],
+    <span class="hljs-string">'@type'</span>:newManifestInstance[<span class="hljs-string">'@type'</span>],
+    <span class="hljs-string">'label'</span>:newManifestInstance[<span class="hljs-string">'label'</span>],
+  };
+
+  <span class="hljs-keyword">debugger</span>;
   $.ajax({
     url,
     type: <span class="hljs-string">'POST'</span>,
     contentType: <span class="hljs-string">'application/json; charset=utf-8'</span>,
-    data: <span class="hljs-built_in">JSON</span>.stringify(newManifestInstance),
+    data: <span class="hljs-built_in">JSON</span>.stringify({
+      <span class="hljs-string">'@id'</span>: collectionURI,
+      collection_data: toPost,
+    }),
+    beforeSend: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">xhr</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>xhr.setRequestHeader(&#39;Authorization&#39;, &#39;Bearer &#39; + getUserToken());</p></div></div><div class="code"><div class="wrapper">    },
     dataType: <span class="hljs-string">'json'</span>,
     error,
     success,
   });
 };
 
-IIIFActions.putManifest = (manifest, success, error) =&gt; {
+
+IIIFActions.addManifestToCollection = (collectionUrl, label, canvasIds) =&gt; {
+  <span class="hljs-keyword">const</span> url = <span class="hljs-string">`<span class="hljs-subst">${collectionUrl}</span>/manifest`</span>;
+  <span class="hljs-keyword">const</span> body = {label, canvasIds};
+
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>((resolve, reject) =&gt; {
+    $.ajax({
+      url,
+      type: <span class="hljs-string">'POST'</span>,
+      contentType: <span class="hljs-string">'application/json; charset=utf-8'</span>,
+      data: <span class="hljs-built_in">JSON</span>.stringify(body),
+      beforeSend: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">xhr</span>) </span>{
+        <span class="hljs-built_in">console</span>.log(getUserToken());
+        xhr.setRequestHeader(<span class="hljs-string">'Authorization'</span>, <span class="hljs-string">'Bearer '</span> + getUserToken());
+      },
+      dataType: <span class="hljs-string">'json'</span>,
+      error: reject,
+      success: resolve,
+    });
+  });
+};
+
+IIIFActions.addUpdateManifest = (manifest, success, error) =&gt; {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'IIIFActions.addUpdateManifest url'</span>, SortyConfiguration.getManifestUrlAdd());
+  <span class="hljs-keyword">debugger</span>;
   $.ajax({
-    url: manifest[<span class="hljs-string">'@id'</span>],
-    type: <span class="hljs-string">'PUT'</span>,
+    url: SortyConfiguration.getManifestUrlAdd(),
+    type: <span class="hljs-string">'POST'</span>,
     contentType: <span class="hljs-string">'application/json; charset=utf-8'</span>,
     data: <span class="hljs-built_in">JSON</span>.stringify(manifest),
+    beforeSend: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">xhr</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>xhr.setRequestHeader(&#39;Authorization&#39;, &#39;Bearer &#39; + getUserToken());</p></div></div><div class="code"><div class="wrapper">    },
     dataType: <span class="hljs-string">'json'</span>,
     error,
     success,
   });
-};
-
-IIIFActions.deleteCollection = (uri, success, error) =&gt; {
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>IIIFActions.deleteManifest = (uri, success, error) =&gt; {
+  console.log(&#39;IIIFActions.deleteManifest uri&#39;, uri);
+  // TODO: url is temporary, John and I agreed that the
+  // manifest parameter will be in the POST payload (JSON)
+  debugger;
   $.ajax({
-    url: uri,
-    type: <span class="hljs-string">'POST'</span>,
+    url: <code>${SortyConfiguration.getManifestDeleteUrl()}?manifest=${uri}</code>,
+    type: &#39;POST&#39;,
+    beforeSend: function(xhr) {
+      // xhr.setRequestHeader(&#39;Authorization&#39;, &#39;Bearer &#39; + getUserToken());
+    },
     error,
     success,
-  });
-};
+  });</p></div></div><div class="code"><div class="wrapper"><span class="hljs-comment">// ;</span>
 
 IIIFActions.loadManifest = (url, success, error) =&gt; {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'IIIFActions.loadManifest url'</span>, url);
   $.ajax({
     dataType: <span class="hljs-string">'json'</span>,
     url,
     cache: <span class="hljs-literal">true</span>,
+    beforeSend: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">xhr</span>) </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>xhr.setRequestHeader(&#39;Authorization&#39;, &#39;Bearer &#39; + getUserToken());</p></div></div><div class="code"><div class="wrapper">    },
     error,
     success,
   });

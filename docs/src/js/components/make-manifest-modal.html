@@ -130,36 +130,23 @@
 
     setSavingState(<span class="hljs-literal">true</span>);
 
-    <span class="hljs-keyword">const</span> newManifest = $.extend(<span class="hljs-literal">true</span>, {}, Config.manifestTemplate);
-    IIIF.wrap(newManifest);
+    <span class="hljs-keyword">const</span> label = DOM.$manifestModalInput.val();
+    <span class="hljs-keyword">const</span> canvasIds = selectedImages.map(idx =&gt; canvases[idx]).map(canvas =&gt; canvas[<span class="hljs-string">'@id'</span>]);
+    <span class="hljs-keyword">const</span> collectionUrl = SortyConfiguration.getCollectionUri(manifest);
 
-    store.dispatch(setCollectionName(DOM.$manifestModalInput.val()));
+    IIIFActions.addManifestToCollection(collectionUrl, label, canvasIds).then((resp) =&gt; {
+      store.dispatch(setCollectionManifest(resp));
+      Events.postSuccess();
+    }).catch((err) =&gt; {
 
-    newManifest.id = SortyConfiguration.getManifestUrl(manifest, s, e);
-    newManifest.label = DOM.$manifestModalInput.val();
-    newManifest.sequences[<span class="hljs-number">0</span>].id = SortyConfiguration.getSequenceUrl(manifest, s, e);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO: mintCanvasIds should be more flexible than a global config.</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (SortyConfiguration.mintCanvasIds) {
-      <span class="hljs-keyword">const</span> canvasMapService = $.extend(<span class="hljs-literal">true</span>, {}, Config.canvasMapTemplate);
-      IIIF.wrap(canvasMapService);
-      canvasMapService.id = <span class="hljs-string">`<span class="hljs-subst">${newManifest.id}</span>/canvasmap`</span>;
-      newManifest.service = canvasMapService;
-      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> cvsIdx <span class="hljs-keyword">of</span> selectedImages) {
-        <span class="hljs-keyword">const</span> sourceCanvas = canvases[cvsIdx];
-        <span class="hljs-keyword">const</span> newCanvas = $.extend(<span class="hljs-literal">true</span>, {}, sourceCanvas);
-        IIIF.wrap(newCanvas);
-        newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-        canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-        newManifest.sequences[<span class="hljs-number">0</span>].canvases.push(newCanvas);
-      }
-    } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> cvsIdx <span class="hljs-keyword">of</span> selectedImages) {
-        <span class="hljs-keyword">const</span> sourceCanvas = canvases[cvsIdx];
-        newManifest.sequences[<span class="hljs-number">0</span>].canvases.push(sourceCanvas);
-      }
-    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Store new manifest</p></div></div><div class="code"><div class="wrapper">    store.dispatch(setCollectionManifest(newManifest));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>PUTs the manifest</p></div></div><div class="code"><div class="wrapper">    IIIFActions.putManifest(newManifest, Events.putSuccess, Events.putError);
+      <span class="hljs-built_in">console</span>.log(err);
+    });
   },
   postManifest(newManifest) {
-    IIIFActions.postManifest(newManifest,
-      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'is this called?'</span>);
+    IIIFActions.postCollection(newManifest,
+      SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionAddUrl(),
       Events.postComplete,
       Events.postError);
   },
@@ -192,9 +179,10 @@
     <span class="hljs-keyword">const</span> newManifestInstance = <span class="hljs-built_in">Object</span>.assign({}, manifest);
     newManifestInstance.sequences = <span class="hljs-literal">null</span>;
     newManifestInstance.service = <span class="hljs-literal">null</span>;
-    IIIFActions.postManifest(
+    IIIFActions.postCollection(
       manifest,
-      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionAddUrl(),
       Events.postSuccess,
       Events.postError
     );

@@ -137,43 +137,20 @@ const Events = {
 
     setSavingState(true);
 
-    const newManifest = $.extend(true, {}, Config.manifestTemplate);
-    IIIF.wrap(newManifest);
+    const label = DOM.$manifestModalInput.val();
+    const canvasIds = selectedImages.map(idx => canvases[idx]).map(canvas => canvas['@id']);
+    const collectionUrl = SortyConfiguration.getCollectionUri(manifest);
 
-    store.dispatch(setCollectionName(DOM.$manifestModalInput.val()));
+    IIIFActions.addManifestToCollection(collectionUrl, label, canvasIds).then((resp) => {
+      store.dispatch(setCollectionManifest(resp));
+      Events.postSuccess();
+    }).catch((err) => {
 
-    newManifest.id = SortyConfiguration.getManifestUrl(manifest, s, e);
-    newManifest.label = DOM.$manifestModalInput.val();
-    newManifest.sequences[0].id = SortyConfiguration.getSequenceUrl(manifest, s, e);
-
-    // TODO: mintCanvasIds should be more flexible than a global config.
-    if (SortyConfiguration.mintCanvasIds) {
-      const canvasMapService = $.extend(true, {}, Config.canvasMapTemplate);
-      IIIF.wrap(canvasMapService);
-      canvasMapService.id = `${newManifest.id}/canvasmap`;
-      newManifest.service = canvasMapService;
-      for (const cvsIdx of selectedImages) {
-        const sourceCanvas = canvases[cvsIdx];
-        const newCanvas = $.extend(true, {}, sourceCanvas);
-        IIIF.wrap(newCanvas);
-        newCanvas.id = SortyConfiguration.getCanvasUrl(manifest, s, e, cvsIdx);
-        canvasMapService.canvasMap[newCanvas.id] = sourceCanvas.id;
-        newManifest.sequences[0].canvases.push(newCanvas);
-      }
-    } else {
-      for (const cvsIdx of selectedImages) {
-        const sourceCanvas = canvases[cvsIdx];
-        newManifest.sequences[0].canvases.push(sourceCanvas);
-      }
-    }
-
-    // Store new manifest
-    store.dispatch(setCollectionManifest(newManifest));
-
-    // PUTs the manifest
-    IIIFActions.addUpdateManifest(newManifest, Events.putSuccess, Events.putError);
+      console.log(err);
+    });
   },
   postManifest(newManifest) {
+    throw new Error('is this called?');
     IIIFActions.postCollection(newManifest,
       SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
       SortyConfiguration.getCollectionAddUrl(),

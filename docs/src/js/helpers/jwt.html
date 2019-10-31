@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="en"><head><title>src/js/helpers/jwt</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="src/js/helpers/jwt"><meta name="groc-project-path" content="src/js/helpers/jwt.js"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/js/helpers/jwt.js</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">parseJwt</span>(<span class="hljs-params">token</span>) </span>{
+  <span class="hljs-keyword">return</span> token;
+  <span class="hljs-keyword">const</span> base64Url = token.split(<span class="hljs-string">'.'</span>)[<span class="hljs-number">1</span>];
+  <span class="hljs-keyword">const</span> base64 = base64Url.replace(<span class="hljs-string">'-'</span>, <span class="hljs-string">'+'</span>).replace(<span class="hljs-string">'_'</span>, <span class="hljs-string">'/'</span>);
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-built_in">window</span>.atob(base64));
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isStillValid</span>(<span class="hljs-params">token</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  <span class="hljs-keyword">const</span> expEpoch = parseJwt(token).exp * <span class="hljs-number">1000</span>;
+  <span class="hljs-keyword">const</span> epoch = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().getTime();
+  <span class="hljs-keyword">return</span> epoch &lt; expEpoch;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getUserToken</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> localStorage.getItem(<span class="hljs-string">'id_token'</span>);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasValidToken</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> token = getUserToken();
+  <span class="hljs-keyword">return</span> !!(token &amp;&amp; isStillValid(token));
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUserToken</span>(<span class="hljs-params">token</span>) </span>{
+  localStorage.setItem(<span class="hljs-string">'id_token'</span>, token);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">removeUserToken</span>(<span class="hljs-params"></span>) </span>{
+  localStorage.removeItem(<span class="hljs-string">'id_token'</span>);
+}
+
+<span class="hljs-keyword">export</span> {
+  parseJwt,
+  isStillValid,
+  getUserToken,
+  hasValidToken,
+  setUserToken,
+  removeUserToken,
+};</div></div></div></div></body></html>

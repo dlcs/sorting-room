@@ -48,7 +48,7 @@ require('./vendor/leaflet-iiif.js');
 require('magnific-popup');
 
 
-if (!hasValidToken() && window.location.pathname !== '/login.html') {
+if (!hasValidToken() && window.location.pathname !== SortyConfiguration.path + '/login.html') {
   SortyConfiguration.navigate.login();
 } else {
   // Create the store for the application - hook up redux devtools

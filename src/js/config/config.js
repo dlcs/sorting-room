@@ -4,23 +4,28 @@ export const SortyConfiguration = {};
 
 // const presentationServer = 'http://sorty.dlcs-ida.org/presley/ida/';
 // const presentationServer = 'https://presley.dlcs-ida.org/iiif/idatest01/';
-const presentationServerNew = window.PRESENTATION_SERVER_ROOT || 'https://presley.glam-dev.org/iiif';
-const presentationServer = window.PRESENTATION_SERVER_CUSTOMER || 'https://presley.glam-dev.org/iiif/customer';
+// const presentationServerNew = window.PRESENTATION_SERVER_ROOT || 'https://localhost:8888/ERROR/';
+const presentationServer = window.PRESENTATION_SERVER_CUSTOMER || '/presley';
 // const presentationServer = 'http://localhost:8000/iiif/idatest01/';
 
 // Omeka configuration options for derived manifests
-SortyConfiguration.enableOmekaImport = window.ENABLE_OMEKA_IMPORT !== undefined ? window.ENABLE_OMEKA_IMPORT === 'true' : true;
-SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'https://omeka.dlcs-ida.org/api/iiif-import';
+SortyConfiguration.enableOmekaImport = window.ENABLE_OMEKA_IMPORT !== undefined ? window.ENABLE_OMEKA_IMPORT === 'true' : false;
+// SortyConfiguration.omekaImportEndpoint = window.OMEKA_IMPORT || 'https://localhost:8888/ERROR/';
+SortyConfiguration.madocServer = window.MADOC_SERVER || '/';
+
+SortyConfiguration.path = window.MADOC_SERVER || '/sorting-room';
 
 // Delete configuration options for derived manifests
-SortyConfiguration.enableDelete = window.ENABLE_DELETE !== undefined ? window.ENABLE_DELETE === 'true' : true;
+// SortyConfiguration.enableDelete = window.ENABLE_DELETE !== undefined ? window.ENABLE_DELETE === 'true' : false;
 
-SortyConfiguration.sourceCollection = window.SOURCE_COLLECTION || 'https://manifests.dlcs-ida.org/rollcollection';
-SortyConfiguration.mintCanvasIds = window.MINT_CANVAS_IDS !== undefined ? window.MINT_CANVAS_IDS === 'true' :  true;
+SortyConfiguration.sourceCollection = window.SOURCE_COLLECTION || '/presley/collection';
+// SortyConfiguration.mintCanvasIds = window.MINT_CANVAS_IDS !== undefined ? window.MINT_CANVAS_IDS === 'true' :  true;
 
 // Omeka Auth.
-SortyConfiguration.oauthClientId = window.OAUTH_CLIENT_ID || 'ida-sorting-room';
-SortyConfiguration.oauthSiteEndpoint = window.OAUTH_SITE_ENDPOINT || 'https://omeka.dlcs-ida.org/s/ida';
+SortyConfiguration.oauthClientId = window.OAUTH_CLIENT_ID || 'same-origin';
+SortyConfiguration.oauthSiteEndpoint = window.OAUTH_SITE_ENDPOINT || '/s/default';
+// SortyConfiguration.oauthCallback = window.OAUTH_CALLBACK || location.origin + '/cb.html';
+SortyConfiguration.oauthCallback = window.OAUTH_CALLBACK || '/sorting-room/cb.html';
 
 function getPath(url) {
   const reg = /.+?:\/\/.+?(\/.+?)(?:#|\?|$)/;
@@ -28,8 +33,8 @@ function getPath(url) {
 }
 
 function getUriComponent(str) {
-  // for demo purposes! Not safe for general URL patterns
-  return getPath(str).replace(/\//g, '_');
+  // Specific for Omeka integration.
+  return getPath(str).split('/manifest/')[1];
 }
 
 function getIdentifier(loadedResource, start, end) {
@@ -40,21 +45,17 @@ SortyConfiguration.getManifestLabel = function getManifestLabel(loadedResource, 
   return `${getPath(loadedResource).replace(/\//g, ' ')} canvases ${start}-${end}`;
 };
 
-SortyConfiguration.getCollectionUrl = function getCollectionUrl(loadedResource) {
-  return `${presentationServer}/collection?collection=${getUriComponent(loadedResource)}`;
-};
-
 SortyConfiguration.getCollectionUri = function getCollectionUri(loadedResource) {
   return `${presentationServer}/collection/${getUriComponent(loadedResource)}`;
 };
 
-SortyConfiguration.getCollectionAddUrl = function getCollectionAddUrl() {
-  return `${presentationServer}/collection/add`;
-};
+// SortyConfiguration.getCollectionAddUrl = function getCollectionAddUrl() {
+//   return `${presentationServer}/collection/add`;
+// };
 
-SortyConfiguration.getManifestDeleteUrl = function getManifestDeleteUrl() {
-  return `${presentationServer}/manifest/delete`;
-};
+// SortyConfiguration.getManifestDeleteUrl = function getManifestDeleteUrl() {
+//   return `${presentationServer}/manifest/delete`;
+// };
 
 
 // These are MVP and don't offer a lot of flexibility.
@@ -76,11 +77,11 @@ ${canvasIndex}`;
 };
 
 SortyConfiguration.getLoginUrl = function getLoginUrl() {
-  return `${presentationServerNew}/login`;
+  return `https://presley.glam-dev.org/iiif/login`;
 };
 
 function goTo(url) {
-  window.location.href = url;
+  window.location.href = `${SortyConfiguration.path}${url}`;
 }
 
 SortyConfiguration.navigate = {

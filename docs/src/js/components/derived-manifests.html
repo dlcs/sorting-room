@@ -14,6 +14,7 @@
 <span class="hljs-keyword">import</span> { IIIFActions } <span class="hljs-keyword">from</span> <span class="hljs-string">'./iiif-actions.js'</span>;
 <span class="hljs-keyword">import</span> { getTerm } <span class="hljs-keyword">from</span> <span class="hljs-string">'../config/terms.js'</span>;
 <span class="hljs-keyword">import</span> { OmekaActions, omekaServiceProfile } <span class="hljs-keyword">from</span> <span class="hljs-string">'./omeka-actions.js'</span>;
+<span class="hljs-keyword">import</span> {getOmekaToken} <span class="hljs-keyword">from</span> <span class="hljs-string">"../helpers/oauth"</span>;
 
 <span class="hljs-keyword">const</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
 
@@ -23,26 +24,21 @@
 <span class="hljs-keyword">let</span> store = <span class="hljs-literal">null</span>;
 <span class="hljs-keyword">let</span> manifestStore = <span class="hljs-literal">null</span>;
 <span class="hljs-keyword">let</span> lastLocalState = <span class="hljs-literal">null</span>;
-<span class="hljs-keyword">let</span> lastTitleText = <span class="hljs-literal">null</span>;
-
-<span class="hljs-keyword">const</span> Config = {
+<span class="hljs-keyword">let</span> lastTitleText = <span class="hljs-literal">null</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const Config = {
   deleteManifestModalOptions: {
-    delegate: <span class="hljs-string">'.action__delete'</span>,
+    delegate: &#39;.action__delete&#39;,
     items: {
-      src: <span class="hljs-string">'#deleteManifestmodal'</span>,
-      type: <span class="hljs-string">'inline'</span>,
+      src: &#39;#deleteManifestmodal&#39;,
+      type: &#39;inline&#39;,
     },
-    modal: <span class="hljs-literal">true</span>,
-  },
-};
+    modal: true,
+  },</p></div></div><div class="code"><div class="wrapper"><span class="hljs-comment">// ;</span>
 
 <span class="hljs-keyword">const</span> DOM = {
   init() {
     DOM.$classifiedMaterial = $(<span class="hljs-string">'.classified-material'</span>);
-    DOM.$classifiedTitle = $(<span class="hljs-string">'.viewer__classified-title'</span>);
-    DOM.$deleteModalHeading = $(<span class="hljs-string">'.manifest-modal--delete .manifest-modal__heading'</span>);
-    DOM.$deleteModalStatus = $(<span class="hljs-string">'.manifest-modal--delete .manifest-modal__deleting-text'</span>);
-    DOM.$manifestSelector = $(manifestSelector);
+    DOM.$classifiedTitle = $(<span class="hljs-string">'.viewer__classified-title'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>DOM.$deleteModalHeading = $(&#39;.manifest-modal--delete .manifest-modal<strong>heading&#39;);
+DOM.$deleteModalStatus = $(&#39;.manifest-modal--delete .manifest-modal</strong>deleting-text&#39;);</p></div></div><div class="code"><div class="wrapper">    DOM.$manifestSelector = $(manifestSelector);
   },
 };
 
@@ -56,24 +52,18 @@
     <span class="hljs-keyword">if</span> (derivedManifestList &amp;&amp; derivedManifestList.members) {
       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; derivedManifestList.members.length; i++) {
         <span class="hljs-keyword">const</span> manifest = derivedManifestList.members[i];
-        <span class="hljs-keyword">const</span> label = manifest.label || manifest[<span class="hljs-string">'@id'</span>];
-
-        <span class="hljs-keyword">const</span> publishToOmekaButton = SortyConfiguration.enableOmekaImport ?
-        <span class="hljs-string">`&lt;li class="classified-manifest__actions-item"&gt;
-          &lt;a href="#" class="action__publish"&gt;
-          &lt;i class="material-icons"&gt;publish&lt;/i&gt;Publish to Omeka
-          &lt;/a&gt;
-        &lt;/li&gt;`</span> : <span class="hljs-string">''</span>;
-
-        <span class="hljs-keyword">const</span> deleteButton = SortyConfiguration.enableDelete ?
-        <span class="hljs-string">`&lt;li class="classified-manifest__actions-item"&gt;
-          &lt;a href="#" class="action__delete"&gt;
-          &lt;i class="material-icons"&gt;delete_forever&lt;/i&gt;Delete this
-          <span class="hljs-subst">${getTerm('derivedManifest', 1)}</span>
-          &lt;/a&gt;
-        &lt;/li&gt;`</span> : <span class="hljs-string">''</span>;
-
-        DOM.$classifiedMaterial.append(<span class="hljs-string">`
+        <span class="hljs-keyword">const</span> label = manifest.label || manifest[<span class="hljs-string">'@id'</span>];</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const publishToOmekaButton = SortyConfiguration.enableOmekaImport ?
+<code>&lt;li class=&quot;classified-manifest__actions-item&quot;&gt;
+  &lt;a href=&quot;#&quot; class=&quot;action__publish&quot;&gt;
+  &lt;i class=&quot;material-icons&quot;&gt;publish&lt;/i&gt;Publish to Omeka
+  &lt;/a&gt;
+&lt;/li&gt;</code> : &#39;&#39;;</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const deleteButton = SortyConfiguration.enableDelete ?
+<code>&lt;li class=&quot;classified-manifest__actions-item&quot;&gt;
+  &lt;a href=&quot;#&quot; class=&quot;action__delete&quot;&gt;
+  &lt;i class=&quot;material-icons&quot;&gt;delete_forever&lt;/i&gt;Delete this
+  ${getTerm(&#39;derivedManifest&#39;, 1)}
+  &lt;/a&gt;
+&lt;/li&gt;</code> : &#39;&#39;;</p></div></div><div class="code"><div class="wrapper">        DOM.$classifiedMaterial.append(<span class="hljs-string">`
           &lt;div class="classified-manifest" data-id="<span class="hljs-subst">${manifest['@id']}</span>"&gt;
             &lt;div class="classified-manifest__front classified-manifest__front--placeholder"&gt;
               &lt;img src="<span class="hljs-subst">${placeholder}</span>" \
@@ -89,22 +79,20 @@
             &lt;/div&gt;
             &lt;h2 class="classified-manifest__title"&gt;
               &lt;span class="classified-manifest__title-text"&gt;<span class="hljs-subst">${label}</span>&lt;/span&gt;
-              &lt;button class="classified-manifest__title-edit" title="Edit label"&gt;
-                &lt;i class="material-icons"&gt;mode_edit&lt;/i&gt;
-              &lt;/button&gt;
-              &lt;button class="classified-manifest__title-save" title="Save label"&gt;
-                &lt;i class="material-icons"&gt;save&lt;/i&gt;
-              &lt;/button&gt;
             &lt;/h2&gt;
             &lt;p class="classified-manifest__num"&gt;{x} images&lt;/p&gt;
             &lt;div class="classified-manifest__actions"&gt;
               &lt;ul class="classified-manifest__actions-list"&gt;
-                <span class="hljs-subst">${publishToOmekaButton}</span>
-                <span class="hljs-subst">${deleteButton}</span>
                 &lt;li class="classified-manifest__actions-item"&gt;
                   &lt;a href="http://universalviewer.io/?manifest=<span class="hljs-subst">${manifest['@id']}</span>"
                   class="action__view" target="_blank"&gt;
                   &lt;i class="material-icons"&gt;open_in_new&lt;/i&gt;View in the Universal Viewer
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="classified-manifest__actions-item"&gt;
+                  &lt;a href="<span class="hljs-subst">${SortyConfiguration.madocServer}</span>admin/item/<span class="hljs-subst">${manifest['o:id']}</span>"
+                  class="action__view" target="_blank"&gt;
+                  &lt;i class="material-icons"&gt;open_in_new&lt;/i&gt;Edit in Madoc
                   &lt;/a&gt;
                 &lt;/li&gt;
               &lt;/ul&gt;
@@ -167,15 +155,12 @@
     }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Clean up - possible that derived manifests were listed but don&#39;t actually exist
 Edge case</p></div></div><div class="code"><div class="wrapper">    $(<span class="hljs-string">'.classified-manifest:not(.classified-manifest--loaded)'</span>).remove();
   }
-};
-
-<span class="hljs-keyword">const</span> cancelEdits = (resetText = <span class="hljs-literal">false</span>) =&gt; {
-  <span class="hljs-keyword">const</span> $contentEditableTitleText = $(<span class="hljs-string">'.classified-manifest__title-text[contenteditable]'</span>);
-  <span class="hljs-keyword">const</span> $contentEditableTitle = $(<span class="hljs-string">'.classified-manifest__title--edit'</span>);
-  $contentEditableTitleText.removeAttr(<span class="hljs-string">'contenteditable'</span>);
-  $contentEditableTitle.removeClass(<span class="hljs-string">'classified-manifest__title--edit'</span>);
-  <span class="hljs-keyword">if</span> (resetText) $contentEditableTitleText.html(lastTitleText);
-};
+};</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>const cancelEdits = (resetText = false) =&gt; {
+  const $contentEditableTitleText = $(&#39;.classified-manifest<strong>title-text[contenteditable]&#39;);
+  const $contentEditableTitle = $(&#39;.classified-manifest</strong>title--edit&#39;);
+  $contentEditableTitleText.removeAttr(&#39;contenteditable&#39;);
+  $contentEditableTitle.removeClass(&#39;classified-manifest__title--edit&#39;);
+  if (resetText) $contentEditableTitleText.html(lastTitleText);</p></div></div><div class="code"><div class="wrapper"><span class="hljs-comment">// ;</span>
 
 <span class="hljs-keyword">const</span> Events = {
   bodyClick(e) {
@@ -183,68 +168,73 @@ Edge case</p></div></div><div class="code"><div class="wrapper">    $(<span clas
       e.target.className !== <span class="hljs-string">'classified-manifest__title-edit'</span> &amp;&amp;
       e.target.className !== <span class="hljs-string">'classified-manifest__title-save'</span> &amp;&amp;
       e.target.className !== <span class="hljs-string">'material-icons'</span>
-    ) {
-      cancelEdits(<span class="hljs-literal">true</span>);
-      $(<span class="hljs-string">'body'</span>).off(<span class="hljs-string">'click'</span>, Events.bodyClick);
+    ) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>cancelEdits(true);</p></div></div><div class="code"><div class="wrapper">      $(<span class="hljs-string">'body'</span>).off(<span class="hljs-string">'click'</span>, Events.bodyClick);
     }
-  },
-  <span class="hljs-keyword">delete</span>(e) {
-    e.preventDefault();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use a modal here - Are you sure you want to delete?</p></div></div><div class="code"><div class="wrapper">    $.magnificPopup.open(Config.deleteManifestModalOptions);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Grab manifest URL</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> $container = $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.classified-manifest'</span>);
-    <span class="hljs-keyword">const</span> manifestId = $container.attr(<span class="hljs-string">'data-id'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Hook up delete button behaviour (remove any existing click events)</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> $deleteButton = $(<span class="hljs-string">'.manifest-modal__delete'</span>).off(<span class="hljs-string">'click'</span>);
-    $deleteButton.click(() =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Show delete indicator</p></div></div><div class="code"><div class="wrapper">      $(<span class="hljs-string">'html'</span>).addClass(<span class="hljs-string">'deleting-manifest'</span>);
+  },</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>delete(e) {
+  e.preventDefault();
+  // Use a modal here - Are you sure you want to delete?
+  $.magnificPopup.open(Config.deleteManifestModalOptions);</p>
+<p>  // Grab manifest URL
+  const $container = $(this).closest(&#39;.classified-manifest&#39;);
+  const manifestId = $container.attr(&#39;data-id&#39;);</p>
+<p>  // Hook up delete button behaviour (remove any existing click events)
+  const $deleteButton = $(&#39;.manifest-modal__delete&#39;).off(&#39;click&#39;);
+  $deleteButton.click(() =&gt; {
+    // Show delete indicator
+    $(&#39;html&#39;).addClass(&#39;deleting-manifest&#39;);</p>
+<pre><code>$container.addClass(&#39;classified-manifest--deleting&#39;);
 
-      $container.addClass(<span class="hljs-string">'classified-manifest--deleting'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Delete the manifest</p></div></div><div class="code"><div class="wrapper">      IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);
-    });
-  },
-  deleteError(xhr, textStatus, error) {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'ERROR DELETING'</span>, error);
-    $(<span class="hljs-string">'.classified-manifest--deleting'</span>).removeClass(<span class="hljs-string">'classified-manifest--deleting'</span>);
-  },
-  deleteSuccess() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Hide delete indicator</p></div></div><div class="code"><div class="wrapper">    $(<span class="hljs-string">'html'</span>).removeClass(<span class="hljs-string">'deleting-manifest'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Kill the item stack</p></div></div><div class="code"><div class="wrapper">    $(<span class="hljs-string">'.classified-manifest--deleting'</span>).remove();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Close the modal</p></div></div><div class="code"><div class="wrapper">    $.magnificPopup.close();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Fetch updated derived manifest data</p></div></div><div class="code"><div class="wrapper">    Events.getCreatedManifests();
-  },
+// Delete the manifest
+IIIFActions.deleteManifest(manifestId, Events.deleteSuccess, Events.deleteError);</code></pre>
+<p>  });</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>deleteError(/<em> xhr, textStatus,  error</em>/) {
+  // console.log(&#39;ERROR DELETING&#39;, error);
+  $(&#39;.classified-manifest--deleting&#39;).removeClass(&#39;classified-manifest--deleting&#39;);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>deleteSuccess() {
+  // Hide delete indicator
+  $(&#39;html&#39;).removeClass(&#39;deleting-manifest&#39;);</p>
+<p>  // Kill the item stack
+  $(&#39;.classified-manifest--deleting&#39;).remove();</p>
+<p>  // Close the modal
+  $.magnificPopup.close();</p>
+<p>  // Fetch updated derived manifest data
+  Events.getCreatedManifests();</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span>
   domReady() {
-    DOM.init();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Set terms</p></div></div><div class="code"><div class="wrapper">    DOM.$deleteModalHeading.html(<span class="hljs-string">`Are you sure you want to delete
-      this <span class="hljs-subst">${getTerm('derivedManifest', 0)}</span>?`</span>);
-    DOM.$deleteModalStatus.html(<span class="hljs-string">`Deleting <span class="hljs-subst">${getTerm('derivedManifest', 0)}</span>`</span>);
-
-    Events.init();
-  },
-  editTitleClick() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Cancel any other edit operations first</p></div></div><div class="code"><div class="wrapper">    cancelEdits(<span class="hljs-literal">true</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Make the title editable</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> $parentTitle = $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.classified-manifest__title'</span>);
-    $parentTitle.addClass(<span class="hljs-string">'classified-manifest__title--edit'</span>);
-
-    <span class="hljs-keyword">const</span> $editableText = $parentTitle.find(<span class="hljs-string">'.classified-manifest__title-text'</span>);
-
-    lastTitleText = $editableText.text();
-    $editableText.attr(<span class="hljs-string">'contenteditable'</span>, <span class="hljs-string">'true'</span>);
-    $editableText.focus();
-    $(<span class="hljs-string">'body'</span>).click(Events.bodyClick);
-  },
-  editTitleKeypress(e) {
-    <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">'Enter'</span>) {
-      e.preventDefault();
-      $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.classified-manifest'</span>).find(<span class="hljs-string">'.classified-manifest__title-save'</span>)
-      .click();
-    }
-  },
+    DOM.init();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Set terms
+DOM.$deleteModalHeading.html(<code>Are you sure you want to delete
+  this ${getTerm(&#39;derivedManifest&#39;, 0)}?</code>);
+DOM.$deleteModalStatus.html(<code>Deleting ${getTerm(&#39;derivedManifest&#39;, 0)}</code>);</p></div></div><div class="code"><div class="wrapper">    Events.init();
+  },</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>editTitleClick() {
+  // Cancel any other edit operations first
+  cancelEdits(true);</p>
+<p>  // Make the title editable
+  const $parentTitle = $(this).closest(&#39;.classified-manifest<strong>title&#39;);
+  $parentTitle.addClass(&#39;classified-manifest</strong>title--edit&#39;);</p>
+<p>  const $editableText = $parentTitle.find(&#39;.classified-manifest__title-text&#39;);</p>
+<p>  lastTitleText = $editableText.text();
+  $editableText.attr(&#39;contenteditable&#39;, &#39;true&#39;);
+  $editableText.focus();
+  $(&#39;body&#39;).click(Events.bodyClick);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>editTitleKeypress(e) {
+  if (e.key === &#39;Enter&#39;) {
+    e.preventDefault();
+    $(this).closest(&#39;.classified-manifest&#39;).find(&#39;.classified-manifest__title-save&#39;)
+    .click();
+  }</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span>
   getCreatedManifests() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>get the container in presley</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> collectionId = SortyConfiguration
-    .getCollectionUrl(manifestStore.getState().manifest);
-
+      .getCollectionUri(manifestStore.getState().manifest);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'delivered-manifests.Events.getCreatedManifests'</span>, collectionId);
     $.getJSON(collectionId)
         .done(Events.requestDerivedManifestsSuccess)
         .fail(Events.requestDerivedManifestsFailure);
   },
-  init() {
-    DOM.$classifiedMaterial.on(<span class="hljs-string">'click'</span>,
-    <span class="hljs-string">'.classified-manifest__title-edit, .classified-manifest__title-text'</span>,
-    Events.editTitleClick);
-    DOM.$classifiedMaterial.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'.classified-manifest__title-save'</span>, Events.saveTitleClick);
-    DOM.$classifiedMaterial.on(<span class="hljs-string">'keypress'</span>,
-    <span class="hljs-string">'.classified-manifest__title--edit .classified-manifest__title-text'</span>,
-    Events.editTitleKeypress
-    );
-    DOM.$classifiedMaterial.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'.classified-manifest'</span>, (e) =&gt; e.stopPropagation());
-    DOM.$classifiedMaterial.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'.action__publish'</span>, Events.publish);
-    DOM.$classifiedMaterial.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'.action__delete'</span>, Events.delete);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);</p></div></div><div class="code"><div class="wrapper">  },
+  init() {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>DOM.$classifiedMaterial.on(&#39;click&#39;,
+&#39;.classified-manifest<strong>title-edit, .classified-manifest</strong>title-text&#39;,
+Events.editTitleClick);
+DOM.$classifiedMaterial.on(&#39;click&#39;, &#39;.classified-manifest<strong>title-save&#39;, Events.saveTitleClick);
+DOM.$classifiedMaterial.on(&#39;keypress&#39;,
+&#39;.classified-manifest</strong>title--edit .classified-manifest__title-text&#39;,
+Events.editTitleKeypress
+);</p></div></div><div class="code"><div class="wrapper">    DOM.$classifiedMaterial.on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'.classified-manifest'</span>, (e) =&gt; e.stopPropagation());</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>DOM.$classifiedMaterial.on(&#39;click&#39;, &#39;.action<strong>publish&#39;, Events.publish);
+DOM.$classifiedMaterial.on(&#39;click&#39;, &#39;.action</strong>delete&#39;, Events.delete);
+DOM.$classifiedMaterial.magnificPopup(Config.deleteManifestModalOptions);</p></div></div><div class="code"><div class="wrapper">  },
   postError(xhr, textStatus, error) {
     <span class="hljs-built_in">console</span>.log(error);
   },
@@ -254,38 +244,50 @@ Edge case</p></div></div><div class="code"><div class="wrapper">    $(<span clas
   },
   postOmekaServiceError(xhr, textStatus, error) {
     <span class="hljs-built_in">console</span>.log(error);
-  },
-  publish(e) {
-    e.preventDefault();
-    <span class="hljs-keyword">const</span> $container = $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.classified-manifest'</span>);
-    <span class="hljs-keyword">const</span> manifestId = $container.attr(<span class="hljs-string">'data-id'</span>);
-    OmekaActions.pushToOmeka(manifestId)
-    .then(() =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>fulfilled</p></div></div><div class="code"><div class="wrapper">      OmekaActions.addOmekaService(manifestId).then(() =&gt; {
-        Events.getCreatedManifests();
-      });
-    },
-    () =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>rejected</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'failed to push to omeka'</span>);
-    });</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(manifestId);</p></div></div><div class="code"><div class="wrapper">  },
+  },</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>publish(e) {
+  e.preventDefault();</p>
+<p>  const oldHtml = $(this).html();
+  $(this).html(&#39;loading...&#39;);
+  getOmekaToken().then(({ accessToken }) =&gt; {
+    const $container = $(this).closest(&#39;.classified-manifest&#39;);
+    const manifestId = $container.attr(&#39;data-id&#39;);
+    OmekaActions.pushToOmeka(manifestId, accessToken)
+      .then(() =&gt; {
+          // fulfilled
+          OmekaActions.addOmekaService(manifestId).then(() =&gt; {
+            Events.getCreatedManifests();
+            $(this).html(oldHtml);
+          });
+        },
+        () =&gt; {
+          // rejected
+          console.log(&#39;failed to push to omeka&#39;);
+          // At the end.
+          $(this).html(&#39;Failed to push to Omeka&#39;);
+        });
+  });</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span>
   putError(xhr, textStatus, error) {
-    alert(error);
+    <span class="hljs-built_in">console</span>.log(error);
   },
   putSuccess() {
     <span class="hljs-keyword">const</span> manifest = store.getState().selectedCollection.collectionManifest;
     <span class="hljs-keyword">const</span> newManifestInstance = <span class="hljs-built_in">Object</span>.assign({}, manifest);
     newManifestInstance.sequences = <span class="hljs-literal">null</span>;
     newManifestInstance.service = <span class="hljs-literal">null</span>;
-    IIIFActions.postManifest(
+    IIIFActions.postCollection(
       manifest,
-      SortyConfiguration.getCollectionUrl(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionUri(manifestStore.getState().manifest),
+      SortyConfiguration.getCollectionAddUrl(),
       Events.postSuccess,
       Events.postError
     );
   },
   requestDerivedManifestsFailure() {
-    manifestStore.dispatch(resetDerivedManifests());</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>If there&#39;s no derived manifest - just show the list</p></div></div><div class="code"><div class="wrapper">    $(<span class="hljs-string">'html'</span>).addClass(<span class="hljs-string">'manifest-loaded'</span>);
+    manifestStore.dispatch(resetDerivedManifests());</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>If there&#39;s no derived manifest - just show the list</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'requestDerivedManifestsFailure'</span>);
+    $(<span class="hljs-string">'html'</span>).addClass(<span class="hljs-string">'manifest-loaded'</span>);
   },
-  requestDerivedManifestsSuccess(collection) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>IIIF.wrap(collection);
-console.log(&#39;Request derived manifests success&#39;, collection);</p></div></div><div class="code"><div class="wrapper">    manifestStore.dispatch(setDerivedManifests(collection));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;RDMS&#39;, collection);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> promises = [];
+  requestDerivedManifestsSuccess(collection) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>IIIF.wrap(collection);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'requestDerivedManifestsSuccess'</span>, collection);
+    manifestStore.dispatch(setDerivedManifests(collection));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;RDMS&#39;, collection);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">const</span> promises = [];
     <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> dm <span class="hljs-keyword">of</span> collection.members) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;dm&#39;, dm);</p></div></div><div class="code"><div class="wrapper">      promises.push(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>((resolve, reject) =&gt; {
         $.getJSON(dm[<span class="hljs-string">'@id'</span>])
         .done(resolve)
@@ -321,26 +323,34 @@ console.log(&#39;Request derived manifests success&#39;, collection);</p></div><
       <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Promise fail'</span>, reason);
     });
     $(viewManifest).click(Events.viewManifestClick);
-  },
-  saveTitleClick() {
-    <span class="hljs-keyword">const</span> $parentTitle = $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.classified-manifest__title'</span>);
-    <span class="hljs-keyword">const</span> $container = $(<span class="hljs-keyword">this</span>).closest(<span class="hljs-string">'.classified-manifest'</span>);
-    <span class="hljs-keyword">const</span> $editableText = $parentTitle.find(<span class="hljs-string">'.classified-manifest__title-text'</span>);
-    <span class="hljs-keyword">const</span> manifestId = $container.attr(<span class="hljs-string">'data-id'</span>);
-    <span class="hljs-keyword">const</span> titleText = $editableText.text();
-    <span class="hljs-keyword">const</span> derivedManifests = manifestStore.getState().derivedManifestsComplete;
-    <span class="hljs-keyword">let</span> manifestToUpdate = <span class="hljs-literal">null</span>;
-    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> dm <span class="hljs-keyword">of</span> derivedManifests) {
-      <span class="hljs-keyword">if</span> (dm[<span class="hljs-string">'@id'</span>] === manifestId) {
-        manifestToUpdate = dm;
-        <span class="hljs-keyword">break</span>;
-      }
+  },</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>saveTitleClick() {
+  const $parentTitle = $(this).closest(&#39;.classified-manifest<strong>title&#39;);
+  const $container = $(this).closest(&#39;.classified-manifest&#39;);
+  const $editableText = $parentTitle.find(&#39;.classified-manifest</strong>title-text&#39;);
+  const manifestId = $container.attr(&#39;data-id&#39;);
+  const titleText = $editableText.text();
+  const derivedManifests = manifestStore.getState().derivedManifestsComplete;
+  let manifestToUpdate = null;
+  for (const dm of derivedManifests) {
+    if (dm[&#39;@id&#39;] === manifestId) {
+      manifestToUpdate = dm;
+      break;
     }
-    <span class="hljs-keyword">if</span> (manifestToUpdate !== <span class="hljs-literal">null</span>) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Update label</p></div></div><div class="code"><div class="wrapper">      manifestToUpdate.label = titleText;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Set saving state</p></div></div><div class="code"><div class="wrapper">      $container.addClass(<span class="hljs-string">'classified-manifest--saving-label'</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Store new manifest</p></div></div><div class="code"><div class="wrapper">      store.dispatch(setCollectionManifest(manifestToUpdate));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>RE-PUT</p></div></div><div class="code"><div class="wrapper">      IIIFActions.putManifest(manifestToUpdate, Events.putSuccess, Events.putError);
-    } <span class="hljs-keyword">else</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Cancel edit</p></div></div><div class="code"><div class="wrapper">      cancelEdits(<span class="hljs-literal">true</span>);
-    }
-    $(<span class="hljs-string">'body'</span>).off(<span class="hljs-string">'click'</span>, Events.bodyClick);
-  },
+  }
+  if (manifestToUpdate !== null) {
+    // Update label
+    manifestToUpdate.label = titleText;
+    // Set saving state
+    $container.addClass(&#39;classified-manifest--saving-label&#39;);
+    // Store new manifest
+    store.dispatch(setCollectionManifest(manifestToUpdate));
+    // RE-PUT
+    IIIFActions.addUpdateManifest(manifestToUpdate, Events.putSuccess, Events.putError);
+  } else {
+    // Cancel edit
+    cancelEdits(true);
+  }
+  $(&#39;body&#39;).off(&#39;click&#39;, Events.bodyClick);</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-comment">// ,</span>
   subscribeActions() {
     <span class="hljs-keyword">const</span> derivedState = manifestStore.getState();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;DM - subscribe&#39;, lastLocalState, derivedState);</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">if</span> (hasPropertyChanged(<span class="hljs-string">'derivedManifests'</span>, derivedState, lastLocalState)) {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>console.log(&#39;DM - changed&#39;, derivedState);</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">if</span> (derivedState.derivedManifests.length) {
         <span class="hljs-keyword">const</span> derivedManifestList = derivedState.derivedManifests;

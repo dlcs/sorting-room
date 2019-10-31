@@ -36,14 +36,14 @@ const DOM = {
 
 const storeCollectionData = (data) => {
   // Try and add to localStorage with a timestamp
-  try {
-    localStorage.setItem('collectionData', JSON.stringify({
-      raw: data,
-      timestamp: new Date(),
-    }));
-  } catch (e) {
-    console.log(e, 'localStorage not supported for setItem');
-  }
+  // try {
+  //   localStorage.setItem('collectionData', JSON.stringify({
+  //     raw: data,
+  //     timestamp: new Date(),
+  //   }));
+  // } catch (e) {
+  //   console.log(e, 'localStorage not supported for setItem');
+  // }
   store.dispatch(setSourceManifests(data));
 };
 

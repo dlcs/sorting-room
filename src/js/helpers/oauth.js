@@ -2,7 +2,7 @@ import {SortyConfiguration} from "../config/config";
 
 const omekaAuthEndpoint = SortyConfiguration.oauthSiteEndpoint;
 const clientId = SortyConfiguration.oauthClientId;
-const redirect = location.origin + '/cb.html';
+const redirect = SortyConfiguration.oauthCallback;
 const omekaTokenStore = {current: null, expires: null, hasExpired: true};
 
 function getOmekaToken() {
